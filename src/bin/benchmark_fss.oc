@@ -19,10 +19,11 @@ void benchmark_fss(void *vargs) {
   // create fss object
   fss_cprg *fss = fss_cprg_new(args->len, 1);
 
-  // get blockvector
+  // run multiple iterations and average running time
   double start = wallclock_millis();
   for(size_t i = 0; i < args->num_iterations; i++) {
-    size_t index = (args->len / 3); // arbitrary
+    size_t index = (args->len / 3) + i; // arbitrary
+    // get blockvector
     fss_cprg_getblockvector(active_block_delta, y, bits, fss, index);
   }
   double end = wallclock_millis();
