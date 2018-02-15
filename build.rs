@@ -6,7 +6,7 @@ use std::path::PathBuf;
 fn main() {
     let out_dir = PathBuf::from(env::var("OUT_DIR").unwrap());
 
-    // Compile `millionaire.oc` using oblivcc
+    // Compile using oblivcc
     oblivc::compiler()
         .file("src/bin/benchmark_fss.oc")
         .include("src")
@@ -14,8 +14,7 @@ fn main() {
         .define("_Float128", "double")
         .compile("benchmark_fss");
 
-    // Generate Rust bindings for the Obliv-C function and struct in `millionaire.h`, then
-    // write them to `OUT_DIR/millionaire.rs`.
+    // Generate Rust bindings for the Obliv-C function
     oblivc::bindings()
         .header("src/bin/benchmark_fss.h")
         .whitelist_type("BenchmarkFSSArgs")
