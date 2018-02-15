@@ -8,7 +8,7 @@ fn main() {
 
     // Compile using oblivcc
     oblivc::compiler()
-        .file("src/bin/benchmark_fss.oc")
+        .file("src/oblivc/benchmark_fss.oc")
         .include("src")
         .include(env::var("DEP_ACK_INCLUDE").unwrap())
         .define("_Float128", "double")
@@ -16,13 +16,13 @@ fn main() {
 
     // Generate Rust bindings for the Obliv-C function
     oblivc::bindings()
-        .header("src/bin/benchmark_fss.h")
+        .header("src/oblivc/benchmark_fss.h")
         .whitelist_type("BenchmarkFSSArgs")
         .whitelist_function("benchmark_fss")
         .generate().unwrap()
         .write_to_file(out_dir.join("benchmark_fss.rs")).unwrap();
 
     // Rebuild if either of the files change
-    println!("cargo:rerun-if-changed=src/bin/benchmark_fss.h");
-    println!("cargo:rerun-if-changed=src/bin/benchmark_fss.oc");
+    println!("cargo:rerun-if-changed=src/oblivc/benchmark_fss.h");
+    println!("cargo:rerun-if-changed=src/oblivc/benchmark_fss.oc");
 }
