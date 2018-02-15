@@ -6,6 +6,7 @@ authors = ["Phillipp Schoppmann <schoppmann@informatik.hu-berlin.de>"]
 [dependencies]
 oblivc = "0.1.1"
 liback-sys = { path = "liback-sys" }
+time = "0.1"
 
 [build-dependencies]
 oblivc = "0.1.1"

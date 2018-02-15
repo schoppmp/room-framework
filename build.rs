@@ -11,6 +11,7 @@ fn main() {
         .file("src/bin/benchmark_fss.oc")
         .include("src")
         .include(env::var("DEP_ACK_INCLUDE").unwrap())
+        .define("_Float128", "double")
         .compile("benchmark_fss");
 
     // Generate Rust bindings for the Obliv-C function and struct in `millionaire.h`, then
@@ -23,6 +24,6 @@ fn main() {
         .write_to_file(out_dir.join("benchmark_fss.rs")).unwrap();
 
     // Rebuild if either of the files change
-    println!("cargo:rerun-if-changed=src/benchmark_fss.h");
-    println!("cargo:rerun-if-changed=src/benchmark_fss.oc");
+    println!("cargo:rerun-if-changed=src/bin/benchmark_fss.h");
+    println!("cargo:rerun-if-changed=src/bin/benchmark_fss.oc");
 }
