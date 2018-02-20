@@ -38,4 +38,5 @@ void benchmark_fss(void *vargs) {
   free(y);
   free(bits);
   free(active_block_delta);
+  fss_cprg_free(fss);
 }
