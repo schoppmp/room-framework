@@ -1,13 +1,7 @@
 #include "oram_fssl/fss_cprg.oh"
 #include "oram_fssl/floram.h"
 #include "benchmark_fss.h"
-#include <time.h>
-
-double wallclock_millis() {
-  struct timespec t;
-  clock_gettime(CLOCK_REALTIME,&t);
-  return 1e3*t.tv_sec+1e-6*t.tv_nsec;
-}
+#include "benchmark_common.h"
 
 void benchmark_fss(void *vargs) {
   struct BenchmarkFSSArgs *args = vargs;
@@ -27,7 +21,7 @@ void benchmark_fss(void *vargs) {
     fss_cprg_getblockvector(active_block_delta, y, bits, fss, index);
   }
   double end = wallclock_millis();
-  args->result_time = (end - start) / args->num_iterations;
+  args->result_time = (end - start);
 
   // // check if result looks correct
   // bool at_index, not_at_index;

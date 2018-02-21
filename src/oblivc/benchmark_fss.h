@@ -1,9 +1,10 @@
+#pragma once
 #include <stdint.h>
 #include <stddef.h>
 
 struct BenchmarkFSSArgs {
-  size_t len;
-  size_t num_iterations;
+  const size_t len;
+  const size_t num_iterations;
   double result_time;
 };
 
