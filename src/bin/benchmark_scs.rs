@@ -9,36 +9,39 @@ pub mod oblivc_impl {
 use self::oblivc_impl::*;
 
 fn main() {
-    for len in (10..21).map(|x| 1<<x) {
-        println!("len = {}", len);
-        let len2 = len;
-        let server = ::std::thread::spawn(move || {
-            let set2 : Vec<u32> = ((len2/2)..(len2+len2/2)).collect();
+    static NUM_EXPERIMENTS: usize = 3;
+    for len in (1..).map(|x| 1000 * x) {
+        for _ in 0..NUM_EXPERIMENTS {
+            println!("len = {}", len);
+            let len2 = len;
+            let server = ::std::thread::spawn(move || {
+                let set2 : Vec<u32> = ((len2/2)..(len2+len2/2)).collect();
+                let mut args = BenchmarkSCSArgs{
+                    len: len2 as usize,
+                    values: set2.as_ptr(),
+                    result_time: 0.
+                };
+                let pd = oblivc::protocol_desc()
+                    .party(1)
+                    .accept(format!("{}", 37845)).unwrap();
+                unsafe {
+                    pd.exec_yao_protocol(benchmark_scs, &mut args);
+                }
+            });
+            let set : Vec<u32> = (0..len).collect();
             let mut args = BenchmarkSCSArgs{
-                len: len2 as usize,
-                values: set2.as_ptr(),
+                len: len as usize,
+                values: set.as_ptr(),
                 result_time: 0.
             };
             let pd = oblivc::protocol_desc()
-                .party(1)
-                .accept(format!("{}", 37845)).unwrap();
+                .party(2)
+                .connect("localhost", format!("{}", 37845)).unwrap();
             unsafe {
                 pd.exec_yao_protocol(benchmark_scs, &mut args);
             }
-        });
-        let set : Vec<u32> = (0..len).collect();
-        let mut args = BenchmarkSCSArgs{
-            len: len as usize,
-            values: set.as_ptr(),
-            result_time: 0.
-        };
-        let pd = oblivc::protocol_desc()
-            .party(2)
-            .connect("localhost", format!("{}", 37845)).unwrap();
-        unsafe {
-            pd.exec_yao_protocol(benchmark_scs, &mut args);
+            server.join().unwrap();
+            println!("Time (ms): {}", args.result_time);
         }
-        server.join().unwrap();
-        println!("Time (ms): {}", args.result_time);
     }
 }
