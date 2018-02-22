@@ -5,6 +5,7 @@
 
 void benchmark_fss(void *vargs) {
   struct BenchmarkFSSArgs *args = vargs;
+  double start = wallclock_millis();
 
   uint8_t *y = calloc(args->len, BLOCKSIZE);
   bool *bits = calloc(args->len,  sizeof(bool));
@@ -14,7 +15,6 @@ void benchmark_fss(void *vargs) {
   fss_cprg *fss = fss_cprg_new(args->len, 1);
 
   // run multiple iterations and average running time
-  double start = wallclock_millis();
   for(size_t i = 0; i < args->num_iterations; i++) {
     size_t index = (args->len / 3) + i; // arbitrary
     // get blockvector

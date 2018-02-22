@@ -14,6 +14,7 @@ fn main() {
         .include("src")
         .include(env::var("DEP_ACK_INCLUDE").unwrap())
         .define("_Float128", "double") // workaround for https://github.com/samee/obliv-c/issues/48
+        .flag_if_supported("-Wno-unused-parameter") // silence compiler warnings about Obliv-C headers
         .compile("benchmarks");
 
     // Generate Rust bindings for the Obliv-C function

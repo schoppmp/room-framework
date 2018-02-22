@@ -9,8 +9,8 @@ pub mod oblivc_impl {
 use self::oblivc_impl::*;
 
 fn main() {
-    static NUM_EXPERIMENTS: usize = 3;
-    for len in (1..).map(|x| 1000 * x) {
+    static NUM_EXPERIMENTS: usize = 2;
+    for len in (1..).map(|x| 1<<x) {
         for _ in 0..NUM_EXPERIMENTS {
             println!("len = {}", len);
             let len2 = len;
