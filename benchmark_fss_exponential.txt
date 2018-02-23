@@ -1125,3 +1125,12 @@ len_client = 262144
 Time (ms): 3590235.3247070313
 len_server = 32768
 len_client = 262144
+Time (ms): 3842481.2421875
+len_server = 65536
+len_client = 262144
+Time (ms): 3915582.5239257813
+len_server = 131072
+len_client = 262144
+Time (ms): 4657429.164306641
+len_server = 262144
+len_client = 262144
