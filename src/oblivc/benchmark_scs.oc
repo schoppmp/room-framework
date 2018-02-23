@@ -1,5 +1,6 @@
 #include "obliv.oh"
 #include "osort.oh"
+#include "shuffle.oh"
 #include "benchmark_scs.h"
 #include "benchmark_common.h"
 
@@ -82,8 +83,8 @@ void benchmark_scs(void *vargs) {
     }
   }
 
-  // Ideally, this would be a shuffle, but the ACK shuffle breaks on my laptop.
-  osort_batcher(&ocCopyInt, M, len1+len2, cmp_uint32);
+  obliv int *perm_out = calloc(len1+len2, sizeof(obliv int));
+  ocShuffleData(&ocCopyInt, M, len1+len2, perm_out, 1);
 
   // size_t intersection_size;
   // revealOblivLLong(&intersection_size, count_intersection, 0);
@@ -103,4 +104,5 @@ void benchmark_scs(void *vargs) {
 
   free(L);
   free(M);
+  free(perm_out);
 }
