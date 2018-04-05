@@ -6,4 +6,4 @@
 	url = git@github.com:schoppmp/mpc-utils.git
 [submodule "lib/fastpoly"]
 	path = lib/fastpoly
-	url = https://github.com/schoppmp/FastPolynomial/
+	url = git@github.com:schoppmp/FastPolynomial.git
