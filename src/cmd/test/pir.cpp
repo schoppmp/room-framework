@@ -4,6 +4,17 @@
 #include "mpc-utils/boost_serialization.hpp"
 #include <NTL/vector.h>
 #include <numeric>
+#include <chrono>
+#include <gcrypt.h>
+
+// used for time measurements
+template<class F>
+void benchmark(F f, const std::string& label) {
+  auto start = std::chrono::steady_clock::now();
+  f();
+  std::chrono::duration<double> d = std::chrono::steady_clock::now() - start;
+  std::cout << label << ": " << d.count() << "s\n";
+}
 
 // NTL-style interface for recursive interpolation
 void interpolate_recursive(
@@ -22,6 +33,23 @@ NTL::ZZ_pX interpolate_recursive(
   interpolate_recursive(f, a, b);
   return f;
 }
+void evaluate_recursive(
+  NTL::vec_ZZ_p& b,
+  const NTL::ZZ_pX& f,
+  const NTL::vec_ZZ_p& a
+) {
+  b.SetLength(a.length());
+  poly_evaluate_zp_recursive(NTL::deg(f), f, a.data(), b.data());
+}
+NTL::vec_ZZ_p evaluate_recursive(
+  const NTL::ZZ_pX& f,
+  const NTL::vec_ZZ_p& a
+) {
+  NTL::vec_ZZ_p b;
+  evaluate_recursive(b, f, a);
+  return b;
+}
+
 
 class test_pir_config : public virtual mpc_config {
 protected:
@@ -84,16 +112,46 @@ int main(int argc, const char **argv) {
       values_server.end(),
       [&]() { return primes.next(); }
     );
-    // interpolate polynomial
-    interpolate_recursive(poly_server, elements_server, values_server);
-    // TODO: interpolate with both methods and record timings
+
+    // encrypt server values
+    benchmark(
+      [&]{
+        gcry_cipher_hd_t handle;
+        size_t blockSize = gcry_cipher_get_algo_keylen(GCRY_CIPHER_AES128);
+        char key[blockSize];
+        gcry_randomize(key, blockSize, GCRY_STRONG_RANDOM);
+        gcry_control(GCRYCTL_DISABLE_SECMEM, 0);
+        gcry_control(GCRYCTL_INITIALIZATION_FINISHED, 0);
+        gcry_cipher_open(&handle, GCRY_CIPHER_AES128, GCRY_CIPHER_MODE_ECB, 0);
+        gcry_cipher_setkey(handle, key, blockSize);
+        for(size_t i = 0; i < values_server.length(); i++) {
+          uint32_t counter(i);
+          unsigned char buf[blockSize] = {0};
+          NTL::ZZ el;
+          NTL::conv(el, values_server[i]);
+          // TODO: we should be using "real" AES counter mode with a nonce
+          el <<= (conf.statistical_security + 8 * sizeof(counter));
+          if(NTL::NumBytes(el) > blockSize) {
+            BOOST_THROW_EXCEPTION(
+              std::runtime_error("Server value does not fit in plaintext space"));
+          }
+          NTL::BytesFromZZ(buf, el, blockSize);
+          gcry_cipher_encrypt(handle, buf, blockSize, nullptr, 0);
+          NTL::conv(values_server[i], NTL::ZZFromBytes(buf, blockSize));
+        }
+      }, "Encryption");
+    benchmark(
+      [&]{interpolate_recursive(poly_server, elements_server,values_server);},
+      "Interpolation"
+    );
     chan.send(poly_server);
   } else {
     chan.recv(poly_server);
-    // reconstruct server values
-    std::cout << NTL::eval(poly_server, elements_server);
-    // TODO: evaluate with both methods and record timings
+    NTL::Vec<NTL::ZZ_p> values_server;
+    // evaluate polynomial using fastpoly
+    benchmark(
+      [&]{evaluate_recursive(values_server, poly_server, elements_server);},
+      "Evaluation"
+    );
   }
-
-
 }

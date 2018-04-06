@@ -14,7 +14,7 @@ STATIC_FILES = $(foreach lib, $(LIBRARIES), $(LIBDIR)/$(lib)/lib$(lib).a)
 BINARIES = $(patsubst $(SRCDIR)/cmd/%.cpp, $(BINDIR)/%, $(SOURCES_BIN))
 
 LDFLAGS = $(STATIC_FILES) -lntl -lboost_program_options -lboost_serialization \
-	-lboost_system -lboost_thread -lboost_iostreams
+	-lboost_system -lboost_thread -lboost_iostreams -lgcrypt
 CXXFLAGS = -O3 -pthread -I$(SRCDIR) -I$(LIBDIR) -g -std=gnu++11\
 	-DMPC_UTILS_USE_NTL
 
