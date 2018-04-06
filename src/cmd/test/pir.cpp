@@ -38,8 +38,13 @@ void evaluate_recursive(
   const NTL::ZZ_pX& f,
   const NTL::vec_ZZ_p& a
 ) {
-  b.SetLength(a.length());
-  poly_evaluate_zp_recursive(NTL::deg(f), f, a.data(), b.data());
+  // recursive evaluation needs inputs to be of size degree + 1
+  NTL::vec_ZZ_p a2 = a;
+  size_t orig_length = a.length();
+  a2.SetLength(NTL::deg(f) + 1);
+  b.SetLength(a2.length());
+  poly_evaluate_zp_recursive(NTL::deg(f), f, a2.data(), b.data());
+  b.SetLength(orig_length);
 }
 NTL::vec_ZZ_p evaluate_recursive(
   const NTL::ZZ_pX& f,
@@ -99,11 +104,11 @@ int main(int argc, const char **argv) {
   // initialize 128-bit prime field (order (2^128 - 159))
   NTL::ZZ_p::init((NTL::ZZ(1) << 128) - 159);
 
-  NTL::ZZ_pX poly_server;
-  NTL::Vec<NTL::ZZ_p> elements_server;
-  elements_server.SetLength(conf.num_elements_server);
-  std::iota(elements_server.begin(), elements_server.end(), 0);
   if(party.get_id() == 0) {
+    NTL::ZZ_pX poly_server;
+    NTL::Vec<NTL::ZZ_p> elements_server;
+    elements_server.SetLength(conf.num_elements_server);
+    std::iota(elements_server.begin(), elements_server.end(), 0);
     // generate server values (just take the first N primes for now)
     NTL::Vec<NTL::ZZ_p> values_server(elements_server);
     NTL::PrimeSeq primes;
@@ -114,23 +119,24 @@ int main(int argc, const char **argv) {
     );
 
     // encrypt server values
+    gcry_cipher_hd_t handle;
+    size_t blockSize = gcry_cipher_get_algo_keylen(GCRY_CIPHER_AES128);
+    std::vector<uint8_t> key(blockSize);
+    gcry_randomize(key.data(), blockSize, GCRY_STRONG_RANDOM);
+    gcry_control(GCRYCTL_DISABLE_SECMEM, 0);
+    gcry_control(GCRYCTL_INITIALIZATION_FINISHED, 0);
+    gcry_cipher_open(&handle, GCRY_CIPHER_AES128, GCRY_CIPHER_MODE_ECB, 0);
+    gcry_cipher_setkey(handle, key.data(), blockSize);
     benchmark(
       [&]{
-        gcry_cipher_hd_t handle;
-        size_t blockSize = gcry_cipher_get_algo_keylen(GCRY_CIPHER_AES128);
-        char key[blockSize];
-        gcry_randomize(key, blockSize, GCRY_STRONG_RANDOM);
-        gcry_control(GCRYCTL_DISABLE_SECMEM, 0);
-        gcry_control(GCRYCTL_INITIALIZATION_FINISHED, 0);
-        gcry_cipher_open(&handle, GCRY_CIPHER_AES128, GCRY_CIPHER_MODE_ECB, 0);
-        gcry_cipher_setkey(handle, key, blockSize);
         for(size_t i = 0; i < values_server.length(); i++) {
-          uint32_t counter(i);
+          uint32_t counter(NTL::conv<uint32_t>(elements_server[i]));
           unsigned char buf[blockSize] = {0};
           NTL::ZZ el;
           NTL::conv(el, values_server[i]);
           // TODO: we should be using "real" AES counter mode with a nonce
           el <<= (conf.statistical_security + 8 * sizeof(counter));
+          el += counter;
           if(NTL::NumBytes(el) > blockSize) {
             BOOST_THROW_EXCEPTION(
               std::runtime_error("Server value does not fit in plaintext space"));
@@ -140,18 +146,65 @@ int main(int argc, const char **argv) {
           NTL::conv(values_server[i], NTL::ZZFromBytes(buf, blockSize));
         }
       }, "Encryption");
+    // interpolate polynomial using fastpoly
     benchmark(
       [&]{interpolate_recursive(poly_server, elements_server,values_server);},
       "Interpolation"
     );
     chan.send(poly_server);
+    chan.send(key);
   } else {
+    NTL::ZZ_pX poly_server;
+    std::vector<uint8_t> key;
     chan.recv(poly_server);
-    NTL::Vec<NTL::ZZ_p> values_server;
+    chan.recv(key);
+    // generate client elements with fixed overlap for testing
+    NTL::Vec<NTL::ZZ_p> elements_client;
+    elements_client.SetLength(conf.num_elements_client);
+    ssize_t overlap = std::min(conf.num_elements_server, ssize_t(3));
+    std::iota(elements_client.begin(), elements_client.end(),
+      conf.num_elements_server - overlap);
     // evaluate polynomial using fastpoly
+    NTL::Vec<NTL::ZZ_p> values_client;
     benchmark(
-      [&]{evaluate_recursive(values_server, poly_server, elements_server);},
+      // TODO: switch between NTL and recursive evaluation depending on
+      // conf.num_elements_client
+      [&]{NTL::eval(values_client, poly_server, elements_client);},
+      // [&]{evaluate_recursive(values_client, poly_server, elements_client);},
       "Evaluation"
     );
+    // decrypt; this will be done in MPC in the final protocol
+    size_t count_matching = 0;
+    gcry_cipher_hd_t handle;
+    size_t blockSize = gcry_cipher_get_algo_keylen(GCRY_CIPHER_AES128);
+    gcry_control(GCRYCTL_DISABLE_SECMEM, 0);
+    gcry_control(GCRYCTL_INITIALIZATION_FINISHED, 0);
+    gcry_cipher_open(&handle, GCRY_CIPHER_AES128, GCRY_CIPHER_MODE_ECB, 0);
+    gcry_cipher_setkey(handle, key.data(), blockSize);
+    benchmark(
+      [&]{
+        for(size_t i = 0; i < values_client.length(); i++) {
+          uint32_t counter(NTL::conv<uint32_t>(elements_client[i]));
+          unsigned char buf[blockSize] = {0};
+          NTL::ZZ el;
+          NTL::conv(el, values_client[i]);
+          if(NTL::NumBytes(el) > blockSize) {
+            BOOST_THROW_EXCEPTION(
+              std::runtime_error("Client value does not fit in plaintext space"));
+          }
+          NTL::BytesFromZZ(buf, el, blockSize);
+          gcry_cipher_decrypt(handle, buf, blockSize, nullptr, 0);
+          NTL::ZZFromBytes(el, buf, blockSize);
+          el >>= (8 * sizeof(counter));
+          if(el % (NTL::ZZ(1) << conf.statistical_security) == 0) {
+            count_matching++;
+          }
+        }
+      }, "Decryption"
+    );
+    if(count_matching != std::min(overlap, values_client.length())) {
+      BOOST_THROW_EXCEPTION(
+        std::runtime_error("Intersection size does not match"));
+    }
   }
 }
