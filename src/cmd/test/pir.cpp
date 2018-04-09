@@ -6,6 +6,9 @@
 #include <numeric>
 #include <chrono>
 #include <gcrypt.h>
+extern "C" {
+  #include "oblivc/pir.h"
+}
 
 // used for time measurements
 template<class F>
@@ -153,6 +156,26 @@ int main(int argc, const char **argv) {
     );
     chan.send(poly_server);
     chan.send(key);
+
+    // set up inputs for obliv-c
+    std::vector<pir_value> result(conf.num_elements_client);
+    pir_args args = {
+      .input_length = blockSize,
+      .input = key.data(),
+      .result = result.data()
+    };
+
+    // run yao's protocol using Obliv-C
+    ProtocolDesc pd;
+    if(chan.connect_to_oblivc(pd) == -1) {
+      BOOST_THROW_EXCEPTION(std::runtime_error("Obliv-C: Connection failed"));
+    }
+    setCurrentParty(&pd, 1);
+    execYaoProtocol(&pd, pir_protocol_main, &args);
+    cleanupProtocol(&pd);
+
+    chan.send(result);
+
   } else {
     NTL::ZZ_pX poly_server;
     std::vector<uint8_t> key;
@@ -173,35 +196,40 @@ int main(int argc, const char **argv) {
       // [&]{evaluate_recursive(values_client, poly_server, elements_client);},
       "Evaluation"
     );
-    // decrypt; this will be done in MPC in the final protocol
-    size_t count_matching = 0;
-    gcry_cipher_hd_t handle;
+
+    // set up inputs for obliv-c
     size_t blockSize = gcry_cipher_get_algo_keylen(GCRY_CIPHER_AES128);
-    gcry_control(GCRYCTL_DISABLE_SECMEM, 0);
-    gcry_control(GCRYCTL_INITIALIZATION_FINISHED, 0);
-    gcry_cipher_open(&handle, GCRY_CIPHER_AES128, GCRY_CIPHER_MODE_ECB, 0);
-    gcry_cipher_setkey(handle, key.data(), blockSize);
-    benchmark(
-      [&]{
-        for(size_t i = 0; i < values_client.length(); i++) {
-          uint32_t counter(NTL::conv<uint32_t>(elements_client[i]));
-          unsigned char buf[blockSize] = {0};
-          NTL::ZZ el;
-          NTL::conv(el, values_client[i]);
-          if(NTL::NumBytes(el) > blockSize) {
-            BOOST_THROW_EXCEPTION(
-              std::runtime_error("Client value does not fit in plaintext space"));
-          }
-          NTL::BytesFromZZ(buf, el, blockSize);
-          gcry_cipher_decrypt(handle, buf, blockSize, nullptr, 0);
-          NTL::ZZFromBytes(el, buf, blockSize);
-          el >>= (8 * sizeof(counter));
-          if(el % (NTL::ZZ(1) << conf.statistical_security) == 0) {
-            count_matching++;
-          }
-        }
-      }, "Decryption"
-    );
+    std::vector<uint8_t> ciphertexts_client(values_client.length() * blockSize);
+    std::vector<pir_value> result(values_client.length());
+    pir_args args = {
+      .input_length = size_t(values_client.length()),
+      .input = ciphertexts_client.data(),
+      .result = result.data()
+    };
+    // serialize ciphertexts
+    for(size_t i = 0; i < values_client.length(); i++) {
+      NTL::BytesFromZZ(ciphertexts_client.data() + i * blockSize,
+        NTL::conv<NTL::ZZ>(values_client[i]), blockSize);
+    }
+
+    // run yao's protocol using Obliv-C
+    ProtocolDesc pd;
+    if(chan.connect_to_oblivc(pd) == -1) {
+      BOOST_THROW_EXCEPTION(std::runtime_error("Obliv-C: Connection failed"));
+    }
+    setCurrentParty(&pd, 2);
+    execYaoProtocol(&pd, pir_protocol_main, &args);
+    cleanupProtocol(&pd);
+
+    std::vector<pir_value> result_server;
+    chan.recv(result_server);
+    size_t count_matching = 0;
+    for(size_t i = 0; i < result.size(); i++) {
+      if(result[i] + result_server[i] != 0) {
+        count_matching++;
+      }
+    }
+
     if(count_matching != std::min(overlap, values_client.length())) {
       BOOST_THROW_EXCEPTION(
         std::runtime_error("Intersection size does not match"));

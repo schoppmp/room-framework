@@ -1,6 +1,6 @@
-SRCDIR=src
-LIBDIR=lib
-BINDIR=bin
+SRCDIR=$(PWD)/src
+LIBDIR=$(PWD)/lib
+BINDIR=$(PWD)/bin
 
 SOURCES := $(shell find -L $(SRCDIR) -type f -name '*.cpp' -not -path '*/cmd/*')
 OBJECTS := $(patsubst %.cpp, %.o, $(SOURCES))
@@ -9,18 +9,20 @@ OBJECTS_OBLIVC := $(patsubst %.oc, %.oo, $(SOURCES_OBLIVC))
 SOURCES_BIN := $(shell find -L $(SRCDIR)/cmd -type f -name '*.cpp')
 OBJECTS_BIN := $(patsubst %.cpp, %.o, $(SOURCES_BIN))
 
-LIBRARIES = fastpoly mpc-utils obliv-c
+LIBRARIES = fastpoly mpc-utils obliv-c ack
 STATIC_FILES = $(foreach lib, $(LIBRARIES), $(LIBDIR)/lib$(lib).a)
 BINARIES = $(patsubst $(SRCDIR)/cmd/%.cpp, $(BINDIR)/%, $(SOURCES_BIN))
 
-OBLIVC_PATH = $(LIBDIR)/obliv-c
+export OBLIVC_PATH = $(LIBDIR)/obliv-c
 OBLIVCC = $(OBLIVC_PATH)/bin/oblivcc
 
 LDFLAGS = $(STATIC_FILES) -lntl -lboost_program_options -lboost_serialization \
 	-lboost_system -lboost_thread -lboost_iostreams -lgcrypt
-CXXFLAGS = -O3 -pthread -I$(SRCDIR) -I$(LIBDIR) -g -std=gnu++11\
+INCLUDES = -I$(SRCDIR) -I$(LIBDIR) -I$(LIBDIR)/obliv-c/src/ext/oblivc \
+	-I$(LIBDIR)/absentminded-crypto-kit/src
+export CXXFLAGS = -O3 -pthread -g -std=gnu++11 $(INCLUDES) \
 	-DMPC_UTILS_USE_NTL -DMPC_UTILS_USE_OBLIVC \
-	-I$(LIBDIR)/obliv-c/src/ext/oblivc
+
 
 all: $(BINARIES)
 
@@ -42,7 +44,7 @@ $(STATIC_FILES):
 
 $(BINDIR)/%: $(OBJECTS) $(OBJECTS_OBLIVC) $(SRCDIR)/cmd/%.o | $(STATIC_FILES)
 	@mkdir -p $(@D)
-	$(CXX) $(CXXFLAGS) $(OBJECTS) $(OBJECTS_OBLIVC) $(SRCDIR)/cmd/$*.o -o $@ $(LDFLAGS)
+	$(CXX) $(CXXFLAGS) -o $@ $^ $(LDFLAGS)
 
 # do not delete intermediate objects
 .SECONDARY: $(OBJECTS) $(OBJECTS_BIN) $(OBJECTS_OBLIVC)
