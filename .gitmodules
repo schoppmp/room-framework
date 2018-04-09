@@ -7,3 +7,6 @@
 [submodule "lib/fastpoly"]
 	path = lib/fastpoly
 	url = git@github.com:schoppmp/FastPolynomial.git
+[submodule "lib/obliv-c"]
+	path = lib/obliv-c
+	url = git@github.com:samee/obliv-c.git
