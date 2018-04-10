@@ -1,6 +1,65 @@
 #include "pir.h"
-#include "oaes.oh"
+#include <oaes.oh>
+#include <bcrandom.h>
 
 void pir_protocol_main(void *vargs) {
   pir_args *args = vargs;
+
+  // get party inputs
+  size_t block_size = ocBroadcastLLong(args->input_size, 1);
+  size_t ciphertexts_size = ocBroadcastLLong(args->input_size, 2);
+  // always pairs of blocks (ciphertext, counter)
+  size_t num_ciphertexts = (ciphertexts_size / block_size) / 2;
+  obliv uint8_t *ciphertexts = calloc(ciphertexts_size, sizeof(obliv uint8_t));
+  obliv uint8_t *key = calloc(176, sizeof(obliv uint8_t));
+  feedOblivCharArray(ciphertexts, args->input, ciphertexts_size, 2);
+  feedOblivCharArray(key, args->input, block_size, 1);
+
+  // decrypt
+  oaes_128_expandkey(key);
+  obliv uint8_t *plaintexts = calloc(ciphertexts_size/2, sizeof(obliv uint8_t));
+  for(size_t i = 0; i < num_ciphertexts; i++) {
+    // encrypt counter and xor to ciphertext
+    oaes_128_from_expanded(plaintexts + i*block_size, key, ciphertexts + (i*2+1)*block_size);
+    for(size_t j = 0; j < block_size; j++) {
+      plaintexts[i*block_size + j] ^= ciphertexts[i*2*block_size + j];
+    }
+  }
+
+  // create shares
+  if(ocCurrentParty() == 1) {
+    BCipherRandomGen* rand = newBCipherRandomGen();
+    randomizeBuffer(rand, args->result, num_ciphertexts * sizeof(pir_value));
+    releaseBCipherRandomGen(rand);
+  }
+  obliv pir_value *result1 = calloc(num_ciphertexts, sizeof(obliv pir_value));
+  obliv pir_value *result2 = calloc(num_ciphertexts, sizeof(obliv pir_value));
+  feedOblivCharArray(result1, args->result,
+    num_ciphertexts * sizeof(pir_value), 1);
+  for(size_t i = 0; i < num_ciphertexts; i++) {
+    obliv bool ok = 1;
+    obliv pir_value val = 0;
+    // check if decryption was successful
+    for(size_t j = 0; j < args->statistical_security / 8; j++) {
+      ok &= (plaintexts[i*block_size + j] == 0);
+    }
+    size_t offset = args->statistical_security / 8;
+    obliv if(ok) {
+      for(size_t j = 0; j < sizeof(pir_value); j++) {
+        // xor works since val is initialized to zero
+        val ^= (((obliv pir_value) plaintexts[i*block_size + offset + j])
+          << (8*j));
+      }
+    }
+    result2[i] = val - result1[i];
+  }
+  revealOblivCharArray(args->result, result2,
+    num_ciphertexts * sizeof(pir_value), 2);
+
+  oflush(ocCurrentProto());
+  free(result1);
+  free(result2);
+  free(ciphertexts);
+  free(plaintexts);
+  free(key);
 }

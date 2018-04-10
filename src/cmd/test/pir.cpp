@@ -123,30 +123,32 @@ int main(int argc, const char **argv) {
 
     // encrypt server values
     gcry_cipher_hd_t handle;
-    size_t blockSize = gcry_cipher_get_algo_keylen(GCRY_CIPHER_AES128);
-    std::vector<uint8_t> key(blockSize);
-    gcry_randomize(key.data(), blockSize, GCRY_STRONG_RANDOM);
+    size_t block_size = gcry_cipher_get_algo_keylen(GCRY_CIPHER_AES128);
+    std::vector<uint8_t> key(block_size, 0);
+    gcry_randomize(key.data(), block_size, GCRY_STRONG_RANDOM);
     gcry_control(GCRYCTL_DISABLE_SECMEM, 0);
     gcry_control(GCRYCTL_INITIALIZATION_FINISHED, 0);
-    gcry_cipher_open(&handle, GCRY_CIPHER_AES128, GCRY_CIPHER_MODE_ECB, 0);
-    gcry_cipher_setkey(handle, key.data(), blockSize);
+    gcry_cipher_open(&handle, GCRY_CIPHER_AES128, GCRY_CIPHER_MODE_CTR, 0);
+    gcry_cipher_setkey(handle, key.data(), block_size);
     benchmark(
       [&]{
         for(size_t i = 0; i < values_server.length(); i++) {
           uint32_t counter(NTL::conv<uint32_t>(elements_server[i]));
-          unsigned char buf[blockSize] = {0};
           NTL::ZZ el;
           NTL::conv(el, values_server[i]);
-          // TODO: we should be using "real" AES counter mode with a nonce
-          el <<= (conf.statistical_security + 8 * sizeof(counter));
-          el += counter;
-          if(NTL::NumBytes(el) > blockSize) {
+          el <<= conf.statistical_security;
+          // use AES counter mode with the element as the counter
+          unsigned char buf[block_size] = {0};
+          unsigned char ctr[block_size] = {0}; // TODO: nonce
+          NTL::BytesFromZZ(ctr, NTL::conv<NTL::ZZ>(elements_server[i]), block_size);
+          gcry_cipher_setctr(handle, ctr, block_size);
+          if(NTL::NumBytes(el) > block_size) {
             BOOST_THROW_EXCEPTION(
               std::runtime_error("Server value does not fit in plaintext space"));
           }
-          NTL::BytesFromZZ(buf, el, blockSize);
-          gcry_cipher_encrypt(handle, buf, blockSize, nullptr, 0);
-          NTL::conv(values_server[i], NTL::ZZFromBytes(buf, blockSize));
+          NTL::BytesFromZZ(buf, el, block_size);
+          gcry_cipher_encrypt(handle, buf, block_size, nullptr, 0);
+          NTL::conv(values_server[i], NTL::ZZFromBytes(buf, block_size));
         }
       }, "Encryption");
     // interpolate polynomial using fastpoly
@@ -155,18 +157,19 @@ int main(int argc, const char **argv) {
       "Interpolation"
     );
     chan.send(poly_server);
-    chan.send(key);
 
     // set up inputs for obliv-c
     std::vector<pir_value> result(conf.num_elements_client);
     pir_args args = {
-      .input_length = blockSize,
+      .statistical_security = size_t(conf.statistical_security),
+      .input_size = key.size(),
       .input = key.data(),
       .result = result.data()
     };
 
     // run yao's protocol using Obliv-C
     ProtocolDesc pd;
+    chan.flush();
     if(chan.connect_to_oblivc(pd) == -1) {
       BOOST_THROW_EXCEPTION(std::runtime_error("Obliv-C: Connection failed"));
     }
@@ -174,13 +177,11 @@ int main(int argc, const char **argv) {
     execYaoProtocol(&pd, pir_protocol_main, &args);
     cleanupProtocol(&pd);
 
+    // send our shares for correctness check
     chan.send(result);
-
   } else {
     NTL::ZZ_pX poly_server;
-    std::vector<uint8_t> key;
     chan.recv(poly_server);
-    chan.recv(key);
     // generate client elements with fixed overlap for testing
     NTL::Vec<NTL::ZZ_p> elements_client;
     elements_client.SetLength(conf.num_elements_client);
@@ -198,22 +199,26 @@ int main(int argc, const char **argv) {
     );
 
     // set up inputs for obliv-c
-    size_t blockSize = gcry_cipher_get_algo_keylen(GCRY_CIPHER_AES128);
-    std::vector<uint8_t> ciphertexts_client(values_client.length() * blockSize);
+    size_t block_size = gcry_cipher_get_algo_keylen(GCRY_CIPHER_AES128);
+    std::vector<uint8_t> ciphertexts_client(values_client.length() * 2 * block_size);
     std::vector<pir_value> result(values_client.length());
     pir_args args = {
-      .input_length = size_t(values_client.length()),
+      .statistical_security = size_t(conf.statistical_security),
+      .input_size = ciphertexts_client.size(),
       .input = ciphertexts_client.data(),
       .result = result.data()
     };
-    // serialize ciphertexts
+    // serialize ciphertexts and elements (used as ctr in decryption)
     for(size_t i = 0; i < values_client.length(); i++) {
-      NTL::BytesFromZZ(ciphertexts_client.data() + i * blockSize,
-        NTL::conv<NTL::ZZ>(values_client[i]), blockSize);
+      NTL::BytesFromZZ(ciphertexts_client.data() + i*2*block_size,
+        NTL::conv<NTL::ZZ>(values_client[i]), block_size);
+      NTL::BytesFromZZ(ciphertexts_client.data() + (i*2+1)*block_size,
+        NTL::conv<NTL::ZZ>(elements_client[i]), block_size);
     }
 
     // run yao's protocol using Obliv-C
     ProtocolDesc pd;
+    chan.flush();
     if(chan.connect_to_oblivc(pd) == -1) {
       BOOST_THROW_EXCEPTION(std::runtime_error("Obliv-C: Connection failed"));
     }
@@ -231,6 +236,8 @@ int main(int argc, const char **argv) {
     }
 
     if(count_matching != std::min(overlap, values_client.length())) {
+      std::cerr << "Expected " << std::min(overlap, values_client.length())
+        << "\nGot " << count_matching << "\n";
       BOOST_THROW_EXCEPTION(
         std::runtime_error("Intersection size does not match"));
     }

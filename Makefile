@@ -15,6 +15,7 @@ BINARIES = $(patsubst $(SRCDIR)/cmd/%.cpp, $(BINDIR)/%, $(SOURCES_BIN))
 
 export OBLIVC_PATH = $(LIBDIR)/obliv-c
 OBLIVCC = $(OBLIVC_PATH)/bin/oblivcc
+OBLIVCCFLAGS = -g
 
 LDFLAGS = $(STATIC_FILES) -lntl -lboost_program_options -lboost_serialization \
 	-lboost_system -lboost_thread -lboost_iostreams -lgcrypt
