@@ -198,33 +198,35 @@ int main(int argc, const char **argv) {
       "Evaluation"
     );
 
-    // set up inputs for obliv-c
-    size_t block_size = gcry_cipher_get_algo_keylen(GCRY_CIPHER_AES128);
-    std::vector<uint8_t> ciphertexts_client(values_client.length() * 2 * block_size);
     std::vector<pir_value> result(values_client.length());
-    pir_args args = {
-      .statistical_security = size_t(conf.statistical_security),
-      .input_size = ciphertexts_client.size(),
-      .input = ciphertexts_client.data(),
-      .result = result.data()
-    };
-    // serialize ciphertexts and elements (used as ctr in decryption)
-    for(size_t i = 0; i < values_client.length(); i++) {
-      NTL::BytesFromZZ(ciphertexts_client.data() + i*2*block_size,
-        NTL::conv<NTL::ZZ>(values_client[i]), block_size);
-      NTL::BytesFromZZ(ciphertexts_client.data() + (i*2+1)*block_size,
-        NTL::conv<NTL::ZZ>(elements_client[i]), block_size);
-    }
+    benchmark([&]{
+      // set up inputs for obliv-c
+      size_t block_size = gcry_cipher_get_algo_keylen(GCRY_CIPHER_AES128);
+      std::vector<uint8_t> ciphertexts_client(values_client.length() * 2 * block_size);
+      pir_args args = {
+        .statistical_security = size_t(conf.statistical_security),
+        .input_size = ciphertexts_client.size(),
+        .input = ciphertexts_client.data(),
+        .result = result.data()
+      };
+      // serialize ciphertexts and elements (used as ctr in decryption)
+      for(size_t i = 0; i < values_client.length(); i++) {
+        NTL::BytesFromZZ(ciphertexts_client.data() + i*2*block_size,
+          NTL::conv<NTL::ZZ>(values_client[i]), block_size);
+        NTL::BytesFromZZ(ciphertexts_client.data() + (i*2+1)*block_size,
+          NTL::conv<NTL::ZZ>(elements_client[i]), block_size);
+      }
 
-    // run yao's protocol using Obliv-C
-    ProtocolDesc pd;
-    chan.flush();
-    if(chan.connect_to_oblivc(pd) == -1) {
-      BOOST_THROW_EXCEPTION(std::runtime_error("Obliv-C: Connection failed"));
-    }
-    setCurrentParty(&pd, 2);
-    execYaoProtocol(&pd, pir_protocol_main, &args);
-    cleanupProtocol(&pd);
+      // run yao's protocol using Obliv-C
+      ProtocolDesc pd;
+      chan.flush();
+      if(chan.connect_to_oblivc(pd) == -1) {
+        BOOST_THROW_EXCEPTION(std::runtime_error("Obliv-C: Connection failed"));
+      }
+      setCurrentParty(&pd, 2);
+      execYaoProtocol(&pd, pir_protocol_main, &args);
+      cleanupProtocol(&pd);
+    }, "Circuit Execution");
 
     std::vector<pir_value> result_server;
     chan.recv(result_server);
