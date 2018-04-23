@@ -41,13 +41,8 @@ void evaluate_recursive(
   const NTL::ZZ_pX& f,
   const NTL::vec_ZZ_p& a
 ) {
-  // recursive evaluation needs inputs to be of size degree + 1
-  NTL::vec_ZZ_p a2 = a;
-  size_t orig_length = a.length();
-  a2.SetLength(NTL::deg(f) + 1);
-  b.SetLength(a2.length());
-  poly_evaluate_zp_recursive(NTL::deg(f), f, a2.data(), b.data());
-  b.SetLength(orig_length);
+  b.SetLength(a.length());
+  poly_evaluate_zp_recursive(a.length(), f, a.data(), b.data());
 }
 NTL::vec_ZZ_p evaluate_recursive(
   const NTL::ZZ_pX& f,
@@ -191,10 +186,8 @@ int main(int argc, const char **argv) {
     // evaluate polynomial using fastpoly
     NTL::Vec<NTL::ZZ_p> values_client;
     benchmark(
-      // TODO: switch between NTL and recursive evaluation depending on
-      // conf.num_elements_client
-      [&]{NTL::eval(values_client, poly_server, elements_client);},
-      // [&]{evaluate_recursive(values_client, poly_server, elements_client);},
+      // [&]{NTL::eval(values_client, poly_server, elements_client);},
+      [&]{evaluate_recursive(values_client, poly_server, elements_client);},
       "Evaluation"
     );
 
