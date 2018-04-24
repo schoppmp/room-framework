@@ -7,6 +7,10 @@
 #include "pir_protocol.hpp"
 #include "mpc-utils/comm_channel.hpp"
 
+extern "C" {
+  void gcryDefaultLibInit(); // defined in Obliv-C, but not in obliv.h
+}
+
 template<typename K, typename V>
 class pir_protocol_poly : public virtual pir_protocol<K,V> {
 private:
@@ -26,16 +30,10 @@ public:
     modulus((NTL::ZZ(1) << 128) - 159),
     statistical_security(statistical_security),
     cipher(GCRY_CIPHER_AES128), block_size(gcry_cipher_get_algo_keylen(cipher)),
-    key(block_size), nonce(0), chan(chan)
+    nonce(0), chan(chan)
   {
-    // initialize libgcrypt
-    gcry_check_version(nullptr);
-    if(!gcry_control(GCRYCTL_INITIALIZATION_FINISHED_P)) {
-      gcry_control(GCRYCTL_DISABLE_SECMEM);
-      gcry_control(GCRYCTL_INITIALIZATION_FINISHED);
-    }
-    // generate key
-    gcry_randomize(key.data(), block_size, GCRY_STRONG_RANDOM);
+    // initialize libgcrypt via obliv-c
+    gcryDefaultLibInit();
   }
 
   using pir_protocol<K, V>::run_server;

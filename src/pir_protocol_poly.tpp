@@ -4,6 +4,7 @@
 #include "mpc-utils/boost_serialization.hpp"
 #include "fastpoly/recursive.h"
 extern "C" {
+  #include <obliv.h>
   #include "pir_protocol_poly.h"
 }
 
@@ -25,6 +26,10 @@ void pir_protocol_poly<K, V>::run_server(const std::map<K,V>& server_in, std::ve
     }
 
     // setup encryption
+    if(key.size() == 0) {
+      key.resize(block_size);
+      gcry_randomize(key.data(), block_size, GCRY_STRONG_RANDOM);
+    }
     gcry_cipher_hd_t handle;
     gcry_cipher_open(&handle, cipher, GCRY_CIPHER_MODE_CTR, 0);
     gcry_cipher_setkey(handle, key.data(), block_size);
