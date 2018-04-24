@@ -1,9 +1,9 @@
-#include "pir.h"
+#include "pir_protocol_poly.h"
 #include <oaes.oh>
 #include <bcrandom.h>
 
-void pir_protocol_main(void *vargs) {
-  pir_args *args = vargs;
+void pir_poly_oblivc(void *vargs) {
+  pir_poly_oblivc_args *args = vargs;
 
   // get party inputs
   size_t block_size = ocBroadcastLLong(args->input_size, 1);
@@ -29,32 +29,32 @@ void pir_protocol_main(void *vargs) {
   // create shares
   if(ocCurrentParty() == 1) {
     BCipherRandomGen* rand = newBCipherRandomGen();
-    randomizeBuffer(rand, args->result, num_ciphertexts * sizeof(pir_value));
+    randomizeBuffer(rand, args->result, num_ciphertexts * sizeof(pir_poly_value));
     releaseBCipherRandomGen(rand);
   }
-  obliv pir_value *result1 = calloc(num_ciphertexts, sizeof(obliv pir_value));
-  obliv pir_value *result2 = calloc(num_ciphertexts, sizeof(obliv pir_value));
+  obliv pir_poly_value *result1 = calloc(num_ciphertexts, sizeof(obliv pir_poly_value));
+  obliv pir_poly_value *result2 = calloc(num_ciphertexts, sizeof(obliv pir_poly_value));
   feedOblivCharArray(result1, args->result,
-    num_ciphertexts * sizeof(pir_value), 1);
+    num_ciphertexts * sizeof(pir_poly_value), 1);
   for(size_t i = 0; i < num_ciphertexts; i++) {
     obliv bool ok = 1;
-    obliv pir_value val = 0;
+    obliv pir_poly_value val = 0;
     // check if decryption was successful
     for(size_t j = 0; j < args->statistical_security / 8; j++) {
       ok &= (plaintexts[i*block_size + j] == 0);
     }
     size_t offset = args->statistical_security / 8;
     obliv if(ok) {
-      for(size_t j = 0; j < sizeof(pir_value); j++) {
+      for(size_t j = 0; j < sizeof(pir_poly_value); j++) {
         // xor works since val is initialized to zero
-        val ^= (((obliv pir_value) plaintexts[i*block_size + offset + j])
+        val ^= (((obliv pir_poly_value) plaintexts[i*block_size + offset + j])
           << (8*j));
       }
     }
     result2[i] = val - result1[i];
   }
   revealOblivCharArray(args->result, result2,
-    num_ciphertexts * sizeof(pir_value), 2);
+    num_ciphertexts * sizeof(pir_poly_value), 2);
 
   oflush(ocCurrentProto());
   free(result1);

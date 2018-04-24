@@ -2,13 +2,11 @@
 #include "mpc-utils/mpc_config.hpp"
 #include "mpc-utils/party.hpp"
 #include "mpc-utils/boost_serialization.hpp"
+#include "pir_protocol_poly.hpp"
 #include <NTL/vector.h>
 #include <numeric>
+#include <map>
 #include <chrono>
-#include <gcrypt.h>
-extern "C" {
-  #include "oblivc/pir.h"
-}
 
 // used for time measurements
 template<class F>
@@ -17,40 +15,6 @@ void benchmark(F f, const std::string& label) {
   f();
   std::chrono::duration<double> d = std::chrono::steady_clock::now() - start;
   std::cout << label << ": " << d.count() << "s\n";
-}
-
-// NTL-style interface for recursive interpolation
-void interpolate_recursive(
-  NTL::ZZ_pX& f,
-  const NTL::vec_ZZ_p& a,
-  const NTL::vec_ZZ_p& b
-) {
-  poly_interpolate_zp_recursive(std::min(a.length(), b.length()) - 1,
-    a.data(), b.data(), f);
-}
-NTL::ZZ_pX interpolate_recursive(
-  const NTL::vec_ZZ_p& a,
-  const NTL::vec_ZZ_p& b
-) {
-  NTL::ZZ_pX f;
-  interpolate_recursive(f, a, b);
-  return f;
-}
-void evaluate_recursive(
-  NTL::vec_ZZ_p& b,
-  const NTL::ZZ_pX& f,
-  const NTL::vec_ZZ_p& a
-) {
-  b.SetLength(a.length());
-  poly_evaluate_zp_recursive(a.length(), f, a.data(), b.data());
-}
-NTL::vec_ZZ_p evaluate_recursive(
-  const NTL::ZZ_pX& f,
-  const NTL::vec_ZZ_p& a
-) {
-  NTL::vec_ZZ_p b;
-  evaluate_recursive(b, f, a);
-  return b;
 }
 
 
@@ -99,142 +63,57 @@ int main(int argc, const char **argv) {
   party party(conf);
   auto chan = party.connect_to(1 - party.get_id());
 
-  // initialize 128-bit prime field (order (2^128 - 159))
-  NTL::ZZ_p::init((NTL::ZZ(1) << 128) - 159);
+  using key_type = uint64_t;
+  using value_type = uint32_t;
+  try {
+    pir_protocol_poly<key_type, value_type> proto(chan, conf.statistical_security);
+    if(party.get_id() == 0) {
+      // use primes as inputs for easy recognition
+      NTL::PrimeSeq primes;
+      std::map<key_type, value_type> server_in;
+      for(size_t i = 0; i < conf.num_elements_server; i++) {
+        server_in[i] = primes.next();
+      }
+      // run PIR protocol
+      std::vector<value_type> result;
+      benchmark([&]() {
+        result = proto.run_server(server_in);
+      }, "PIR Protocol (Server)");
 
-  if(party.get_id() == 0) {
-    NTL::ZZ_pX poly_server;
-    NTL::Vec<NTL::ZZ_p> elements_server;
-    elements_server.SetLength(conf.num_elements_server);
-    std::iota(elements_server.begin(), elements_server.end(), 0);
-    // generate server values (just take the first N primes for now)
-    NTL::Vec<NTL::ZZ_p> values_server(elements_server);
-    NTL::PrimeSeq primes;
-    std::generate(
-      values_server.begin(),
-      values_server.end(),
-      [&]() { return primes.next(); }
-    );
+      // send result for testing
+      chan.send(result);
+    } else {
+      // generate client elements with fixed overlap for testing
+      key_type overlap = key_type(std::min(ssize_t(100),
+        std::min(conf.num_elements_server, conf.num_elements_client)));
+      std::vector<key_type> client_in(conf.num_elements_client);
+      std::iota(client_in.begin(), client_in.end(),
+        key_type(conf.num_elements_server) - overlap);
 
-    // encrypt server values
-    gcry_cipher_hd_t handle;
-    size_t block_size = gcry_cipher_get_algo_keylen(GCRY_CIPHER_AES128);
-    std::vector<uint8_t> key(block_size, 0);
-    gcry_randomize(key.data(), block_size, GCRY_STRONG_RANDOM);
-    gcry_control(GCRYCTL_DISABLE_SECMEM, 0);
-    gcry_control(GCRYCTL_INITIALIZATION_FINISHED, 0);
-    gcry_cipher_open(&handle, GCRY_CIPHER_AES128, GCRY_CIPHER_MODE_CTR, 0);
-    gcry_cipher_setkey(handle, key.data(), block_size);
-    benchmark(
-      [&]{
-        for(size_t i = 0; i < values_server.length(); i++) {
-          uint32_t counter(NTL::conv<uint32_t>(elements_server[i]));
-          NTL::ZZ el;
-          NTL::conv(el, values_server[i]);
-          el <<= conf.statistical_security;
-          // use AES counter mode with the element as the counter
-          unsigned char buf[block_size] = {0};
-          unsigned char ctr[block_size] = {0}; // TODO: nonce
-          NTL::BytesFromZZ(ctr, NTL::conv<NTL::ZZ>(elements_server[i]), block_size);
-          gcry_cipher_setctr(handle, ctr, block_size);
-          if(NTL::NumBytes(el) > block_size) {
-            BOOST_THROW_EXCEPTION(
-              std::runtime_error("Server value does not fit in plaintext space"));
-          }
-          NTL::BytesFromZZ(buf, el, block_size);
-          gcry_cipher_encrypt(handle, buf, block_size, nullptr, 0);
-          NTL::conv(values_server[i], NTL::ZZFromBytes(buf, block_size));
+      // run PIR protocol
+      std::vector<value_type> result;
+      benchmark([&]() {
+        result = proto.run_client(client_in);
+      }, "PIR Protocol (Client)");
+
+      // add up values for testing
+      std::vector<value_type> result_server;
+      chan.recv(result_server);
+      size_t count_matching = 0;
+      for(size_t i = 0; i < result.size(); i++) {
+        if(result[i] + result_server[i] != 0) {
+          count_matching++;
         }
-      }, "Encryption");
-    // interpolate polynomial using fastpoly
-    benchmark(
-      [&]{interpolate_recursive(poly_server, elements_server,values_server);},
-      "Interpolation"
-    );
-    chan.send(poly_server);
-
-    // set up inputs for obliv-c
-    std::vector<pir_value> result(conf.num_elements_client);
-    pir_args args = {
-      .statistical_security = size_t(conf.statistical_security),
-      .input_size = key.size(),
-      .input = key.data(),
-      .result = result.data()
-    };
-
-    // run yao's protocol using Obliv-C
-    ProtocolDesc pd;
-    chan.flush();
-    if(chan.connect_to_oblivc(pd) == -1) {
-      BOOST_THROW_EXCEPTION(std::runtime_error("Obliv-C: Connection failed"));
-    }
-    setCurrentParty(&pd, 1);
-    execYaoProtocol(&pd, pir_protocol_main, &args);
-    cleanupProtocol(&pd);
-
-    // send our shares for correctness check
-    chan.send(result);
-  } else {
-    NTL::ZZ_pX poly_server;
-    chan.recv(poly_server);
-    // generate client elements with fixed overlap for testing
-    NTL::Vec<NTL::ZZ_p> elements_client;
-    elements_client.SetLength(conf.num_elements_client);
-    ssize_t overlap = std::min(conf.num_elements_server, ssize_t(3));
-    std::iota(elements_client.begin(), elements_client.end(),
-      conf.num_elements_server - overlap);
-    // evaluate polynomial using fastpoly
-    NTL::Vec<NTL::ZZ_p> values_client;
-    benchmark(
-      // [&]{NTL::eval(values_client, poly_server, elements_client);},
-      [&]{evaluate_recursive(values_client, poly_server, elements_client);},
-      "Evaluation"
-    );
-
-    std::vector<pir_value> result(values_client.length());
-    benchmark([&]{
-      // set up inputs for obliv-c
-      size_t block_size = gcry_cipher_get_algo_keylen(GCRY_CIPHER_AES128);
-      std::vector<uint8_t> ciphertexts_client(values_client.length() * 2 * block_size);
-      pir_args args = {
-        .statistical_security = size_t(conf.statistical_security),
-        .input_size = ciphertexts_client.size(),
-        .input = ciphertexts_client.data(),
-        .result = result.data()
-      };
-      // serialize ciphertexts and elements (used as ctr in decryption)
-      for(size_t i = 0; i < values_client.length(); i++) {
-        NTL::BytesFromZZ(ciphertexts_client.data() + i*2*block_size,
-          NTL::conv<NTL::ZZ>(values_client[i]), block_size);
-        NTL::BytesFromZZ(ciphertexts_client.data() + (i*2+1)*block_size,
-          NTL::conv<NTL::ZZ>(elements_client[i]), block_size);
       }
 
-      // run yao's protocol using Obliv-C
-      ProtocolDesc pd;
-      chan.flush();
-      if(chan.connect_to_oblivc(pd) == -1) {
-        BOOST_THROW_EXCEPTION(std::runtime_error("Obliv-C: Connection failed"));
-      }
-      setCurrentParty(&pd, 2);
-      execYaoProtocol(&pd, pir_protocol_main, &args);
-      cleanupProtocol(&pd);
-    }, "Circuit Execution");
-
-    std::vector<pir_value> result_server;
-    chan.recv(result_server);
-    size_t count_matching = 0;
-    for(size_t i = 0; i < result.size(); i++) {
-      if(result[i] + result_server[i] != 0) {
-        count_matching++;
+      if(count_matching != overlap) {
+        std::cerr << "Expected " << overlap << "\nGot " << count_matching << "\n";
+        BOOST_THROW_EXCEPTION(
+          std::runtime_error("Intersection size does not match"));
       }
     }
-
-    if(count_matching != std::min(overlap, values_client.length())) {
-      std::cerr << "Expected " << std::min(overlap, values_client.length())
-        << "\nGot " << count_matching << "\n";
-      BOOST_THROW_EXCEPTION(
-        std::runtime_error("Intersection size does not match"));
-    }
+  } catch(boost::exception &ex) {
+    std::cerr << boost::diagnostic_information(ex);
+    return 1;
   }
 }
