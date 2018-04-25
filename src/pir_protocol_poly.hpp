@@ -22,18 +22,17 @@ private:
   uint64_t nonce; // increased with every protocol execution
   comm_channel& chan;
 
-  static void init_gcrypt() {
-  }
 public:
   pir_protocol_poly(comm_channel& chan, uint16_t statistical_security) :
     pir_protocol<K,V>(),
     modulus((NTL::ZZ(1) << 128) - 159),
     statistical_security(statistical_security),
-    cipher(GCRY_CIPHER_AES128), block_size(gcry_cipher_get_algo_keylen(cipher)),
+    cipher(GCRY_CIPHER_AES128),
     nonce(0), chan(chan)
   {
     // initialize libgcrypt via obliv-c
     gcryDefaultLibInit();
+    block_size = gcry_cipher_get_algo_keylen(cipher);
   }
 
   using pir_protocol<K, V>::run_server;
