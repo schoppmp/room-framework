@@ -15,8 +15,8 @@ public:
   using key_type = K;
   using value_type = V;
 
-  virtual void run_server(const std::map<K,V>& server_in, std::vector<V>& server_out);
-  virtual void run_client(const std::vector<K>& client_in, std::vector<V>& client_out);
+  virtual void run_server(const std::map<K,V>& server_in, std::vector<V>& server_out) = 0;
+  virtual void run_client(const std::vector<K>& client_in, std::vector<V>& client_out) = 0;
   std::vector<V> run_server(const std::map<K,V>& server_in);
   std::vector<V> run_client(const std::vector<K>& client_in);
 };

@@ -2,6 +2,7 @@
 
 #include "mpc-utils/boost_serialization.hpp"
 #include "fastpoly/recursive.h"
+#include "serialize.h"
 extern "C" {
   #include <obliv.h>
   #include "pir_protocol_poly.h"
@@ -81,12 +82,7 @@ void pir_protocol_poly<K, V>::run_server(const std::map<K,V>& server_in, std::ve
     cleanupProtocol(&pd);
 
     server_out.resize(num_elements_client);
-    for(size_t i = 0; i < server_out.size(); i++) {
-      server_out[i] = 0;
-      for(size_t j = 0; j < sizeof(V); j++) {
-        server_out[i] |= (V(result[i*sizeof(V)+j]) << (8 * j));
-      }
-    }
+    DESERIALIZE(server_out.data(), result.data(), server_out.size());
   } catch (NTL::ErrorObject& ex) {
     BOOST_THROW_EXCEPTION(ex);
   }
@@ -145,12 +141,7 @@ void pir_protocol_poly<K, V>::run_client(const std::vector<K>& client_in, std::v
     cleanupProtocol(&pd);
 
     client_out.resize(values_client.length());
-    for(size_t i = 0; i < client_out.size(); i++) {
-      client_out[i] = 0;
-      for(size_t j = 0; j < sizeof(V); j++) {
-        client_out[i] |= (V(result[i*sizeof(V)+j]) << (8 * j));
-      }
-    }
+    DESERIALIZE(client_out.data(), result.data(), client_out.size());
   } catch (NTL::ErrorObject& ex) {
     BOOST_THROW_EXCEPTION(ex);
   }

@@ -3,6 +3,7 @@
 #include "mpc-utils/party.hpp"
 #include "mpc-utils/boost_serialization.hpp"
 #include "pir_protocol_poly.hpp"
+#include "pir_protocol_fss.hpp"
 #include <NTL/vector.h>
 #include <numeric>
 #include <map>
@@ -66,7 +67,10 @@ int main(int argc, const char **argv) {
   using key_type = uint64_t;
   using value_type = uint16_t;
   try {
-    pir_protocol_poly<key_type, value_type> proto(chan, conf.statistical_security);
+    // pir_protocol_poly<key_type, value_type> proto_impl(chan, conf.statistical_security);
+    pir_protocol_fss<key_type, value_type> proto_impl(chan);
+
+    pir_protocol<key_type, value_type>& proto = proto_impl;
     if(party.get_id() == 0) {
       // use primes as inputs for easy recognition
       NTL::PrimeSeq primes;
