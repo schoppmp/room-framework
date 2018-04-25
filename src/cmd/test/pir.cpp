@@ -64,7 +64,7 @@ int main(int argc, const char **argv) {
   auto chan = party.connect_to(1 - party.get_id());
 
   using key_type = uint64_t;
-  using value_type = uint32_t;
+  using value_type = uint16_t;
   try {
     pir_protocol_poly<key_type, value_type> proto(chan, conf.statistical_security);
     if(party.get_id() == 0) {
@@ -101,7 +101,12 @@ int main(int argc, const char **argv) {
       chan.recv(result_server);
       size_t count_matching = 0;
       for(size_t i = 0; i < result.size(); i++) {
-        if(result[i] + result_server[i] != 0) {
+        // Guess what the result type of adding two uint16_t is.
+        // Correct! in C++ it is.... uint32_t -.- WTF?
+        // https://stackoverflow.com/a/5563131
+        // Anyway, that's the reason for the casts in the following condition.
+        // TODO: switch to Rust ASAP!
+        if(value_type(result[i] + result_server[i]) != value_type(0)) {
           count_matching++;
         }
       }
