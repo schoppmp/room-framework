@@ -1,4 +1,3 @@
-#include <vector>
 #include <algorithm>
 
 #include "mpc-utils/boost_serialization.hpp"

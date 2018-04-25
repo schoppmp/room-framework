@@ -1,7 +1,7 @@
 #pragma once
 
-#include <NTL/vector.h>
 #include <numeric>
+#include <NTL/vector.h>
 #include <gcrypt.h>
 
 #include "pir_protocol.hpp"

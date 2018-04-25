@@ -1,0 +1,5 @@
+#include "pir_protocol_fss.h"
+
+void pir_fss_oblivc(void *vargs) {
+  pir_fss_oblivc_args *args = vargs;
+}

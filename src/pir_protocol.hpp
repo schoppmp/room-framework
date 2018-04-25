@@ -1,4 +1,8 @@
 #pragma once
+
+#include <vector>
+#include <map>
+
 // A (sparse) PIR protocol is executed between two parties, called Server and
 // Client. The server inputs a map from keys to values. The client inputs a
 // selection vector of keys. The result is a vector of additively shared values.

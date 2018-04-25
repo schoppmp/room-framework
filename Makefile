@@ -31,11 +31,11 @@ all: $(BINARIES)
 $(STATIC_FILES):
 	$(MAKE) -C $(LIBDIR) $(@F)
 
-%.d: %.cpp #| $(STATIC_FILES)
+%.d: %.cpp
 	@set -e; rm -f $@; \
 	$(CXX) -MM $(CXXFLAGS) -MT "$*.o $@" $< > $@;
 
-%.od: %.oc #| $(STATIC_FILES)
+%.od: %.oc
 	@set -e; rm -f $@; \
 	$(CXX) -MM $(CXXFLAGS) -MT "$*.oo $@" $< > $@;
 
