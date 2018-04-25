@@ -14,10 +14,10 @@ extern "C" {
 template<typename K, typename V>
 class pir_protocol_poly : public virtual pir_protocol<K,V> {
 private:
-  NTL::ZZ modulus;
-  uint16_t statistical_security;
-  int cipher;
-  size_t block_size;
+  const NTL::ZZ modulus;
+  const uint16_t statistical_security;
+  const int cipher;
+  const size_t block_size;
   std::vector<uint8_t> key;
   uint64_t nonce; // increased with every protocol execution
   comm_channel& chan;
@@ -25,14 +25,25 @@ private:
 public:
   pir_protocol_poly(comm_channel& chan, uint16_t statistical_security) :
     pir_protocol<K,V>(),
-    modulus((NTL::ZZ(1) << 128) - 159),
+    modulus((NTL::ZZ(1) << 128) - 159), // largest 128-bit prime
     statistical_security(statistical_security),
-    cipher(GCRY_CIPHER_AES128),
+    cipher(GCRY_CIPHER_AES128), block_size(16),
     nonce(0), chan(chan)
   {
     // initialize libgcrypt via obliv-c
     gcryDefaultLibInit();
-    block_size = gcry_cipher_get_algo_keylen(cipher);
+    // check if sizes fit into ciphertexts
+    // TODO: implement encryption of multiple blocks for really large value types?
+    if(statistical_security % 8) {
+      BOOST_THROW_EXCEPTION(std::invalid_argument(
+        "statistical_security must be divisible by 8"));
+    }
+    if(8 * block_size < 8 * sizeof(V) + statistical_security ||
+      block_size < sizeof(nonce) + sizeof(K))
+    {
+      BOOST_THROW_EXCEPTION(std::invalid_argument(
+        "Block size too small for given types and statistical security"));
+    }
   }
 
   using pir_protocol<K, V>::run_server;

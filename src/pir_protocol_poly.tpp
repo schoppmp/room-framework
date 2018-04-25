@@ -19,7 +19,7 @@ void pir_protocol_poly<K, V>::run_server(const std::map<K,V>& server_in, std::ve
     NTL::Vec<NTL::ZZ_p> values_server;
     elements_server.SetMaxLength(server_in.size());
     values_server.SetMaxLength(server_in.size());
-    for(auto pair : server_in) {
+    for(auto& pair : server_in) {
       elements_server.append(NTL::conv<NTL::ZZ_p>(pair.first));
       values_server.append(NTL::conv<NTL::ZZ_p>(pair.second));
     }
@@ -61,9 +61,10 @@ void pir_protocol_poly<K, V>::run_server(const std::map<K,V>& server_in, std::ve
     chan.send(poly_server);
 
     // set up inputs for obliv-c
-    std::vector<pir_poly_value> result(num_elements_client);
+    std::vector<uint8_t> result(num_elements_client * sizeof(V));
     pir_poly_oblivc_args args = {
       .statistical_security = statistical_security,
+      .value_type_size = sizeof(V),
       .input_size = key.size(),
       .input = key.data(),
       .result = result.data()
@@ -79,8 +80,13 @@ void pir_protocol_poly<K, V>::run_server(const std::map<K,V>& server_in, std::ve
     execYaoProtocol(&pd, pir_poly_oblivc, &args);
     cleanupProtocol(&pd);
 
-    server_out.resize(result.size());
-    std::copy(result.begin(), result.end(), server_out.begin());
+    server_out.resize(num_elements_client);
+    for(size_t i = 0; i < server_out.size(); i++) {
+      server_out[i] = 0;
+      for(size_t j = 0; j < sizeof(V); j++) {
+        server_out[i] |= (V(result[i*sizeof(V)+j]) << (8 * j));
+      }
+    }
   } catch (NTL::ErrorObject& ex) {
     BOOST_THROW_EXCEPTION(ex);
   }
@@ -107,14 +113,15 @@ void pir_protocol_poly<K, V>::run_client(const std::vector<K>& client_in, std::v
     std::copy(client_in.begin(), client_in.end(), elements_client.begin());
     // evaluate polynomial using fastpoly
     // evaluate_recursive(values_client, poly_server, elements_client);
-    poly_evaluate_zp_recursive(elements_client.length(), poly_server,
+    poly_evaluate_zp_recursive(elements_client.length() - 1, poly_server,
       elements_client.data(), values_client.data());
 
-    std::vector<pir_poly_value> result(values_client.length());
+    std::vector<uint8_t> result(values_client.length() * sizeof(V));
     // set up inputs for obliv-c
     std::vector<uint8_t> ciphertexts_client(values_client.length() * 2 * block_size);
     pir_poly_oblivc_args args = {
       .statistical_security = statistical_security,
+      .value_type_size = sizeof(V),
       .input_size = ciphertexts_client.size(),
       .input = ciphertexts_client.data(),
       .result = result.data()
@@ -137,8 +144,13 @@ void pir_protocol_poly<K, V>::run_client(const std::vector<K>& client_in, std::v
     execYaoProtocol(&pd, pir_poly_oblivc, &args);
     cleanupProtocol(&pd);
 
-    client_out.resize(result.size());
-    std::copy(result.begin(), result.end(), client_out.begin());
+    client_out.resize(values_client.length());
+    for(size_t i = 0; i < client_out.size(); i++) {
+      client_out[i] = 0;
+      for(size_t j = 0; j < sizeof(V); j++) {
+        client_out[i] |= (V(result[i*sizeof(V)+j]) << (8 * j));
+      }
+    }
   } catch (NTL::ErrorObject& ex) {
     BOOST_THROW_EXCEPTION(ex);
   }

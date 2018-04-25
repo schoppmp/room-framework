@@ -12,8 +12,17 @@ void pir_poly_oblivc(void *vargs) {
   size_t num_ciphertexts = (ciphertexts_size / block_size) / 2;
   obliv uint8_t *ciphertexts = calloc(ciphertexts_size, sizeof(obliv uint8_t));
   obliv uint8_t *key = calloc(176, sizeof(obliv uint8_t));
+  // create shares
+  if(ocCurrentParty() == 1) {
+    BCipherRandomGen* rand = newBCipherRandomGen();
+    randomizeBuffer(rand, args->result, num_ciphertexts * args->value_type_size);
+    releaseBCipherRandomGen(rand);
+  }
+  obliv uint8_t *result1 = calloc(num_ciphertexts, sizeof(obliv uint8_t) * args->value_type_size);
+  obliv uint8_t *result2 = calloc(num_ciphertexts, sizeof(obliv uint8_t) * args->value_type_size);
   feedOblivCharArray(ciphertexts, args->input, ciphertexts_size, 2);
   feedOblivCharArray(key, args->input, block_size, 1);
+  feedOblivCharArray(result1, args->result, num_ciphertexts * args->value_type_size, 1);
 
   // decrypt
   oaes_128_expandkey(key);
@@ -26,35 +35,25 @@ void pir_poly_oblivc(void *vargs) {
     }
   }
 
-  // create shares
-  if(ocCurrentParty() == 1) {
-    BCipherRandomGen* rand = newBCipherRandomGen();
-    randomizeBuffer(rand, args->result, num_ciphertexts * sizeof(pir_poly_value));
-    releaseBCipherRandomGen(rand);
-  }
-  obliv pir_poly_value *result1 = calloc(num_ciphertexts, sizeof(obliv pir_poly_value));
-  obliv pir_poly_value *result2 = calloc(num_ciphertexts, sizeof(obliv pir_poly_value));
-  feedOblivCharArray(result1, args->result,
-    num_ciphertexts * sizeof(pir_poly_value), 1);
   for(size_t i = 0; i < num_ciphertexts; i++) {
     obliv bool ok = 1;
-    obliv pir_poly_value val = 0;
     // check if decryption was successful
     for(size_t j = 0; j < args->statistical_security / 8; j++) {
       ok &= (plaintexts[i*block_size + j] == 0);
     }
     size_t offset = args->statistical_security / 8;
-    obliv if(ok) {
-      for(size_t j = 0; j < sizeof(pir_poly_value); j++) {
-        // xor works since val is initialized to zero
-        val ^= (((obliv pir_poly_value) plaintexts[i*block_size + offset + j])
-          << (8*j));
+    // byte-wise subtraction for arbitrary value_type_sizes
+    obliv uint16_t rem = 1;
+    for(size_t j = 0; j < args->value_type_size; j++) {
+      obliv if(ok) {
+        rem += plaintexts[i*block_size + offset + j];
       }
+      rem += (obliv uint8_t) (result1[i*args->value_type_size + j] ^ 0xFF);
+      result2[i*args->value_type_size + j] = (obliv uint8_t) rem;
+      rem >>= 8;
     }
-    result2[i] = val - result1[i];
   }
-  revealOblivCharArray(args->result, result2,
-    num_ciphertexts * sizeof(pir_poly_value), 2);
+  revealOblivCharArray(args->result, result2, num_ciphertexts * args->value_type_size, 2);
 
   oflush(ocCurrentProto());
   free(result1);
