@@ -35,7 +35,7 @@ void pir_fss_oblivc(void *vargs) {
   floram *ram = floram_new(&cpy, args->server_values, args->num_server_values,
     1, 1);
   for(size_t i = 0; i < args->num_client_keys; i++) {
-    floram_read(&client_values2[i * args->value_type_size], ram, i);
+    floram_read(&client_values2[i * args->value_type_size], ram, client_keys[i]);
   }
   // use obig for generating shares of arbitrary-sized value types
   obig share1, share2, val;

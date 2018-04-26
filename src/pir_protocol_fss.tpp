@@ -47,11 +47,10 @@ void pir_protocol_fss<K, V>::run_server(const std::map<K,V>& server_in, std::vec
 template<typename K, typename V>
 void pir_protocol_fss<K, V>::run_client(const std::vector<K>& client_in, std::vector<V>& client_out) {
   chan.send(client_in.size());
-  size_t output_size = client_in.size() * sizeof(V);
 
   // set up obliv-c inputs
   std::vector<size_t> input(client_in.size()); // FLORAM assumes size_t as indexes
-  std::vector<uint8_t> output(output_size);
+  std::vector<uint8_t> output(client_in.size() * sizeof(V));
   std::copy(client_in.begin(), client_in.end(), input.begin());
   pir_fss_oblivc_args args = {
     .value_type_size = sizeof(V),
