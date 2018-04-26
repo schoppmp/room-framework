@@ -45,6 +45,7 @@ public:
         "Block size too small for given types and statistical security"));
     }
   }
+  ~pir_protocol_poly() { }
 
   using pir_protocol<K, V>::run_server;
   using pir_protocol<K, V>::run_client;

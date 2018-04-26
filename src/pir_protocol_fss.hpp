@@ -13,6 +13,7 @@ private:
 
 public:
   pir_protocol_fss(comm_channel& chan) : chan(chan) { }
+  ~pir_protocol_fss() { }
 
   using pir_protocol<K, V>::run_server;
   using pir_protocol<K, V>::run_client;

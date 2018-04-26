@@ -14,6 +14,7 @@ class pir_protocol {
 public:
   using key_type = K;
   using value_type = V;
+  virtual ~pir_protocol() {};
 
   virtual void run_server(const std::map<K,V>& server_in, std::vector<V>& server_out) = 0;
   virtual void run_client(const std::vector<K>& client_in, std::vector<V>& client_out) = 0;
