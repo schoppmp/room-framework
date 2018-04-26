@@ -2,10 +2,11 @@
 #include <stdint.h>
 
 typedef struct {
-  size_t key_type_size;
   size_t value_type_size;
-  size_t input_size;
-  uint8_t *input;
+  size_t num_server_values;
+  uint8_t *server_values;
+  size_t num_client_keys;
+  size_t *client_keys;
   uint8_t *result;
 } pir_fss_oblivc_args;
 

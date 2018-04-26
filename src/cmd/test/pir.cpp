@@ -35,19 +35,24 @@ protected:
     if(statistical_security <= 0) {
       BOOST_THROW_EXCEPTION(po::error("'statistical_security' must be positive"));
     }
+    if(pir_type != "poly" && pir_type != "fss") {
+      BOOST_THROW_EXCEPTION(po::error("'pir_type' must be either `poly` or `fss`"));
+    }
     mpc_config::validate();
   }
 public:
   ssize_t num_elements_server;
   ssize_t num_elements_client;
   int16_t statistical_security;
+  std::string pir_type;
 
   test_pir_config() {
     namespace po = boost::program_options;
     add_options()
       ("num_elements_server,N", po::value(&num_elements_server)->required(), "Number of non-zero elements in the server's database")
       ("num_elements_client,n", po::value(&num_elements_client)->required(), "Number of non-zero elements in the client's database")
-      ("statistical_security,s", po::value(&statistical_security)->default_value(40), "Statistical security parameter");
+      ("statistical_security,s", po::value(&statistical_security)->default_value(40), "Statistical security parameter")
+      ("pir_type", po::value(&pir_type)->required(), "PIR type: poly | fss");
     set_default_filename("config/test/pir.ini");
   }
 };
@@ -67,37 +72,38 @@ int main(int argc, const char **argv) {
   using key_type = uint64_t;
   using value_type = uint16_t;
   try {
-    // pir_protocol_poly<key_type, value_type> proto_impl(chan, conf.statistical_security);
-    pir_protocol_fss<key_type, value_type> proto_impl(chan);
-
-    pir_protocol<key_type, value_type>& proto = proto_impl;
+    std::unique_ptr<pir_protocol<key_type, value_type>> proto;
+    if(conf.pir_type == "poly") {
+      proto = std::unique_ptr<pir_protocol<key_type, value_type>>(
+        new pir_protocol_poly<key_type, value_type>(chan, conf.statistical_security));
+    } else if(conf.pir_type == "fss") {
+      proto = std::unique_ptr<pir_protocol<key_type, value_type>>(
+        new pir_protocol_fss<key_type, value_type>(chan));
+    }
     if(party.get_id() == 0) {
       // use primes as inputs for easy recognition
       NTL::PrimeSeq primes;
       std::map<key_type, value_type> server_in;
       for(size_t i = 0; i < conf.num_elements_server; i++) {
-        server_in[i] = primes.next();
+        server_in[2*i] = primes.next();
       }
       // run PIR protocol
       std::vector<value_type> result;
       benchmark([&]() {
-        result = proto.run_server(server_in);
+        result = proto->run_server(server_in);
       }, "PIR Protocol (Server)");
 
       // send result for testing
       chan.send(result);
     } else {
-      // generate client elements with fixed overlap for testing
-      key_type overlap = key_type(std::min(ssize_t(100),
-        std::min(conf.num_elements_server, conf.num_elements_client)));
+      // generate client elements
       std::vector<key_type> client_in(conf.num_elements_client);
-      std::iota(client_in.begin(), client_in.end(),
-        key_type(conf.num_elements_server) - overlap);
+      std::iota(client_in.begin(), client_in.end(), 0);
 
       // run PIR protocol
       std::vector<value_type> result;
       benchmark([&]() {
-        result = proto.run_client(client_in);
+        result = proto->run_client(client_in);
       }, "PIR Protocol (Client)");
 
       // add up values for testing
@@ -115,6 +121,7 @@ int main(int argc, const char **argv) {
         }
       }
 
+      size_t overlap = conf.num_elements_client / 2;
       if(count_matching != overlap) {
         std::cerr << "Expected " << overlap << "\nGot " << count_matching << "\n";
         BOOST_THROW_EXCEPTION(

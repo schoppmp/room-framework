@@ -1,5 +1,71 @@
 #include "pir_protocol_fss.h"
+#include <obliv.oh>
+#include <obig.oh>
+#include <copy.oh>
+#include <oram_fssl/floram.oh>
+#include <bcrandom.h>
 
 void pir_fss_oblivc(void *vargs) {
   pir_fss_oblivc_args *args = vargs;
+  args->num_server_values = ocBroadcastLLong(args->num_server_values, 1);
+
+  if(ocCurrentParty() == 2) {
+    // allocate zero array for client's shares for faster floram construction
+    args->server_values = calloc(args->num_server_values,
+      args->value_type_size);
+  } else {
+    // create shares
+    BCipherRandomGen* rand = newBCipherRandomGen();
+    randomizeBuffer(rand, args->result,
+      args->num_client_keys * args->value_type_size);
+    releaseBCipherRandomGen(rand);
+  }
+  obliv size_t *client_keys = calloc(args->num_client_keys,
+    sizeof(obliv size_t));
+  obliv uint8_t *client_values1 = calloc(
+    args->num_client_keys * args->value_type_size, sizeof(obliv uint8_t));
+  obliv uint8_t *client_values2 = calloc(
+    args->num_client_keys * args->value_type_size, sizeof(obliv uint8_t));
+  feedOblivCharArray(client_values1, args->result,
+    args->num_client_keys * args->value_type_size, 1);
+  feedOblivLLongArray(client_keys, args->client_keys, args->num_client_keys, 2);
+
+  // select client's values
+  OcCopy cpy = ocCopyCharN(args->value_type_size);
+  floram *ram = floram_new(&cpy, args->server_values, args->num_server_values,
+    1, 1);
+  for(size_t i = 0; i < args->num_client_keys; i++) {
+    floram_read(&client_values2[i * args->value_type_size], ram, i);
+  }
+  // use obig for generating shares of arbitrary-sized value types
+  obig share1, share2, val;
+  obig_init(&share1, args->value_type_size);
+  obig_init(&share2, args->value_type_size);
+  obig_init(&val, args->value_type_size);
+  for(size_t i = 0; i < args->num_client_keys; i++) {
+    obig_import_opointed_le(&share1,
+      &client_values1[i * args->value_type_size], args->value_type_size);
+    obig_import_opointed_le(&val,
+      &client_values2[i * args->value_type_size], args->value_type_size);
+    obig_sub(&share2, val, share1);
+    obig_export_opointed_le(&client_values2[i * args->value_type_size],
+      args->value_type_size, &share2);
+  }
+  obig_free(&share1);
+  obig_free(&share2);
+  obig_free(&val);
+
+  // reveal shares to parties
+  revealOblivCharArray(args->result, client_values1,
+    args->value_type_size * args->num_client_keys, 1);
+  revealOblivCharArray(args->result, client_values2,
+    args->value_type_size * args->num_client_keys, 2);
+
+  free(client_keys);
+  free(client_values1);
+  free(client_values2);
+  if(ocCurrentParty() == 2) {
+    free(args->server_values);
+  }
+  floram_free(ram);
 }

@@ -15,10 +15,10 @@ BINARIES = $(patsubst $(SRCDIR)/cmd/%.cpp, $(BINDIR)/%, $(SOURCES_BIN))
 
 export OBLIVC_PATH = $(LIBDIR)/obliv-c
 OBLIVCC = $(OBLIVC_PATH)/bin/oblivcc
-OBLIVCCFLAGS = -g
+OBLIVCCFLAGS = -g -D_Float128=double
 
 LDFLAGS = $(STATIC_FILES) -lntl -lboost_program_options -lboost_serialization \
-	-lboost_system -lboost_thread -lboost_iostreams -lgcrypt
+	-lboost_system -lboost_thread -lboost_iostreams -lgcrypt -lgomp
 INCLUDES = -I$(SRCDIR) -I$(LIBDIR) -I$(LIBDIR)/obliv-c/src/ext/oblivc \
 	-I$(LIBDIR)/absentminded-crypto-kit/src
 export CXXFLAGS = -O3 -pthread -g -std=gnu++11 $(INCLUDES) \
