@@ -98,7 +98,7 @@ int main(int argc, const char **argv) {
     } else {
       // generate client elements
       std::vector<key_type> client_in(conf.num_elements_client);
-      std::iota(client_in.begin(), client_in.end(), 0);
+      std::iota(client_in.begin(), client_in.end(), 1);
 
       // run PIR protocol
       std::vector<value_type> result;
