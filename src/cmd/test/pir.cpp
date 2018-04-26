@@ -2,6 +2,7 @@
 #include "mpc-utils/mpc_config.hpp"
 #include "mpc-utils/party.hpp"
 #include "mpc-utils/boost_serialization.hpp"
+#include <boost/serialization/map.hpp>
 #include "pir_protocol_poly.hpp"
 #include "pir_protocol_fss.hpp"
 #include <NTL/vector.h>
@@ -85,7 +86,7 @@ int main(int argc, const char **argv) {
       NTL::PrimeSeq primes;
       std::map<key_type, value_type> server_in;
       for(size_t i = 0; i < conf.num_elements_server; i++) {
-        server_in[2*i] = primes.next();
+        server_in[2*i + 42] = primes.next();
       }
       // run PIR protocol
       std::vector<value_type> result;
@@ -95,10 +96,11 @@ int main(int argc, const char **argv) {
 
       // send result for testing
       chan.send(result);
+      chan.send(server_in);
     } else {
       // generate client elements
       std::vector<key_type> client_in(conf.num_elements_client);
-      std::iota(client_in.begin(), client_in.end(), 1);
+      std::iota(client_in.begin(), client_in.end(), 23);
 
       // run PIR protocol
       std::vector<value_type> result;
@@ -106,26 +108,19 @@ int main(int argc, const char **argv) {
         result = proto->run_client(client_in);
       }, "PIR Protocol (Client)");
 
-      // add up values for testing
+      // check correctness of the result
+      std::map<key_type, value_type> server_in;
       std::vector<value_type> result_server;
       chan.recv(result_server);
-      size_t count_matching = 0;
+      chan.recv(server_in);
       for(size_t i = 0; i < result.size(); i++) {
-        // Guess what the result type of adding two uint16_t is.
-        // Correct! in C++ it is.... uint32_t -.- WTF?
-        // https://stackoverflow.com/a/5563131
-        // Anyway, that's the reason for the casts in the following condition.
-        // TODO: switch to Rust ASAP!
-        if(value_type(result[i] + result_server[i]) != value_type(0)) {
-          count_matching++;
+        value_type expected = server_in[client_in[i]],
+          actual = result_server[i] + result[i];
+        if(expected != actual) {
+          std::cerr << "Expected " << expected << "\nGot " << actual << "\n";
+          BOOST_THROW_EXCEPTION(
+            std::runtime_error("Value of PIR result does not match"));
         }
-      }
-
-      size_t overlap = conf.num_elements_client / 2;
-      if(count_matching != overlap) {
-        std::cerr << "Expected " << overlap << "\nGot " << count_matching << "\n";
-        BOOST_THROW_EXCEPTION(
-          std::runtime_error("Intersection size does not match"));
       }
     }
   } catch(boost::exception &ex) {
