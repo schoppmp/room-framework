@@ -52,7 +52,8 @@ void pir_protocol_poly<K, V>::run_server(const std::map<K,V>& server_in, std::ve
       gcry_cipher_encrypt(handle, buf, block_size, nullptr, 0);
       NTL::conv(values_server[i], NTL::ZZFromBytes(buf, block_size));
     }
-
+    gcry_cipher_close(handle);
+    
     // interpolate polynomial over the values
     // interpolate_recursive(poly_server, elements_server,values_server);
     poly_interpolate_zp_recursive(values_server.length() - 1,
