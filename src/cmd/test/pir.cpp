@@ -1,14 +1,16 @@
-#include "fastpoly/recursive.h"
-#include "mpc-utils/mpc_config.hpp"
-#include "mpc-utils/party.hpp"
-#include "mpc-utils/boost_serialization.hpp"
-#include <boost/serialization/map.hpp>
-#include "pir_protocol_poly.hpp"
-#include "pir_protocol_fss.hpp"
-#include <NTL/vector.h>
 #include <numeric>
 #include <map>
 #include <chrono>
+#include <boost/serialization/map.hpp>
+#include <NTL/vector.h>
+
+#include "fastpoly/recursive.h"
+#include "mpc-utils/boost_serialization.hpp"
+#include "mpc-utils/mpc_config.hpp"
+#include "mpc-utils/party.hpp"
+#include "pir_protocol_fss.hpp"
+#include "pir_protocol_poly.hpp"
+#include "pir_protocol_scs.hpp"
 
 // used for time measurements
 template<class F>
@@ -36,7 +38,7 @@ protected:
     if(statistical_security <= 0) {
       BOOST_THROW_EXCEPTION(po::error("'statistical_security' must be positive"));
     }
-    if(pir_type != "poly" && pir_type != "fss") {
+    if(pir_type != "poly" && pir_type != "fss" && pir_type != "scs") {
       BOOST_THROW_EXCEPTION(po::error("'pir_type' must be either `poly` or `fss`"));
     }
     mpc_config::validate();
@@ -53,7 +55,7 @@ public:
       ("num_elements_server,N", po::value(&num_elements_server)->required(), "Number of non-zero elements in the server's database")
       ("num_elements_client,n", po::value(&num_elements_client)->required(), "Number of non-zero elements in the client's database")
       ("statistical_security,s", po::value(&statistical_security)->default_value(40), "Statistical security parameter")
-      ("pir_type", po::value(&pir_type)->required(), "PIR type: poly | fss");
+      ("pir_type", po::value(&pir_type)->required(), "PIR type: poly | fss | scs");
     set_default_filename("config/test/pir.ini");
   }
 };
@@ -80,6 +82,9 @@ int main(int argc, const char **argv) {
     } else if(conf.pir_type == "fss") {
       proto = std::unique_ptr<pir_protocol<key_type, value_type>>(
         new pir_protocol_fss<key_type, value_type>(chan));
+    } else if(conf.pir_type == "scs") {
+      proto = std::unique_ptr<pir_protocol<key_type, value_type>>(
+        new pir_protocol_scs<key_type, value_type>(chan));
     }
     if(party.get_id() == 0) {
       // use primes as inputs for easy recognition

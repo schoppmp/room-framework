@@ -1,0 +1,7 @@
+#include "pir_protocol_scs.h"
+#include <obliv.oh>
+#include <bcrandom.h>
+
+void pir_scs_oblivc(void *vargs) {
+  pir_scs_oblivc_args *args = vargs;
+}
