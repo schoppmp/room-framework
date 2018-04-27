@@ -17,8 +17,14 @@ public:
 
   using pir_protocol<K, V>::run_server;
   using pir_protocol<K, V>::run_client;
-  void run_server(const std::map<K,V>& server_in, std::vector<V>& server_out);
-  void run_client(const std::vector<K>& client_in, std::vector<V>& client_out);
+  using PairIterator = typename pir_protocol<K, V>::PairIterator;
+  using KeyIterator = typename pir_protocol<K, V>::KeyIterator;
+  using ValueIterator = typename pir_protocol<K, V>::ValueIterator;
+
+  void run_server(const PairIterator input_first, size_t input_length,
+    const ValueIterator default_first, size_t default_length);
+  void run_client(const KeyIterator input_first, ValueIterator output_first,
+    size_t length);
 };
 
 #include "pir_protocol_fss.tpp"
