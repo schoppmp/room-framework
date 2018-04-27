@@ -21,9 +21,8 @@ void pir_protocol_poly<K,V>::run_server(
     // convert server inputs
     NTL::Vec<NTL::ZZ_p> elements_server;
     NTL::Vec<NTL::ZZ_p> values_server;
-    size_t num_elements = input_length;
-    elements_server.SetMaxLength(num_elements);
-    values_server.SetMaxLength(num_elements);
+    elements_server.SetMaxLength(input_length);
+    values_server.SetMaxLength(input_length);
     auto it = input_first;
     for(size_t i = 0; i < input_length; i++, it++) {
       elements_server.append(NTL::conv<NTL::ZZ_p>((*it).first));
@@ -40,7 +39,7 @@ void pir_protocol_poly<K,V>::run_server(
     gcry_cipher_setkey(handle, key.data(), block_size);
 
     // encrypt server values
-    for(size_t i = 0; i < num_elements; i++) {
+    for(size_t i = 0; i < input_length; i++) {
       NTL::ZZ val;
       NTL::conv(val, values_server[i]);
       val <<= statistical_security;
@@ -63,13 +62,11 @@ void pir_protocol_poly<K,V>::run_server(
     // interpolate_recursive(poly_server, elements_server,values_server);
     poly_interpolate_zp_recursive(values_server.length() - 1,
       elements_server.data(), values_server.data(), poly_server);
-    size_t num_elements_client;
-    chan.recv(num_elements_client);
     chan.send(poly_server);
 
     // set up inputs for obliv-c
-    std::vector<uint8_t> defaults_bytes(num_elements_client * sizeof(V));
-    serialize_le(defaults_bytes.begin(), default_first, num_elements_client);
+    std::vector<uint8_t> defaults_bytes(default_length * sizeof(V));
+    serialize_le(defaults_bytes.begin(), default_first, default_length);
     pir_poly_oblivc_args args = {
       .statistical_security = statistical_security,
       .value_type_size = sizeof(V),
@@ -103,21 +100,16 @@ void pir_protocol_poly<K,V>::run_client(
     nonce++;
 
     // receive polynomial from server and send number of inputs
-    size_t num_elements = length;
     NTL::ZZ_pX poly_server;
-    chan.send(num_elements);
-    // we cannot use send_recv because modulus for NTL::ZZ_p would need to be
-    // installed in the thread created by send_recv
     chan.recv(poly_server);
 
     // convert client inputs to NTL vectors
     NTL::Vec<NTL::ZZ_p> elements_client;
     NTL::Vec<NTL::ZZ_p> values_client;
-    elements_client.SetLength(num_elements);
-    values_client.SetLength(num_elements);
+    elements_client.SetLength(length);
+    values_client.SetLength(length);
     std::copy_n(input_first, length, elements_client.begin());
     // evaluate polynomial using fastpoly
-    // evaluate_recursive(values_client, poly_server, elements_client);
     poly_evaluate_zp_recursive(elements_client.length() - 1, poly_server,
       elements_client.data(), values_client.data());
 
@@ -150,7 +142,7 @@ void pir_protocol_poly<K,V>::run_client(
     execYaoProtocol(&pd, pir_poly_oblivc, &args);
     cleanupProtocol(&pd);
 
-    deserialize_le(output_first, result.data(), num_elements);
+    deserialize_le(output_first, result.data(), length);
   } catch (NTL::ErrorObject& ex) {
     BOOST_THROW_EXCEPTION(ex);
   }

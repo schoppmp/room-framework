@@ -18,8 +18,7 @@ public:
 
   // Iterator types for container-agnostic protocols
   using PairIterator = IteratorTypeErasure::any_iterator<std::pair<const K, V>,
-    std::forward_iterator_tag>;
-    // boost::single_pass_traversal_tag>;
+    boost::single_pass_traversal_tag>;
   using KeyIterator = IteratorTypeErasure::any_iterator<K,
     boost::single_pass_traversal_tag>;
   using ValueIterator = IteratorTypeErasure::any_iterator<V,
