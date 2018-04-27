@@ -9,7 +9,10 @@ extern "C" {
 }
 
 template<typename K, typename V>
-void pir_protocol_poly<K, V>::run_server(const std::map<K,V>& server_in, std::vector<V>& server_out) {
+void pir_protocol_poly<K,V>::run_server(
+  const pir_protocol_poly<K,V>::PairIterator input_first, size_t input_length,
+  const pir_protocol_poly<K,V>::ValueIterator default_first, size_t default_length
+) {
   try {
     NTL::ZZ_pPush push(modulus);
     nonce++;
@@ -18,11 +21,13 @@ void pir_protocol_poly<K, V>::run_server(const std::map<K,V>& server_in, std::ve
     // convert server inputs
     NTL::Vec<NTL::ZZ_p> elements_server;
     NTL::Vec<NTL::ZZ_p> values_server;
-    elements_server.SetMaxLength(server_in.size());
-    values_server.SetMaxLength(server_in.size());
-    for(auto& pair : server_in) {
-      elements_server.append(NTL::conv<NTL::ZZ_p>(pair.first));
-      values_server.append(NTL::conv<NTL::ZZ_p>(pair.second));
+    size_t num_elements = input_length;
+    elements_server.SetMaxLength(num_elements);
+    values_server.SetMaxLength(num_elements);
+    auto it = input_first;
+    for(size_t i = 0; i < input_length; i++, it++) {
+      elements_server.append(NTL::conv<NTL::ZZ_p>((*it).first));
+      values_server.append(NTL::conv<NTL::ZZ_p>((*it).second));
     }
 
     // setup encryption
@@ -35,7 +40,7 @@ void pir_protocol_poly<K, V>::run_server(const std::map<K,V>& server_in, std::ve
     gcry_cipher_setkey(handle, key.data(), block_size);
 
     // encrypt server values
-    for(size_t i = 0; i < server_in.size(); i++) {
+    for(size_t i = 0; i < num_elements; i++) {
       NTL::ZZ val;
       NTL::conv(val, values_server[i]);
       val <<= statistical_security;
@@ -53,7 +58,7 @@ void pir_protocol_poly<K, V>::run_server(const std::map<K,V>& server_in, std::ve
       NTL::conv(values_server[i], NTL::ZZFromBytes(buf, block_size));
     }
     gcry_cipher_close(handle);
-    
+
     // interpolate polynomial over the values
     // interpolate_recursive(poly_server, elements_server,values_server);
     poly_interpolate_zp_recursive(values_server.length() - 1,
@@ -63,13 +68,15 @@ void pir_protocol_poly<K, V>::run_server(const std::map<K,V>& server_in, std::ve
     chan.send(poly_server);
 
     // set up inputs for obliv-c
-    std::vector<uint8_t> result(num_elements_client * sizeof(V));
+    std::vector<uint8_t> defaults_bytes(num_elements_client * sizeof(V));
+    serialize_le(defaults_bytes.begin(), default_first, num_elements_client);
     pir_poly_oblivc_args args = {
       .statistical_security = statistical_security,
       .value_type_size = sizeof(V),
       .input_size = key.size(),
       .input = key.data(),
-      .result = result.data()
+      .defaults = defaults_bytes.data(),
+      .result = nullptr
     };
 
     // run yao's protocol using Obliv-C
@@ -81,23 +88,24 @@ void pir_protocol_poly<K, V>::run_server(const std::map<K,V>& server_in, std::ve
     setCurrentParty(&pd, 1);
     execYaoProtocol(&pd, pir_poly_oblivc, &args);
     cleanupProtocol(&pd);
-
-    server_out.resize(num_elements_client);
-    DESERIALIZE(server_out.data(), result.data(), server_out.size());
   } catch (NTL::ErrorObject& ex) {
     BOOST_THROW_EXCEPTION(ex);
   }
 }
 
 template<typename K, typename V>
-void pir_protocol_poly<K, V>::run_client(const std::vector<K>& client_in, std::vector<V>& client_out) {
+void pir_protocol_poly<K,V>::run_client(
+  const pir_protocol_poly<K,V>::KeyIterator input_first,
+  pir_protocol_poly<K,V>::ValueIterator output_first, size_t length
+) {
   try {
     NTL::ZZ_pPush push(modulus);
     nonce++;
 
     // receive polynomial from server and send number of inputs
+    size_t num_elements = length;
     NTL::ZZ_pX poly_server;
-    chan.send(client_in.size());
+    chan.send(num_elements);
     // we cannot use send_recv because modulus for NTL::ZZ_p would need to be
     // installed in the thread created by send_recv
     chan.recv(poly_server);
@@ -105,9 +113,9 @@ void pir_protocol_poly<K, V>::run_client(const std::vector<K>& client_in, std::v
     // convert client inputs to NTL vectors
     NTL::Vec<NTL::ZZ_p> elements_client;
     NTL::Vec<NTL::ZZ_p> values_client;
-    elements_client.SetLength(client_in.size());
-    values_client.SetLength(client_in.size());
-    std::copy(client_in.begin(), client_in.end(), elements_client.begin());
+    elements_client.SetLength(num_elements);
+    values_client.SetLength(num_elements);
+    std::copy_n(input_first, length, elements_client.begin());
     // evaluate polynomial using fastpoly
     // evaluate_recursive(values_client, poly_server, elements_client);
     poly_evaluate_zp_recursive(elements_client.length() - 1, poly_server,
@@ -121,6 +129,7 @@ void pir_protocol_poly<K, V>::run_client(const std::vector<K>& client_in, std::v
       .value_type_size = sizeof(V),
       .input_size = ciphertexts_client.size(),
       .input = ciphertexts_client.data(),
+      .defaults = nullptr,
       .result = result.data()
     };
     // serialize ciphertexts and elements (used as ctr in decryption)
@@ -141,8 +150,7 @@ void pir_protocol_poly<K, V>::run_client(const std::vector<K>& client_in, std::v
     execYaoProtocol(&pd, pir_poly_oblivc, &args);
     cleanupProtocol(&pd);
 
-    client_out.resize(values_client.length());
-    DESERIALIZE(client_out.data(), result.data(), client_out.size());
+    deserialize_le(output_first, result.data(), num_elements);
   } catch (NTL::ErrorObject& ex) {
     BOOST_THROW_EXCEPTION(ex);
   }

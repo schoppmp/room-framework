@@ -8,9 +8,9 @@
 #include "mpc-utils/boost_serialization.hpp"
 #include "mpc-utils/mpc_config.hpp"
 #include "mpc-utils/party.hpp"
-#include "pir_protocol_fss.hpp"
 #include "pir_protocol_poly.hpp"
-#include "pir_protocol_scs.hpp"
+// #include "pir_protocol_fss.hpp"
+// #include "pir_protocol_scs.hpp"
 
 // used for time measurements
 template<class F>
@@ -79,12 +79,12 @@ int main(int argc, const char **argv) {
     if(conf.pir_type == "poly") {
       proto = std::unique_ptr<pir_protocol<key_type, value_type>>(
         new pir_protocol_poly<key_type, value_type>(chan, conf.statistical_security));
-    } else if(conf.pir_type == "fss") {
-      proto = std::unique_ptr<pir_protocol<key_type, value_type>>(
-        new pir_protocol_fss<key_type, value_type>(chan));
-    } else if(conf.pir_type == "scs") {
-      proto = std::unique_ptr<pir_protocol<key_type, value_type>>(
-        new pir_protocol_scs<key_type, value_type>(chan));
+    // } else if(conf.pir_type == "fss") {
+    //   proto = std::unique_ptr<pir_protocol<key_type, value_type>>(
+    //     new pir_protocol_fss<key_type, value_type>(chan));
+    // } else if(conf.pir_type == "scs") {
+    //   proto = std::unique_ptr<pir_protocol<key_type, value_type>>(
+    //     new pir_protocol_scs<key_type, value_type>(chan));
     }
     if(party.get_id() == 0) {
       // use primes as inputs for easy recognition
@@ -94,13 +94,14 @@ int main(int argc, const char **argv) {
         server_in[2*i + 42] = primes.next();
       }
       // run PIR protocol
-      std::vector<value_type> result;
+      std::vector<value_type> defaults(conf.num_elements_client);
       benchmark([&]() {
-        result = proto->run_server(server_in);
+        proto->run_server(server_in.begin(), server_in.size(), defaults.begin(),
+          defaults.size());
       }, "PIR Protocol (Server)");
 
       // send result for testing
-      chan.send(result);
+      chan.send(defaults);
       chan.send(server_in);
     } else {
       // generate client elements
@@ -108,9 +109,9 @@ int main(int argc, const char **argv) {
       std::iota(client_in.begin(), client_in.end(), 23);
 
       // run PIR protocol
-      std::vector<value_type> result;
+      std::vector<value_type> result(client_in.size());
       benchmark([&]() {
-        result = proto->run_client(client_in);
+        proto->run_client(client_in.begin(), result.begin(), client_in.size());
       }, "PIR Protocol (Client)");
 
       // check correctness of the result
@@ -119,10 +120,14 @@ int main(int argc, const char **argv) {
       chan.recv(result_server);
       chan.recv(server_in);
       for(size_t i = 0; i < result.size(); i++) {
-        value_type expected = server_in[client_in[i]],
-          actual = result_server[i] + result[i];
-        if(expected != actual) {
-          std::cerr << "Expected " << expected << "\nGot " << actual << "\n";
+        value_type expected;
+        try {
+          expected = server_in.at(client_in[i]);
+        } catch (std::out_of_range& e) {
+          expected = result_server[i];
+        }
+        if(expected != result[i]) {
+          std::cerr << "Expected " << expected << "\nGot " << result[i] << "\n";
           BOOST_THROW_EXCEPTION(
             std::runtime_error("Value of PIR result does not match"));
         }

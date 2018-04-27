@@ -13,16 +13,11 @@ void pir_poly_oblivc(void *vargs) {
   obliv uint8_t *ciphertexts = calloc(ciphertexts_size, sizeof(obliv uint8_t));
   obliv uint8_t *key = calloc(176, sizeof(obliv uint8_t));
   // create shares
-  if(ocCurrentParty() == 1) {
-    BCipherRandomGen* rand = newBCipherRandomGen();
-    randomizeBuffer(rand, args->result, num_ciphertexts * args->value_type_size);
-    releaseBCipherRandomGen(rand);
-  }
   obliv uint8_t *result1 = calloc(num_ciphertexts, sizeof(obliv uint8_t) * args->value_type_size);
   obliv uint8_t *result2 = calloc(num_ciphertexts, sizeof(obliv uint8_t) * args->value_type_size);
   feedOblivCharArray(ciphertexts, args->input, ciphertexts_size, 2);
   feedOblivCharArray(key, args->input, block_size, 1);
-  feedOblivCharArray(result1, args->result, num_ciphertexts * args->value_type_size, 1);
+  feedOblivCharArray(result1, args->defaults, num_ciphertexts * args->value_type_size, 1);
 
   // decrypt
   oaes_128_expandkey(key);
