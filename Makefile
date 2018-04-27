@@ -20,7 +20,8 @@ OBLIVCCFLAGS = -g -D_Float128=double
 LDFLAGS = $(STATIC_FILES) -lntl -lboost_program_options -lboost_serialization \
 	-lboost_system -lboost_thread -lboost_iostreams -lgcrypt -lgomp
 INCLUDES = -I$(SRCDIR) -I$(LIBDIR) -I$(LIBDIR)/obliv-c/src/ext/oblivc \
-	-I$(LIBDIR)/absentminded-crypto-kit/src
+	-I$(LIBDIR)/absentminded-crypto-kit/src \
+	-I$(LIBDIR)/IteratorTypeErasure/any_iterator
 export CXXFLAGS = -O3 -pthread -g -std=gnu++11 $(INCLUDES) \
 	-DMPC_UTILS_USE_NTL -DMPC_UTILS_USE_OBLIVC \
 
