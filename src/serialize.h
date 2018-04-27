@@ -9,7 +9,7 @@ void serialize_le(OutputIterator out, InputIterator in, size_t n) {
   for(size_t i = 0; i < n; i++, in++) {
     size_t element_size = sizeof(*in) / sizeof(*out);
     for(size_t j = 0; j < element_size; j++, out++) {
-      *out = ((typeof(*out)) *in) >> (8 * j);
+      *out = (typeof(*out)) (*in >> (8 * j));
     }
   }
 }

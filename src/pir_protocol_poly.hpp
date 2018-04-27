@@ -55,9 +55,8 @@ public:
 
   void run_server(const PairIterator input_first, size_t input_length,
     const ValueIterator default_first, size_t default_length);
-  void run_client(const KeyIterator input_first,
-    ValueIterator output_first, size_t length);
-
+  void run_client(const KeyIterator input_first, ValueIterator output_first,
+    size_t length);
 };
 
 #include "pir_protocol_poly.tpp"

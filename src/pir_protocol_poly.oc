@@ -37,15 +37,12 @@ void pir_poly_oblivc(void *vargs) {
       ok &= (plaintexts[i*block_size + j] == 0);
     }
     size_t offset = args->statistical_security / 8;
-    // byte-wise subtraction for arbitrary value_type_sizes
-    obliv uint16_t rem = 1;
     for(size_t j = 0; j < args->value_type_size; j++) {
       obliv if(ok) {
-        rem += plaintexts[i*block_size + offset + j];
+        result2[i*args->value_type_size + j] = plaintexts[i*block_size + offset + j];
+      } else {
+        result2[i*args->value_type_size + j] = result1[i*args->value_type_size + j];
       }
-      rem += (obliv uint8_t) (result1[i*args->value_type_size + j] ^ 0xFF);
-      result2[i*args->value_type_size + j] = (obliv uint8_t) rem;
-      rem >>= 8;
     }
   }
   revealOblivCharArray(args->result, result2, num_ciphertexts * args->value_type_size, 2);

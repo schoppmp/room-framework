@@ -1,6 +1,7 @@
 #include <numeric>
 #include <map>
 #include <chrono>
+#include <random>
 #include <boost/serialization/map.hpp>
 #include <NTL/vector.h>
 
@@ -9,7 +10,7 @@
 #include "mpc-utils/mpc_config.hpp"
 #include "mpc-utils/party.hpp"
 #include "pir_protocol_poly.hpp"
-// #include "pir_protocol_fss.hpp"
+#include "pir_protocol_fss.hpp"
 // #include "pir_protocol_scs.hpp"
 
 // used for time measurements
@@ -73,15 +74,15 @@ int main(int argc, const char **argv) {
   auto chan = party.connect_to(1 - party.get_id());
 
   using key_type = uint64_t;
-  using value_type = uint16_t;
+  using value_type = uint32_t;
   try {
     std::unique_ptr<pir_protocol<key_type, value_type>> proto;
     if(conf.pir_type == "poly") {
       proto = std::unique_ptr<pir_protocol<key_type, value_type>>(
         new pir_protocol_poly<key_type, value_type>(chan, conf.statistical_security));
-    // } else if(conf.pir_type == "fss") {
-    //   proto = std::unique_ptr<pir_protocol<key_type, value_type>>(
-    //     new pir_protocol_fss<key_type, value_type>(chan));
+    } else if(conf.pir_type == "fss") {
+      proto = std::unique_ptr<pir_protocol<key_type, value_type>>(
+        new pir_protocol_fss<key_type, value_type>(chan));
     // } else if(conf.pir_type == "scs") {
     //   proto = std::unique_ptr<pir_protocol<key_type, value_type>>(
     //     new pir_protocol_scs<key_type, value_type>(chan));
@@ -93,8 +94,12 @@ int main(int argc, const char **argv) {
       for(size_t i = 0; i < conf.num_elements_server; i++) {
         server_in[2*i + 42] = primes.next();
       }
-      // run PIR protocol
       std::vector<value_type> defaults(conf.num_elements_client);
+      // generate random default values
+      std::uniform_int_distribution<value_type> dist;
+      std::random_device r;
+      std::generate(defaults.begin(), defaults.end(), [&]{return dist(r);});
+      // run PIR protocol
       benchmark([&]() {
         proto->run_server(server_in.begin(), server_in.size(), defaults.begin(),
           defaults.size());

@@ -65,7 +65,7 @@ void pir_protocol_poly<K,V>::run_server(
     chan.send(poly_server);
 
     // set up inputs for obliv-c
-    std::vector<uint8_t> defaults_bytes(default_length * sizeof(V));
+    std::vector<uint8_t> defaults_bytes(default_length * sizeof(V), 0);
     serialize_le(defaults_bytes.begin(), default_first, default_length);
     pir_poly_oblivc_args args = {
       .statistical_security = statistical_security,
