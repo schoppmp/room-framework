@@ -30,10 +30,13 @@ public:
     std::ptrdiff_t>>;
 
   // most generic functions to be implemented by subclasses
-  virtual void run_server(const pair_range input, const value_range defaults);
+  virtual void run_server(const pair_range input, const value_range defaults) = 0;
+  virtual void run_client(const key_range input, const value_range output) = 0;
+
+  // adapter for separate key and value ranges; can be overloaded by subclasses
+  // but also provides a default implementation
   virtual void run_server(const key_range input_keys,
     const value_range input_values, const value_range defaults);
-  virtual void run_client(const key_range input, const value_range output);
 
   // adapter for converting an any_range of pairs to a pair_range
   void run_server(
