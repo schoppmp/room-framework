@@ -2,6 +2,7 @@
 
 #include <vector>
 #include <map>
+#include <boost/range/any_range.hpp>
 #include "any_iterator.hpp"
 
 // A (sparse) PIR protocol is executed between two parties, called Server and
@@ -16,54 +17,29 @@ public:
   using value_type = V;
   virtual ~pir_protocol() {};
 
-  // Iterator types for container-agnostic protocols
-  // PairIterator uses values instead of references, so it can only be read from
-  // This is needed to allow both boost::zip_iterator and std::map<K,V>::iterator
-  // to implement it
-  using PairIterator = IteratorTypeErasure::any_iterator<std::pair<const K, const V>,
-    boost::single_pass_traversal_tag, std::pair<const K, const V>>;
-  using KeyIterator = IteratorTypeErasure::any_iterator<const K,
-    boost::single_pass_traversal_tag>;
-  using ValueIterator = IteratorTypeErasure::any_iterator<V,
-    boost::single_pass_traversal_tag>;
+  // Range types for container-agnostic protocols
+  using key_range = boost::any_range<K, boost::single_pass_traversal_tag,
+    K&, std::ptrdiff_t>;
+  using value_range = boost::any_range<V, boost::single_pass_traversal_tag,
+    V&, std::ptrdiff_t>;
+  // we cannot use any_range here, since it does not use conversions to build
+  // reference types, which is needed to capture both zip_iterators and
+  // std::map::iterators under the same type
+  using pair_range = boost::iterator_range<IteratorTypeErasure::any_iterator<
+    std::pair<const K, const V>, boost::single_pass_traversal_tag, std::pair<const K&, const V&>,
+    std::ptrdiff_t>>;
 
   // most generic functions to be implemented by subclasses
-  virtual void run_server(const PairIterator input_it, size_t input_length,
-    const ValueIterator default_it, size_t default_length) = 0;
-  virtual void run_client(const KeyIterator input_first,
-    ValueIterator output_first, size_t length) = 0;
-  // overload for two iterators instead of an iterator of pairs
-  // this one provides a default implementation using boost::make_zip_iterator
-  virtual void run_server(const KeyIterator input_keys_it,
-    const ValueIterator input_values_it, size_t input_length,
-    const ValueIterator default_it, size_t default_length);
+  virtual void run_server(const pair_range input, const value_range defaults);
+  virtual void run_server(const key_range input_keys,
+    const value_range input_values, const value_range defaults);
+  virtual void run_client(const key_range input, const value_range output);
 
-  // templates for converting inputs to any_iterator objects. Needed due to the
-  // explicit constructor of any_iterator. See also comment in
-  // any_iterator.hpp:147-161
-  template<typename Iterator1, typename Iterator2>
-  void run_server(const Iterator1 input_it, size_t input_length,
-    const Iterator2 default_it, size_t default_length);
-  template<typename Iterator1, typename Iterator2>
-  void run_client(const Iterator1 input_it, const Iterator2 output_it,
-    size_t length);
-  template<typename Iterator1, typename Iterator2>
-  void run_server(const Iterator1 input_keys_it,
-    const Iterator2 input_values_it, size_t input_length,
-    const Iterator2 default_it, size_t default_length);
-
-  // // overloads for concrete containers. can be overloaded by subclasses,
-  // // but provide default implementations based on the generic versions above
-  // virtual void run_server(const std::map<K,V>& input,
-  //   const std::vector<V>& defaults);
-  // virtual void run_server(const std::vector<K>& input_keys,
-  //   const std::vector<K>& input_values, const std::vector<V>& def);
-  // virtual void run_client(const std::vector<K>& input,
-  //   std::vector<V>& client_out);
-  // virtual std::vector<V> run_client(const std::vector<K>& input);
-  // virtual void run_server(const std::map<K,V>& input, const V& def);
-  // virtual void run_client(const std::vector<K>& input, V& out);
-  // virtual V run_client(const std::vector<K>& input);
+  // adapter for converting an any_range of pairs to a pair_range
+  void run_server(
+    boost::any_range<std::pair<const K, V>, boost::single_pass_traversal_tag,
+    std::pair<const K, V>&, boost::use_default> input, value_range defaults
+  );
 };
 
 #include "pir_protocol.tpp"

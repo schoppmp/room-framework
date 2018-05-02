@@ -1,6 +1,7 @@
 #include "pir_protocol_poly.h"
 #include <oaes.oh>
 #include <bcrandom.h>
+#include <copy.oh>
 
 void pir_poly_oblivc(void *vargs) {
   pir_poly_oblivc_args *args = vargs;
@@ -30,6 +31,7 @@ void pir_poly_oblivc(void *vargs) {
     }
   }
 
+  OcCopy cpy = ocCopyCharN(args->value_type_size);
   for(size_t i = 0; i < num_ciphertexts; i++) {
     obliv bool ok = 1;
     // check if decryption was successful
@@ -37,12 +39,10 @@ void pir_poly_oblivc(void *vargs) {
       ok &= (plaintexts[i*block_size + j] == 0);
     }
     size_t offset = args->statistical_security / 8;
-    for(size_t j = 0; j < args->value_type_size; j++) {
-      obliv if(ok) {
-        result2[i*args->value_type_size + j] = plaintexts[i*block_size + offset + j];
-      } else {
-        result2[i*args->value_type_size + j] = result1[i*args->value_type_size + j];
-      }
+    obliv if(ok) {
+      ocCopy(&cpy, &result2[i*args->value_type_size], &plaintexts[i*block_size + offset]);
+    } else {
+      ocCopy(&cpy, &result2[i*args->value_type_size], &result1[i*args->value_type_size]);
     }
   }
   revealOblivCharArray(args->result, result2, num_ciphertexts * args->value_type_size, 2);

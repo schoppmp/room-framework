@@ -1,4 +1,6 @@
 #include <algorithm>
+#include <boost/range.hpp>
+#include <boost/range/algorithm.hpp>
 
 #include "mpc-utils/boost_serialization.hpp"
 #include "fastpoly/recursive.h"
@@ -9,24 +11,29 @@ extern "C" {
 }
 
 template<typename K, typename V>
+// void pir_protocol_poly<K,V>::run_server(
+//   const pir_protocol_poly<K,V>::PairIterator input_first, size_t input_length,
+//   const pir_protocol_poly<K,V>::ValueIterator default_first, size_t default_length
+// ) {
 void pir_protocol_poly<K,V>::run_server(
-  const pir_protocol_poly<K,V>::PairIterator input_first, size_t input_length,
-  const pir_protocol_poly<K,V>::ValueIterator default_first, size_t default_length
+  const pir_protocol_poly<K,V>::pair_range input,
+  const pir_protocol_poly<K,V>::value_range defaults
 ) {
   try {
     NTL::ZZ_pPush push(modulus);
     nonce++;
     NTL::ZZ_pX poly_server;
+    size_t input_length = boost::size(input);
+    size_t default_length = boost::size(defaults);
 
     // convert server inputs
     NTL::Vec<NTL::ZZ_p> elements_server;
     NTL::Vec<NTL::ZZ_p> values_server;
     elements_server.SetMaxLength(input_length);
     values_server.SetMaxLength(input_length);
-    auto it = input_first;
-    for(size_t i = 0; i < input_length; i++, it++) {
-      elements_server.append(NTL::conv<NTL::ZZ_p>((*it).first));
-      values_server.append(NTL::conv<NTL::ZZ_p>((*it).second));
+    for(auto pair : input) {
+      elements_server.append(NTL::conv<NTL::ZZ_p>(pair.first));
+      values_server.append(NTL::conv<NTL::ZZ_p>(pair.second));
     }
 
     // setup encryption
@@ -66,7 +73,7 @@ void pir_protocol_poly<K,V>::run_server(
 
     // set up inputs for obliv-c
     std::vector<uint8_t> defaults_bytes(default_length * sizeof(V), 0);
-    serialize_le(defaults_bytes.begin(), default_first, default_length);
+    serialize_le(defaults_bytes.begin(), boost::begin(defaults), default_length);
     pir_poly_oblivc_args args = {
       .statistical_security = statistical_security,
       .value_type_size = sizeof(V),
@@ -92,12 +99,13 @@ void pir_protocol_poly<K,V>::run_server(
 
 template<typename K, typename V>
 void pir_protocol_poly<K,V>::run_client(
-  const pir_protocol_poly<K,V>::KeyIterator input_first,
-  pir_protocol_poly<K,V>::ValueIterator output_first, size_t length
+  const pir_protocol_poly<K,V>::key_range input,
+  const pir_protocol_poly<K,V>::value_range output
 ) {
   try {
     NTL::ZZ_pPush push(modulus);
     nonce++;
+    size_t length = boost::size(input);
 
     // receive polynomial from server and send number of inputs
     NTL::ZZ_pX poly_server;
@@ -108,7 +116,7 @@ void pir_protocol_poly<K,V>::run_client(
     NTL::Vec<NTL::ZZ_p> values_client;
     elements_client.SetLength(length);
     values_client.SetLength(length);
-    std::copy_n(input_first, length, elements_client.begin());
+    boost::copy(input, elements_client.begin());
     // evaluate polynomial using fastpoly
     poly_evaluate_zp_recursive(elements_client.length() - 1, poly_server,
       elements_client.data(), values_client.data());
@@ -142,7 +150,7 @@ void pir_protocol_poly<K,V>::run_client(
     execYaoProtocol(&pd, pir_poly_oblivc, &args);
     cleanupProtocol(&pd);
 
-    deserialize_le(output_first, result.data(), length);
+    deserialize_le(boost::begin(output), result.data(), length);
   } catch (NTL::ErrorObject& ex) {
     BOOST_THROW_EXCEPTION(ex);
   }

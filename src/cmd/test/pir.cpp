@@ -93,8 +93,8 @@ int main(int argc, const char **argv) {
       // map from keys to values
       std::map<key_type, value_type> server_in;
       // // alternative approach: save keys and values in two vectors
-      // std::vector<key_type> server_keys_in(conf.num_elements_server);
-      // std::vector<value_type> server_values_in(conf.num_elements_server);
+      std::vector<key_type> server_keys_in(conf.num_elements_server);
+      std::vector<value_type> server_values_in(conf.num_elements_server);
       for(size_t i = 0; i < conf.num_elements_server; i++) {
         key_type current_key = 2*i + 42;
         value_type current_value = primes.next();
@@ -109,9 +109,12 @@ int main(int argc, const char **argv) {
       std::generate(defaults.begin(), defaults.end(), [&]{return dist(r);});
       // run PIR protocol
       benchmark([&]() {
-        proto->run_server(server_in.begin(), server_in.size(), defaults.begin(),
-          defaults.size());
-        // proto->run_server(server_keys_in.begin(), server_values_in.begin(),
+        proto->run_server(server_in, defaults);
+        if(0) proto->run_server(server_keys_in, server_values_in, defaults);
+        // proto->run_server(server_in.begin(), server_in.size(), defaults.begin(),
+        //   defaults.size());
+        // // alternatively, call with two separate ranges for keys and values
+        // if(0) proto->run_server(server_keys_in.begin(), server_values_in.begin(),
         //   server_in.size(), defaults.begin(), defaults.size());
       }, "PIR Protocol (Server)");
 
@@ -126,7 +129,8 @@ int main(int argc, const char **argv) {
       // run PIR protocol
       std::vector<value_type> result(client_in.size());
       benchmark([&]() {
-        proto->run_client(client_in.begin(), result.begin(), client_in.size());
+        proto->run_client(client_in, result);
+        // proto->run_client(client_in.begin(), result.begin(), client_in.size());
       }, "PIR Protocol (Client)");
 
       // check correctness of the result

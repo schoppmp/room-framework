@@ -6,33 +6,35 @@ extern "C" {
 
 template<typename K, typename V>
 void pir_protocol_fss<K,V>::run_server(
-  const pir_protocol_fss<K,V>::PairIterator input_first, size_t input_length,
-  const pir_protocol_fss<K,V>::ValueIterator default_first, size_t default_length
+  const pir_protocol_fss<K,V>::pair_range input,
+  const pir_protocol_fss<K,V>::value_range defaults
 ) {
+  size_t input_length = boost::size(input);
+  size_t default_length = boost::size(defaults);
   // set up obliv-c inputs
-  std::vector<uint8_t> input, defaults_bytes(default_length * sizeof(V));
-  serialize_le(defaults_bytes.data(), default_first, default_length);
-  input.reserve(256);
+  std::vector<uint8_t> input_bytes, defaults_bytes(default_length * sizeof(V));
+  serialize_le(defaults_bytes.data(), std::begin(defaults), default_length);
+  input_bytes.reserve(256);
   size_t max_key = 0;
-  auto it = input_first;
+  auto it = boost::begin(input);
   for(size_t i = 0; i < input_length; i++, it++) {
     // write values into a dense vector
     K current_key = it->first;
-    while(input.capacity() <= current_key) {
-      input.reserve(2*input.capacity());
+    while(input_bytes.capacity() <= current_key) {
+      input_bytes.reserve(2*input_bytes.capacity());
     }
     if(current_key > max_key) {
       max_key = current_key;
-      input.resize((current_key + 1) * (sizeof(V)+1), 0);
+      input_bytes.resize((current_key + 1) * (sizeof(V)+1), 0);
     }
-    serialize_le(&input[current_key * (sizeof(V) + 1)], &(it->second), 1);
+    serialize_le(&input_bytes[current_key * (sizeof(V) + 1)], &(it->second), 1);
     // one extra byte per element to distinguish missing values from zeros
-    input[current_key * (sizeof(V) + 1) + sizeof(V)] = 1;
+    input_bytes[current_key * (sizeof(V) + 1) + sizeof(V)] = 1;
   }
   pir_fss_oblivc_args args = {
     .value_type_size = sizeof(V),
     .num_server_values = max_key + 1,
-    .server_values = input.data(),
+    .server_values = input_bytes.data(),
     .server_defaults = defaults_bytes.data(),
     .num_client_keys = default_length,
     .client_keys = nullptr,
@@ -51,21 +53,22 @@ void pir_protocol_fss<K,V>::run_server(
 
 template<typename K, typename V>
 void pir_protocol_fss<K,V>::run_client(
-  const pir_protocol_fss<K,V>::KeyIterator input_first,
-  pir_protocol_fss<K,V>::ValueIterator output_first, size_t length
+  const pir_protocol_fss<K,V>::key_range input,
+  const pir_protocol_fss<K,V>::value_range output
 ) {
+  size_t length = boost::size(input);
   // set up obliv-c inputs
-  std::vector<size_t> input(length); // FLORAM assumes size_t as indexes
-  std::vector<uint8_t> output(length * sizeof(V));
-  std::copy_n(input_first, length, input.begin());
+  std::vector<size_t> input_size_t(length); // FLORAM assumes size_t as indexes
+  std::vector<uint8_t> output_bytes(length * sizeof(V));
+  boost::copy(input, input_size_t.begin());
   pir_fss_oblivc_args args = {
     .value_type_size = sizeof(V),
     .num_server_values = 0,
     .server_values = nullptr,
     .server_defaults = nullptr,
     .num_client_keys = length,
-    .client_keys = input.data(),
-    .result = output.data()
+    .client_keys = input_size_t.data(),
+    .result = output_bytes.data()
   };
 
   // run yao's protocol using Obliv-C
@@ -77,5 +80,5 @@ void pir_protocol_fss<K,V>::run_client(
   execYaoProtocol(&pd, pir_fss_oblivc, &args);
   cleanupProtocol(&pd);
 
-  deserialize_le(output_first, output.data(), length);
+  deserialize_le(output.begin(), output_bytes.data(), length);
 }
