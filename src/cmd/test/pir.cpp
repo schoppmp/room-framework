@@ -92,15 +92,16 @@ int main(int argc, const char **argv) {
       NTL::PrimeSeq primes;
       // map from keys to values
       std::map<key_type, value_type> server_in;
-      // // alternative approach: save keys and values in two vectors
+      // alternative approach: save keys and values in two vectors
       std::vector<key_type> server_keys_in(conf.num_elements_server);
       std::vector<value_type> server_values_in(conf.num_elements_server);
       for(size_t i = 0; i < conf.num_elements_server; i++) {
         key_type current_key = 2*i + 42;
         value_type current_value = primes.next();
         server_in[current_key] = current_value;
-        // server_keys_in[i] = current_key;
-        // server_values_in[i] = current_value;
+        // also save in separate vectors to test alternative approach
+        server_keys_in[i] = current_key;
+        server_values_in[i] = current_value;
       }
       std::vector<value_type> defaults(conf.num_elements_client);
       // generate random default values
@@ -109,13 +110,10 @@ int main(int argc, const char **argv) {
       std::generate(defaults.begin(), defaults.end(), [&]{return dist(r);});
       // run PIR protocol
       benchmark([&]() {
-        proto->run_server(server_in, defaults);
-        if(0) proto->run_server(server_keys_in, server_values_in, defaults);
-        // proto->run_server(server_in.begin(), server_in.size(), defaults.begin(),
-        //   defaults.size());
-        // // alternatively, call with two separate ranges for keys and values
-        // if(0) proto->run_server(server_keys_in.begin(), server_values_in.begin(),
-        //   server_in.size(), defaults.begin(), defaults.size());
+        bool map = 0;
+        if(map) proto->run_server(server_in, defaults);
+        // alternatively, call with two separate ranges for keys and values
+        else proto->run_server(server_keys_in, server_values_in, defaults);
       }, "PIR Protocol (Server)");
 
       // send result for testing

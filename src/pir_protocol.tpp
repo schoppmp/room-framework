@@ -21,8 +21,6 @@ void pir_protocol<K, V>::run_server(
 ) {
   using pair_iterator_type = typename pir_protocol<K, V>::pair_range::iterator;
   auto begin_pair = std::make_pair(boost::begin(input_keys), boost::begin(input_values));
-  auto end_pair = std::make_pair(boost::end(input_keys), boost::end(input_values));
   pair_iterator_type begin_iterator(boost::make_zip_iterator(begin_pair));
-  pair_iterator_type end_iterator(boost::make_zip_iterator(end_pair));
-  run_server(boost::make_iterator_range(begin_iterator, end_iterator), defaults);
+  run_server(boost::make_iterator_range_n(begin_iterator, boost::size(input_keys)), defaults);
 }
