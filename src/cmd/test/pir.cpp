@@ -11,7 +11,7 @@
 #include "mpc-utils/party.hpp"
 #include "pir_protocol_poly.hpp"
 #include "pir_protocol_fss.hpp"
-// #include "pir_protocol_scs.hpp"
+#include "pir_protocol_scs.hpp"
 
 // used for time measurements
 template<class F>
@@ -83,9 +83,9 @@ int main(int argc, const char **argv) {
     } else if(conf.pir_type == "fss") {
       proto = std::unique_ptr<pir_protocol<key_type, value_type>>(
         new pir_protocol_fss<key_type, value_type>(chan));
-    // } else if(conf.pir_type == "scs") {
-    //   proto = std::unique_ptr<pir_protocol<key_type, value_type>>(
-    //     new pir_protocol_scs<key_type, value_type>(chan));
+    } else if(conf.pir_type == "scs") {
+      proto = std::unique_ptr<pir_protocol<key_type, value_type>>(
+        new pir_protocol_scs<key_type, value_type>(chan));
     }
     if(party.get_id() == 0) {
       // use primes as inputs for easy recognition

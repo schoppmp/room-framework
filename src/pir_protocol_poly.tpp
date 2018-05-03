@@ -11,10 +11,6 @@ extern "C" {
 }
 
 template<typename K, typename V>
-// void pir_protocol_poly<K,V>::run_server(
-//   const pir_protocol_poly<K,V>::PairIterator input_first, size_t input_length,
-//   const pir_protocol_poly<K,V>::ValueIterator default_first, size_t default_length
-// ) {
 void pir_protocol_poly<K,V>::run_server(
   const pir_protocol_poly<K,V>::pair_range input,
   const pir_protocol_poly<K,V>::value_range defaults

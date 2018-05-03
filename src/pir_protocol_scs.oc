@@ -1,7 +1,52 @@
 #include "pir_protocol_scs.h"
 #include <obliv.oh>
-#include <bcrandom.h>
+#include <copy.oh>
+#include <osort.oh>
+#include <obliv_bits.h>
+
+// this is somewhat hacky, but it allows us to implement this protocol once for
+// arbitrary key and value sizes known only at runtime
+static __thread size_t key_size;
+static __thread size_t value_size;
+
+obliv int8_t cmp_pair_by_key(OcCopy *cpy, void *el1, void *el2) {
+  obliv uint8_t *c1 = el1, *c2 = el2;
+  obliv bool c1_is_less;
+  // using obliv-c internals here, but everything else wastes AND gates
+  // since arguments are encoded little-endian, this should simply work
+  // TODO: why doesn't liback's obig library use these?
+  __obliv_c__setLessThanUnsigned(&c1_is_less, c1, c2, 8 * key_size);
+  obliv char ret = 1;
+  obliv if(c1_is_less) { ret = -1; }
+  return ret;
+}
 
 void pir_scs_oblivc(void *vargs) {
   pir_scs_oblivc_args *args = vargs;
+  key_size = args->key_type_size;
+  value_size = args->value_type_size;
+  size_t pair_size = key_size + value_size;
+  OcCopy cpy_opair = ocCopyCharN(pair_size);
+  size_t len1 = ocBroadcastLLong(args->num_elements, 1);
+  size_t len2 = ocBroadcastLLong(args->num_elements, 2);
+
+  // feed locally sorted inputs
+  obliv uint8_t *opairs = calloc(len1 + len2, cpy_opair.eltsize);
+  for(size_t i = 0; i < len1; i++) {
+    // party 1 has key-value pairs
+    feedOblivCharArray(&opairs[i * pair_size], &args->input_keys[i * key_size],
+      key_size, 1);
+    feedOblivCharArray(&opairs[i * pair_size + key_size],
+      &args->input_values[i * value_size], value_size, 1);
+  }
+  for(size_t i = 0; i < len2; i++) {
+    // party 2 just has keys, values remain zero
+    feedOblivCharArray(&opairs[(len1+i) * pair_size],
+      &args->input_keys[i * key_size], key_size, 2);
+  }
+  // merge them
+  omerge_batcher(&cpy_opair, opairs, len1, len1+len2, cmp_pair_by_key);
+
+  // TODO: compare, shuffle
+
 }
