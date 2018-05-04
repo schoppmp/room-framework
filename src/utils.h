@@ -1,13 +1,24 @@
 #pragma once
 #include <stdint.h>
+#include <chrono>
+
+// used for time measurements
+template<class F>
+void benchmark(F f, const std::string& label) {
+  auto start = std::chrono::steady_clock::now();
+  f();
+  std::chrono::duration<double> d = std::chrono::steady_clock::now() - start;
+  std::cout << label << ": " << d.count() << "s\n";
+}
 
 // quick-and-dirty little-endian serialization of arbitrary integer types
 // assumes `in` is an array of unsigned integers of at most `element_size` bytes,
 // `out` is a byte array, and n is the number of elements in `in`.
 template<typename InputIterator, typename OutputIterator>
 void serialize_le(OutputIterator out, InputIterator in, size_t n) {
+  size_t element_size = sizeof(*in) / sizeof(*out);
+  // std::cout << "element_size: " << element_size << "\n";
   for(size_t i = 0; i < n; i++, in++) {
-    size_t element_size = sizeof(*in) / sizeof(*out);
     for(size_t j = 0; j < element_size; j++, out++) {
       *out = (typeof(*out)) (*in >> (8 * j));
     }
@@ -16,32 +27,11 @@ void serialize_le(OutputIterator out, InputIterator in, size_t n) {
 
 template<typename InputIterator, typename OutputIterator>
 void deserialize_le(OutputIterator out, InputIterator in, size_t n) {
+  size_t element_size = sizeof(*out) / sizeof(*in);
   for(size_t i = 0; i < n; i++, out++) {
     *out = 0;
-    size_t element_size = sizeof(*out) / sizeof(*in);
     for(size_t j = 0; j < element_size; j++, in++) {
       *out ^= ((typeof(*out)) *in) << (8 * j);
     }
   }
 }
-
-
-// // Works with Obliv-C's `obliv` types.
-// #define SERIALIZE(out, in, n) do { \
-//   for(size_t i = 0; i < n; i++) { \
-//     size_t element_size = sizeof(*in) / sizeof(*out); \
-//     for(size_t j = 0; j < element_size; j++) { \
-//       *(out + i*sizeof(*in)+j) = (typeof(*out))(*(in + i) >> (8 * j)); \
-//     } \
-//   } \
-// } while(0)
-//
-// #define DESERIALIZE(out, in, n) do { \
-//   for(size_t i = 0; i < n; i++) { \
-//     *(out + i) = 0; \
-//     size_t element_size = sizeof(*out) / sizeof(*in); \
-//     for(size_t j = 0; j < element_size; j++) { \
-//       *(out + i) ^= ((typeof(*out))(*(in + i*sizeof(*out)+j)) << (8 * j)); \
-//     } \
-//   } \
-// } while(0)

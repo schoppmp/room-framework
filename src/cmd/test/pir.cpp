@@ -1,6 +1,5 @@
 #include <numeric>
 #include <map>
-#include <chrono>
 #include <random>
 #include <boost/serialization/map.hpp>
 #include <NTL/vector.h>
@@ -12,15 +11,7 @@
 #include "pir_protocol_poly.hpp"
 #include "pir_protocol_fss.hpp"
 #include "pir_protocol_scs.hpp"
-
-// used for time measurements
-template<class F>
-void benchmark(F f, const std::string& label) {
-  auto start = std::chrono::steady_clock::now();
-  f();
-  std::chrono::duration<double> d = std::chrono::steady_clock::now() - start;
-  std::cout << label << ": " << d.count() << "s\n";
-}
+#include "utils.h"
 
 
 class test_pir_config : public virtual mpc_config {
@@ -73,8 +64,8 @@ int main(int argc, const char **argv) {
   party party(conf);
   auto chan = party.connect_to(1 - party.get_id());
 
-  using key_type = uint64_t;
-  using value_type = uint32_t;
+  using key_type = uint32_t;
+  using value_type = uint8_t;
   try {
     std::unique_ptr<pir_protocol<key_type, value_type>> proto;
     if(conf.pir_type == "poly") {
@@ -136,6 +127,7 @@ int main(int argc, const char **argv) {
       std::vector<value_type> result_server;
       chan.recv(result_server);
       chan.recv(server_in);
+      bool incorrect_output = false;
       for(size_t i = 0; i < result.size(); i++) {
         value_type expected;
         try {
@@ -144,10 +136,14 @@ int main(int argc, const char **argv) {
           expected = result_server[i];
         }
         if(expected != result[i]) {
-          std::cerr << "Expected " << expected << "\nGot " << result[i] << "\n";
-          BOOST_THROW_EXCEPTION(
-            std::runtime_error("Value of PIR result does not match"));
+          std::cerr << "Input " << client_in[i] << ", expected " << expected <<
+            ", got " << result[i] << "\n";
+          incorrect_output = true;
         }
+      }
+      if(incorrect_output) {
+        BOOST_THROW_EXCEPTION(
+          std::runtime_error("Value of PIR result does not match"));
       }
     }
   } catch(boost::exception &ex) {
