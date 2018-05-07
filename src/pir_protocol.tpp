@@ -1,5 +1,6 @@
 #include <boost/iterator/zip_iterator.hpp>
 #include <boost/fusion/adapted/std_pair.hpp>
+#include "utils.h"
 
 // implicit conversion to pair_range since any_range doesn't work as expected
 template<typename K, typename V>
@@ -19,8 +20,8 @@ void pir_protocol<K, V>::run_server(
   const pir_protocol<K, V>::value_range input_values,
   const pir_protocol<K, V>::value_range defaults
 ) {
-  using pair_iterator_type = typename pir_protocol<K, V>::pair_range::iterator;
-  auto begin_pair = std::make_pair(boost::begin(input_keys), boost::begin(input_values));
-  pair_iterator_type begin_iterator(boost::make_zip_iterator(begin_pair));
-  run_server(boost::make_iterator_range_n(begin_iterator, boost::size(input_keys)), defaults);
+  using pair_iterator = typename pir_protocol<K, V>::pair_range::iterator;
+  // convert inner iterator type before calling run_server
+  pair_iterator it(combine_pair(input_keys, input_values).begin());
+  run_server(boost::make_iterator_range_n(it, boost::size(input_keys)), defaults);
 }
