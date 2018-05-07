@@ -17,7 +17,7 @@ void pir_protocol_scs<K,V>::run_server(
   std::vector<std::pair<K,V>> input_vec;
   std::vector<uint8_t> input_keys_bytes(input_size * sizeof(K));
   std::vector<uint8_t> input_values_bytes(input_size * sizeof(V));
-  std::vector<uint8_t> input_defaults_bytes(input_size * sizeof(V));
+  std::vector<uint8_t> input_defaults_bytes(boost::size(defaults) * sizeof(V));
   // benchmark([&]{
   input_vec = std::vector<std::pair<K,V>>(boost::begin(input), boost::end(input));
   boost::sort(input_vec);
