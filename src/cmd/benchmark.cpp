@@ -111,7 +111,6 @@ int main(int argc, const char **argv) {
               proto->run_client(client_in, client_out);
             }, "PIR Protocol (Client)");
           }
-          chan.flush();
         } catch(boost::exception &ex) {
           std::cerr << boost::diagnostic_information(ex);
           return 1;

@@ -22,7 +22,9 @@ LDFLAGS = $(STATIC_FILES) -lntl -lboost_program_options -lboost_serialization \
 INCLUDES = -I$(SRCDIR) -I$(LIBDIR) -I$(LIBDIR)/obliv-c/src/ext/oblivc \
 	-I$(LIBDIR)/absentminded-crypto-kit/src \
 	-I$(LIBDIR)/IteratorTypeErasure/any_iterator
-export CXXFLAGS = -O3 -pthread -g -std=gnu++11 $(INCLUDES) \
+# export flags for sub-makes (obliv-C, liback)
+export CFLAGS = -O3 -pthread -g
+export CXXFLAGS = $(CFLAGS) -std=gnu++11 $(INCLUDES) \
 	-DMPC_UTILS_USE_NTL -DMPC_UTILS_USE_OBLIVC \
 
 

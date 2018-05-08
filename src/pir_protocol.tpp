@@ -22,6 +22,6 @@ void pir_protocol<K, V>::run_server(
 ) {
   using pair_iterator = typename pir_protocol<K, V>::pair_range::iterator;
   // convert inner iterator type before calling run_server
-  pair_iterator it(combine_pair(input_keys, input_values).begin());
+  pair_iterator it(boost::begin(combine_pair(input_keys, input_values)));
   run_server(boost::make_iterator_range_n(it, boost::size(input_keys)), defaults);
 }

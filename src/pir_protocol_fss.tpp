@@ -20,7 +20,7 @@ void pir_protocol_fss<K,V>::run_server(
   for(size_t i = 0; i < input_length; i++, it++) {
     // write values into a dense vector
     K current_key = it->first;
-    while(input_bytes.capacity() <= current_key) {
+    while(input_bytes.capacity() <= current_key * (sizeof(V) + 1)) {
       input_bytes.reserve(2*input_bytes.capacity());
     }
     if(current_key > max_key) {
