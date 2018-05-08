@@ -64,4 +64,4 @@ clean:
 	$(RM) $(OBJECTS:.o=.d) $(OBJECTS_BIN:.o=.d) $(OBJECTS_OBLIVC:.oo=.od)
 	$(RM) $(STATIC_FILES)
 cleanall: clean
-	$(foreach lib, $(LIBRARIES), $(MAKE) -C $(LIBDIR)/$(lib) clean;)
+	$(MAKE) -C $(LIBDIR) clean

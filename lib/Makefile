@@ -18,3 +18,10 @@ libobliv-c.a: obliv-c/Makefile
 liback.a: absentminded-crypto-kit/Makefile
 	CFLAGS="$(CFLAGS) -D_Float128=double" make -C absentminded-crypto-kit
 	cp absentminded-crypto-kit/build/lib/liback.a $@
+
+SUBDIRS=absentminded-crypto-kit fastpoly mpc-utils obliv-c
+CMAKE_FILES = CMakeFiles Makefile CMakeCache.txt cmake_install.cmake
+.PHONY: clean
+clean:
+	$(foreach dir, $(SUBDIRS), make -C $(dir) clean;)
+	$(foreach file, $(CMAKE_FILES), $(RM) -r fastpoly/$(file);)
