@@ -12,4 +12,4 @@
 	url = git@github.com:samee/obliv-c.git
 [submodule "lib/absentminded-crypto-kit"]
 	path = lib/absentminded-crypto-kit
-	url = https://bitbucket.org/jackdoerner/absentminded-crypto-kit/
+	url = https://bitbucket.org/schoppmp/absentminded-crypto-kit

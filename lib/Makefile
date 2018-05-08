@@ -16,5 +16,5 @@ libobliv-c.a: obliv-c/Makefile
 	cp obliv-c/_build/libobliv.a $@
 
 liback.a: absentminded-crypto-kit/Makefile
-	CFLAGS=-D_Float128=double make -C absentminded-crypto-kit
+	CFLAGS="$(CFLAGS) -D_Float128=double" make -C absentminded-crypto-kit
 	cp absentminded-crypto-kit/build/lib/liback.a $@
