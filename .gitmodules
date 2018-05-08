@@ -1,6 +1,3 @@
-[submodule "liback-sys"]
-	path = benchmarks/liback-sys
-	url = git@github.com:schoppmp/liback-sys.git
 [submodule "lib/mpc-utils"]
 	path = lib/mpc-utils
 	url = git@github.com:schoppmp/mpc-utils.git
