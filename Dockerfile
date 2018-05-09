@@ -34,4 +34,3 @@ COPY --from=build /deps /deps
 ENV LD_LIBRARY_PATH=/lib/x86_64-linux-gnu/:/deps
 # expose default ports
 EXPOSE 12347
-EXPOSE 12357
