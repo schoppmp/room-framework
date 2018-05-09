@@ -9,11 +9,17 @@ RUN opam init -y; \
   eval `opam config env`; \
   opam install -y camlp4 ocamlfind ocamlbuild batteries;
 
-# (re-)build
+# (re-)build library dependencies
 WORKDIR /app
-COPY . .
+COPY lib /app/lib
+COPY Makefile /app/Makefile
 RUN eval `opam config env`; \
   make cleanall; \
+  make libs
+
+# build binaries
+COPY src /app/src
+RUN eval `opam config env`; \
   make
 
 # copy dependencies
@@ -26,8 +32,8 @@ RUN mkdir /deps; \
 
 # copy everything into minimal image
 FROM gcr.io/distroless/base
+COPY config /config
 COPY --from=build /app/bin /bin
-COPY --from=build /app/config /config
 COPY --from=build /deps /deps
 
 # let the minimal image find libraries in the correct order

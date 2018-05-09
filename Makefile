@@ -31,6 +31,8 @@ export CXXFLAGS = $(CFLAGS) -std=gnu++11 $(INCLUDES) \
 all: $(BINARIES)
 
 .PHONY: $(STATIC_FILES)
+.PHONY: libs
+libs: $(STATIC_FILES)
 $(STATIC_FILES):
 	$(MAKE) -C $(LIBDIR) $(@F)
 
