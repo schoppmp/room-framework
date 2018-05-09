@@ -9,6 +9,7 @@ typedef struct {
   size_t num_client_keys;
   size_t *client_keys;
   uint8_t *result;
+  double local_time;
 } pir_fss_oblivc_args;
 
 void pir_fss_oblivc(void *args);

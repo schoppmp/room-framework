@@ -21,14 +21,19 @@ private:
   std::vector<uint8_t> key;
   uint64_t nonce; // increased with every protocol execution
   comm_channel& chan;
+  bool print_times;
 
 public:
-  pir_protocol_poly(comm_channel& chan, uint16_t statistical_security) :
+  pir_protocol_poly(
+    comm_channel& chan,
+    uint16_t statistical_security,
+    bool print_times = false
+  ) :
     pir_protocol<K,V>(),
     modulus((NTL::ZZ(1) << 128) - 159), // largest 128-bit prime
     statistical_security(statistical_security),
     cipher(GCRY_CIPHER_AES128), block_size(16),
-    nonce(0), chan(chan)
+    nonce(0), chan(chan), print_times(print_times)
   {
     // initialize libgcrypt via obliv-c
     gcryDefaultLibInit();

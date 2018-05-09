@@ -9,6 +9,8 @@ void pir_protocol_fss<K,V>::run_server(
   const pir_protocol_fss<K,V>::pair_range input,
   const pir_protocol_fss<K,V>::value_range defaults
 ) {
+  double local_time = 0, mpc_time = 0;
+  double start = timestamp(), end;
   size_t input_length = boost::size(input);
   size_t default_length = boost::size(defaults);
   // set up obliv-c inputs
@@ -39,7 +41,11 @@ void pir_protocol_fss<K,V>::run_server(
     .num_client_keys = default_length,
     .client_keys = nullptr,
     .result = nullptr,
+    .local_time = 0.
   };
+  end = timestamp();
+  local_time += end - start;
+  start = end;
 
   // run yao's protocol using Obliv-C
   ProtocolDesc pd;
@@ -49,6 +55,13 @@ void pir_protocol_fss<K,V>::run_server(
   setCurrentParty(&pd, 1);
   execYaoProtocol(&pd, pir_fss_oblivc, &args);
   cleanupProtocol(&pd);
+  end = timestamp();
+  mpc_time += end - start - args.local_time;
+  local_time += args.local_time;
+  if(print_times) {
+    std::cout << "local_time: " << local_time << " s\n";
+    std::cout << "mpc_time: " << mpc_time << " s\n";
+  }
 }
 
 template<typename K, typename V>
@@ -56,6 +69,8 @@ void pir_protocol_fss<K,V>::run_client(
   const pir_protocol_fss<K,V>::key_range input,
   const pir_protocol_fss<K,V>::value_range output
 ) {
+  double local_time = 0, mpc_time = 0;
+  double start = timestamp(), end;
   size_t length = boost::size(input);
   // set up obliv-c inputs
   std::vector<size_t> input_size_t(length); // FLORAM assumes size_t as indexes
@@ -68,8 +83,12 @@ void pir_protocol_fss<K,V>::run_client(
     .server_defaults = nullptr,
     .num_client_keys = length,
     .client_keys = input_size_t.data(),
-    .result = output_bytes.data()
+    .result = output_bytes.data(),
+    .local_time = 0.
   };
+  end = timestamp();
+  local_time += end - start;
+  start = end;
 
   // run yao's protocol using Obliv-C
   ProtocolDesc pd;
@@ -80,5 +99,15 @@ void pir_protocol_fss<K,V>::run_client(
   execYaoProtocol(&pd, pir_fss_oblivc, &args);
   cleanupProtocol(&pd);
 
+  end = timestamp();
+  mpc_time += end - start - args.local_time;
+  local_time += args.local_time;
+  start = end;
   deserialize_le(output.begin(), output_bytes.data(), length);
+  end = timestamp();
+  local_time += end - start;
+  if(print_times) {
+    std::cout << "local_time: " << local_time << " s\n";
+    std::cout << "mpc_time: " << mpc_time << " s\n";
+  }
 }

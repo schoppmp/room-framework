@@ -12,6 +12,8 @@ void pir_protocol_scs<K,V>::run_server(
   const pir_protocol_scs<K,V>::pair_range input,
   const pir_protocol_scs<K,V>::value_range defaults
 ) {
+  double local_time = 0, mpc_time = 0;
+  double start = timestamp(), end;
   size_t input_size = boost::size(input);
   // sort inputs
   std::vector<std::pair<K,V>> input_vec;
@@ -26,6 +28,7 @@ void pir_protocol_scs<K,V>::run_server(
   serialize_le(input_values_bytes.begin(), boost::begin(boost::adaptors::values(input_vec)), input_size);
   serialize_le(input_defaults_bytes.begin(), boost::begin(defaults), boost::size(defaults));
   // }, "Copying inputs (server)");
+  chan.flush();
 
   // benchmark([&]{
   pir_scs_oblivc_args args = {
@@ -38,15 +41,25 @@ void pir_protocol_scs<K,V>::run_server(
     .result_keys = nullptr,
     .result_values = nullptr
   };
+  end = timestamp();
+  local_time += end - start;
+  start = end;
+
   // run yao's protocol using Obliv-C
   ProtocolDesc pd;
-  chan.flush();
   if(chan.connect_to_oblivc(pd, 10 /* ms between attempts */) == -1) {
     BOOST_THROW_EXCEPTION(std::runtime_error("run_server: connection failed"));
   }
   setCurrentParty(&pd, 1);
   execYaoProtocol(&pd, pir_scs_oblivc, &args);
   cleanupProtocol(&pd);
+
+  end = timestamp();
+  mpc_time += end - start;
+  if(print_times) {
+    std::cout << "local_time: " << local_time << " s\n";
+    std::cout << "mpc_time: " << mpc_time << " s\n";
+  }
   // }, "SCS Yao protocol (Server)");
 }
 
@@ -55,6 +68,8 @@ void pir_protocol_scs<K,V>::run_client(
   const pir_protocol_scs<K,V>::key_range input,
   pir_protocol_scs<K,V>::value_range output
 ) {
+  double local_time = 0, mpc_time = 0;
+  double start = timestamp(), end;
   size_t input_size = boost::size(input);
   std::map<K, size_t> input_map;
   std::vector<uint8_t> input_bytes(input_size * sizeof(K));
@@ -81,6 +96,11 @@ void pir_protocol_scs<K,V>::run_client(
     .result_keys = output_keys_bytes.data(),
     .result_values = output_values_bytes.data()
   };
+
+  end = timestamp();
+  local_time += end - start;
+  start = end;
+
   // run yao's protocol using Obliv-C
   ProtocolDesc pd;
   chan.flush();
@@ -92,6 +112,10 @@ void pir_protocol_scs<K,V>::run_client(
   cleanupProtocol(&pd);
   // }, "SCS Yao protocol (Client)");
 
+  end = timestamp();
+  mpc_time += end - start;
+  start = end;
+
   // benchmark([&]{
   // reorder outputs to match original order of the inputs
   std::vector<V> output_values(input_size);
@@ -102,5 +126,12 @@ void pir_protocol_scs<K,V>::run_client(
     output_values[input_map[key]] = value;
   }
   boost::copy(output_values, boost::begin(output));
+
+  end = timestamp();
+  local_time += end - start;
+  if(print_times) {
+    std::cout << "local_time: " << local_time << " s\n";
+    std::cout << "mpc_time: " << mpc_time << " s\n";
+  }
   // }, "Copying results");
 }

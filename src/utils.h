@@ -1,5 +1,8 @@
 #pragma once
 #include <stdint.h>
+#include <time.h>
+
+#ifdef __cplusplus
 #include <chrono>
 
 // like boost::combine, but with std::pairs
@@ -19,7 +22,7 @@ void benchmark(F f, const std::string& label) {
   auto start = std::chrono::steady_clock::now();
   f();
   std::chrono::duration<double> d = std::chrono::steady_clock::now() - start;
-  std::cout << label << ": " << d.count() << "s\n";
+  std::cout << label << ": " << d.count() << " s\n";
 }
 
 // quick-and-dirty little-endian serialization of arbitrary integer types
@@ -45,4 +48,11 @@ void deserialize_le(OutputIterator out, InputIterator in, size_t n) {
       *out ^= ((typeof(*out)) *in) << (8 * j);
     }
   }
+}
+#endif
+
+double timestamp() {
+  struct timespec t;
+  clock_gettime(CLOCK_MONOTONIC,&t);
+  return t.tv_sec+1e-9*t.tv_nsec;
 }

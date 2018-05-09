@@ -16,6 +16,8 @@ void pir_protocol_poly<K,V>::run_server(
   const pir_protocol_poly<K,V>::value_range defaults
 ) {
   try {
+    double local_time = 0, mpc_time = 0;
+    double start = timestamp(), end;
     NTL::ZZ_pPush push(modulus);
     nonce++;
     NTL::ZZ_pX poly_server;
@@ -66,6 +68,7 @@ void pir_protocol_poly<K,V>::run_server(
     poly_interpolate_zp_recursive(values_server.length() - 1,
       elements_server.data(), values_server.data(), poly_server);
     chan.send(poly_server);
+    chan.flush();
 
     // set up inputs for obliv-c
     std::vector<uint8_t> defaults_bytes(default_length * sizeof(V), 0);
@@ -78,16 +81,24 @@ void pir_protocol_poly<K,V>::run_server(
       .defaults = defaults_bytes.data(),
       .result = nullptr
     };
+    end = timestamp();
+    local_time += end - start;
+    start = end;
 
     // run yao's protocol using Obliv-C
     ProtocolDesc pd;
-    chan.flush();
     if(chan.connect_to_oblivc(pd) == -1) {
       BOOST_THROW_EXCEPTION(std::runtime_error("run_server: connection failed"));
     }
     setCurrentParty(&pd, 1);
     execYaoProtocol(&pd, pir_poly_oblivc, &args);
     cleanupProtocol(&pd);
+    end = timestamp();
+    mpc_time += end - start;
+    if(print_times) {
+      std::cout << "local_time: " << local_time << " s\n";
+      std::cout << "mpc_time: " << mpc_time << " s\n";
+    }
   } catch (NTL::ErrorObject& ex) {
     BOOST_THROW_EXCEPTION(ex);
   }
@@ -99,6 +110,8 @@ void pir_protocol_poly<K,V>::run_client(
   const pir_protocol_poly<K,V>::value_range output
 ) {
   try {
+    double local_time = 0, mpc_time = 0;
+    double start = timestamp(), end;
     NTL::ZZ_pPush push(modulus);
     nonce++;
     size_t length = boost::size(input);
@@ -135,10 +148,13 @@ void pir_protocol_poly<K,V>::run_client(
       NTL::BytesFromZZ(ciphertexts_client.data() + (i*2+1)*block_size,
         (NTL::conv<NTL::ZZ>(elements_client[i]) << 8 * (sizeof(nonce))) + nonce, block_size);
     }
+    chan.flush();
+    end = timestamp();
+    local_time += end - start;
+    start = end;
 
     // run yao's protocol using Obliv-C
     ProtocolDesc pd;
-    chan.flush();
     if(chan.connect_to_oblivc(pd) == -1) {
       BOOST_THROW_EXCEPTION(std::runtime_error("run_client: connection failed"));
     }
@@ -146,7 +162,18 @@ void pir_protocol_poly<K,V>::run_client(
     execYaoProtocol(&pd, pir_poly_oblivc, &args);
     cleanupProtocol(&pd);
 
+    end = timestamp();
+    mpc_time += end - start;
+    start = end;
+
     deserialize_le(boost::begin(output), result.data(), length);
+
+    end = timestamp();
+    local_time += end - start;
+    if(print_times) {
+      std::cout << "local_time: " << local_time << " s\n";
+      std::cout << "mpc_time: " << mpc_time << " s\n";
+    }
   } catch (NTL::ErrorObject& ex) {
     BOOST_THROW_EXCEPTION(ex);
   }

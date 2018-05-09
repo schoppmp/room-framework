@@ -73,13 +73,13 @@ int main(int argc, const char **argv) {
     try {
       if(pir_type == "poly") {
         proto = std::unique_ptr<pir_protocol<key_type, value_type>>(
-          new pir_protocol_poly<key_type, value_type>(chan, conf.statistical_security));
+          new pir_protocol_poly<key_type, value_type>(chan, conf.statistical_security, true));
       } else if(pir_type == "fss") {
         proto = std::unique_ptr<pir_protocol<key_type, value_type>>(
-          new pir_protocol_fss<key_type, value_type>(chan));
+          new pir_protocol_fss<key_type, value_type>(chan, true));
       } else { // if(conf.pir_type == "scs") {
         proto = std::unique_ptr<pir_protocol<key_type, value_type>>(
-          new pir_protocol_scs<key_type, value_type>(chan));
+          new pir_protocol_scs<key_type, value_type>(chan, true));
       }
     } catch(boost::exception &ex) {
       std::cerr << boost::diagnostic_information(ex);
@@ -102,14 +102,14 @@ int main(int argc, const char **argv) {
             std::vector<value_type> server_defaults(num_elements_client, 13);
             benchmark([&]() {
               proto->run_server(server_keys_in, server_values_in, server_defaults);
-            }, "PIR Protocol (Server)");
+            }, "total_time");
           } else {
             std::vector<key_type> client_in(num_elements_client);
             std::iota(client_in.begin(), client_in.end(), 42);
             std::vector<value_type> client_out(num_elements_client);
             benchmark([&]() {
               proto->run_client(client_in, client_out);
-            }, "PIR Protocol (Client)");
+            }, "total_time");
           }
         } catch(boost::exception &ex) {
           std::cerr << boost::diagnostic_information(ex);
