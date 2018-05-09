@@ -1,0 +1,3993 @@
+PIR type: fss
+num_elements_server: 1
+num_elements_client: 1
+local_time: 0.54106 s
+mpc_time: 0.789573 s
+total_time: 1.33068 s
+num_elements_server: 1
+num_elements_client: 2
+local_time: 0.532728 s
+mpc_time: 0.292829 s
+total_time: 0.825657 s
+num_elements_server: 1
+num_elements_client: 4
+local_time: 0.530503 s
+mpc_time: 0.328165 s
+total_time: 0.858711 s
+num_elements_server: 1
+num_elements_client: 8
+local_time: 0.545518 s
+mpc_time: 0.399566 s
+total_time: 0.94513 s
+num_elements_server: 1
+num_elements_client: 16
+local_time: 0.538013 s
+mpc_time: 0.511086 s
+total_time: 1.04915 s
+num_elements_server: 1
+num_elements_client: 32
+local_time: 0.548614 s
+mpc_time: 0.763141 s
+total_time: 1.31182 s
+num_elements_server: 1
+num_elements_client: 64
+local_time: 0.531488 s
+mpc_time: 1.21647 s
+total_time: 1.748 s
+num_elements_server: 1
+num_elements_client: 128
+local_time: 0.562586 s
+mpc_time: 2.17965 s
+total_time: 2.74228 s
+num_elements_server: 1
+num_elements_client: 256
+local_time: 0.550743 s
+mpc_time: 4.17272 s
+total_time: 4.7235 s
+num_elements_server: 1
+num_elements_client: 512
+local_time: 0.538115 s
+mpc_time: 7.93433 s
+total_time: 8.4725 s
+num_elements_server: 1
+num_elements_client: 1024
+local_time: 0.534054 s
+mpc_time: 15.4181 s
+total_time: 15.9522 s
+num_elements_server: 1
+num_elements_client: 2048
+local_time: 0.527192 s
+mpc_time: 33.227 s
+total_time: 33.7543 s
+num_elements_server: 1
+num_elements_client: 4096
+local_time: 0.537045 s
+mpc_time: 63.5425 s
+total_time: 64.0796 s
+num_elements_server: 1
+num_elements_client: 8192
+local_time: 0.538381 s
+mpc_time: 127.629 s
+total_time: 128.168 s
+num_elements_server: 2
+num_elements_client: 1
+local_time: 0.538245 s
+mpc_time: 0.27251 s
+total_time: 0.810821 s
+num_elements_server: 2
+num_elements_client: 2
+local_time: 0.529606 s
+mpc_time: 0.298353 s
+total_time: 0.828012 s
+num_elements_server: 2
+num_elements_client: 4
+local_time: 0.527801 s
+mpc_time: 0.3218 s
+total_time: 0.849648 s
+num_elements_server: 2
+num_elements_client: 8
+local_time: 0.530407 s
+mpc_time: 0.428806 s
+total_time: 0.959262 s
+num_elements_server: 2
+num_elements_client: 16
+local_time: 0.533056 s
+mpc_time: 0.522084 s
+total_time: 1.05518 s
+num_elements_server: 2
+num_elements_client: 32
+local_time: 0.537939 s
+mpc_time: 0.77892 s
+total_time: 1.3169 s
+num_elements_server: 2
+num_elements_client: 64
+local_time: 0.524258 s
+mpc_time: 1.2459 s
+total_time: 1.7702 s
+num_elements_server: 2
+num_elements_client: 128
+local_time: 0.532378 s
+mpc_time: 2.21828 s
+total_time: 2.7507 s
+num_elements_server: 2
+num_elements_client: 256
+local_time: 0.542517 s
+mpc_time: 4.02885 s
+total_time: 4.57141 s
+num_elements_server: 2
+num_elements_client: 512
+local_time: 0.560689 s
+mpc_time: 8.74953 s
+total_time: 9.31061 s
+num_elements_server: 2
+num_elements_client: 1024
+local_time: 0.553719 s
+mpc_time: 16.5589 s
+total_time: 17.1127 s
+num_elements_server: 2
+num_elements_client: 2048
+local_time: 0.555257 s
+mpc_time: 31.4031 s
+total_time: 31.9584 s
+num_elements_server: 2
+num_elements_client: 4096
+local_time: 0.558095 s
+mpc_time: 64.0534 s
+total_time: 64.6115 s
+num_elements_server: 2
+num_elements_client: 8192
+local_time: 0.53841 s
+mpc_time: 128.551 s
+total_time: 129.09 s
+num_elements_server: 4
+num_elements_client: 1
+local_time: 0.548287 s
+mpc_time: 0.282429 s
+total_time: 0.830761 s
+num_elements_server: 4
+num_elements_client: 2
+local_time: 0.535963 s
+mpc_time: 0.310752 s
+total_time: 0.846757 s
+num_elements_server: 4
+num_elements_client: 4
+local_time: 0.728442 s
+mpc_time: 0.455128 s
+total_time: 1.18362 s
+num_elements_server: 4
+num_elements_client: 8
+local_time: 0.545222 s
+mpc_time: 0.43546 s
+total_time: 0.980724 s
+num_elements_server: 4
+num_elements_client: 16
+local_time: 0.565834 s
+mpc_time: 0.538217 s
+total_time: 1.10413 s
+num_elements_server: 4
+num_elements_client: 32
+local_time: 0.711876 s
+mpc_time: 0.855106 s
+total_time: 1.56703 s
+num_elements_server: 4
+num_elements_client: 64
+local_time: 0.532932 s
+mpc_time: 1.16672 s
+total_time: 1.69971 s
+num_elements_server: 4
+num_elements_client: 128
+local_time: 0.553831 s
+mpc_time: 2.13666 s
+total_time: 2.69069 s
+num_elements_server: 4
+num_elements_client: 256
+local_time: 0.534928 s
+mpc_time: 4.17516 s
+total_time: 4.71015 s
+num_elements_server: 4
+num_elements_client: 512
+local_time: 0.557139 s
+mpc_time: 8.11248 s
+total_time: 8.66966 s
+num_elements_server: 4
+num_elements_client: 1024
+local_time: 0.530643 s
+mpc_time: 15.928 s
+total_time: 16.4587 s
+num_elements_server: 4
+num_elements_client: 2048
+local_time: 0.561079 s
+mpc_time: 32.5361 s
+total_time: 33.0973 s
+num_elements_server: 4
+num_elements_client: 4096
+local_time: 0.562132 s
+mpc_time: 64.2141 s
+total_time: 64.7763 s
+num_elements_server: 4
+num_elements_client: 8192
+local_time: 0.578764 s
+mpc_time: 128.372 s
+total_time: 128.951 s
+num_elements_server: 8
+num_elements_client: 1
+local_time: 0.549367 s
+mpc_time: 0.298476 s
+total_time: 0.847888 s
+num_elements_server: 8
+num_elements_client: 2
+local_time: 0.552501 s
+mpc_time: 0.304546 s
+total_time: 0.857126 s
+num_elements_server: 8
+num_elements_client: 4
+local_time: 0.558021 s
+mpc_time: 0.341355 s
+total_time: 0.899421 s
+num_elements_server: 8
+num_elements_client: 8
+local_time: 0.589096 s
+mpc_time: 0.410279 s
+total_time: 0.999454 s
+num_elements_server: 8
+num_elements_client: 16
+local_time: 0.540385 s
+mpc_time: 0.535259 s
+total_time: 1.0757 s
+num_elements_server: 8
+num_elements_client: 32
+local_time: 0.54875 s
+mpc_time: 0.795307 s
+total_time: 1.34411 s
+num_elements_server: 8
+num_elements_client: 64
+local_time: 0.556345 s
+mpc_time: 1.27356 s
+total_time: 1.82996 s
+num_elements_server: 8
+num_elements_client: 128
+local_time: 0.573886 s
+mpc_time: 2.45933 s
+total_time: 3.03326 s
+num_elements_server: 8
+num_elements_client: 256
+local_time: 0.558872 s
+mpc_time: 4.25424 s
+total_time: 4.81321 s
+num_elements_server: 8
+num_elements_client: 512
+local_time: 0.587386 s
+mpc_time: 8.2927 s
+total_time: 8.88016 s
+num_elements_server: 8
+num_elements_client: 1024
+local_time: 0.53987 s
+mpc_time: 17.4762 s
+total_time: 18.0162 s
+num_elements_server: 8
+num_elements_client: 2048
+local_time: 0.555807 s
+mpc_time: 30.7802 s
+total_time: 31.3361 s
+num_elements_server: 8
+num_elements_client: 4096
+local_time: 0.540584 s
+mpc_time: 65.3898 s
+total_time: 65.9304 s
+num_elements_server: 8
+num_elements_client: 8192
+local_time: 0.528338 s
+mpc_time: 129.624 s
+total_time: 130.152 s
+num_elements_server: 16
+num_elements_client: 1
+local_time: 0.550271 s
+mpc_time: 0.302746 s
+total_time: 0.853051 s
+num_elements_server: 16
+num_elements_client: 2
+local_time: 0.553938 s
+mpc_time: 0.304276 s
+total_time: 0.858254 s
+num_elements_server: 16
+num_elements_client: 4
+local_time: 0.559882 s
+mpc_time: 0.336906 s
+total_time: 0.896838 s
+num_elements_server: 16
+num_elements_client: 8
+local_time: 0.57762 s
+mpc_time: 0.443609 s
+total_time: 1.02127 s
+num_elements_server: 16
+num_elements_client: 16
+local_time: 0.561045 s
+mpc_time: 0.760256 s
+total_time: 1.32135 s
+num_elements_server: 16
+num_elements_client: 32
+local_time: 0.564914 s
+mpc_time: 0.987882 s
+total_time: 1.55284 s
+num_elements_server: 16
+num_elements_client: 64
+local_time: 0.57895 s
+mpc_time: 1.751 s
+total_time: 2.32999 s
+num_elements_server: 16
+num_elements_client: 128
+local_time: 0.549236 s
+mpc_time: 2.20134 s
+total_time: 2.75062 s
+num_elements_server: 16
+num_elements_client: 256
+local_time: 0.55844 s
+mpc_time: 4.09124 s
+total_time: 4.64972 s
+num_elements_server: 16
+num_elements_client: 512
+local_time: 0.565441 s
+mpc_time: 8.08225 s
+total_time: 8.64776 s
+num_elements_server: 16
+num_elements_client: 1024
+local_time: 0.541893 s
+mpc_time: 16.2402 s
+total_time: 16.7822 s
+num_elements_server: 16
+num_elements_client: 2048
+local_time: 0.541234 s
+mpc_time: 33.4362 s
+total_time: 33.9775 s
+num_elements_server: 16
+num_elements_client: 4096
+local_time: 0.518069 s
+mpc_time: 62.8266 s
+total_time: 63.3447 s
+num_elements_server: 16
+num_elements_client: 8192
+local_time: 0.583419 s
+mpc_time: 130.412 s
+total_time: 130.995 s
+num_elements_server: 32
+num_elements_client: 1
+local_time: 0.554672 s
+mpc_time: 0.307866 s
+total_time: 0.862585 s
+num_elements_server: 32
+num_elements_client: 2
+local_time: 0.564085 s
+mpc_time: 0.309584 s
+total_time: 0.873764 s
+num_elements_server: 32
+num_elements_client: 4
+local_time: 0.56654 s
+mpc_time: 0.337455 s
+total_time: 0.904042 s
+num_elements_server: 32
+num_elements_client: 8
+local_time: 0.585146 s
+mpc_time: 0.400148 s
+total_time: 0.985336 s
+num_elements_server: 32
+num_elements_client: 16
+local_time: 0.541541 s
+mpc_time: 0.527223 s
+total_time: 1.06884 s
+num_elements_server: 32
+num_elements_client: 32
+local_time: 0.550006 s
+mpc_time: 0.754424 s
+total_time: 1.30449 s
+num_elements_server: 32
+num_elements_client: 64
+local_time: 0.534045 s
+mpc_time: 1.24496 s
+total_time: 1.77907 s
+num_elements_server: 32
+num_elements_client: 128
+local_time: 0.58054 s
+mpc_time: 2.27556 s
+total_time: 2.85617 s
+num_elements_server: 32
+num_elements_client: 256
+local_time: 0.559519 s
+mpc_time: 4.08486 s
+total_time: 4.64443 s
+num_elements_server: 32
+num_elements_client: 512
+local_time: 0.546232 s
+mpc_time: 8.02416 s
+total_time: 8.57045 s
+num_elements_server: 32
+num_elements_client: 1024
+local_time: 0.55378 s
+mpc_time: 17.5907 s
+total_time: 18.1445 s
+num_elements_server: 32
+num_elements_client: 2048
+local_time: 0.562136 s
+mpc_time: 31.5765 s
+total_time: 32.1387 s
+num_elements_server: 32
+num_elements_client: 4096
+local_time: 0.556265 s
+mpc_time: 64.542 s
+total_time: 65.0983 s
+num_elements_server: 32
+num_elements_client: 8192
+local_time: 0.551647 s
+mpc_time: 128.972 s
+total_time: 129.523 s
+num_elements_server: 64
+num_elements_client: 1
+local_time: 0.544779 s
+mpc_time: 0.28813 s
+total_time: 0.832996 s
+num_elements_server: 64
+num_elements_client: 2
+local_time: 0.553991 s
+mpc_time: 0.304211 s
+total_time: 0.858249 s
+num_elements_server: 64
+num_elements_client: 4
+local_time: 0.544452 s
+mpc_time: 0.341865 s
+total_time: 0.886365 s
+num_elements_server: 64
+num_elements_client: 8
+local_time: 0.554387 s
+mpc_time: 0.42616 s
+total_time: 0.980594 s
+num_elements_server: 64
+num_elements_client: 16
+local_time: 0.583164 s
+mpc_time: 0.551762 s
+total_time: 1.13497 s
+num_elements_server: 64
+num_elements_client: 32
+local_time: 0.552453 s
+mpc_time: 1.12181 s
+total_time: 1.67431 s
+num_elements_server: 64
+num_elements_client: 64
+local_time: 0.563958 s
+mpc_time: 1.38333 s
+total_time: 1.94733 s
+num_elements_server: 64
+num_elements_client: 128
+local_time: 0.842485 s
+mpc_time: 2.23867 s
+total_time: 3.08121 s
+num_elements_server: 64
+num_elements_client: 256
+local_time: 0.555321 s
+mpc_time: 4.2277 s
+total_time: 4.78307 s
+num_elements_server: 64
+num_elements_client: 512
+local_time: 0.545148 s
+mpc_time: 8.11442 s
+total_time: 8.65962 s
+num_elements_server: 64
+num_elements_client: 1024
+local_time: 0.553988 s
+mpc_time: 16.125 s
+total_time: 16.679 s
+num_elements_server: 64
+num_elements_client: 2048
+local_time: 0.563742 s
+mpc_time: 33.1332 s
+total_time: 33.697 s
+num_elements_server: 64
+num_elements_client: 4096
+local_time: 0.549109 s
+mpc_time: 63.2572 s
+total_time: 63.8064 s
+num_elements_server: 64
+num_elements_client: 8192
+local_time: 0.558962 s
+mpc_time: 128.41 s
+total_time: 128.969 s
+num_elements_server: 128
+num_elements_client: 1
+local_time: 0.543627 s
+mpc_time: 0.290942 s
+total_time: 0.834617 s
+num_elements_server: 128
+num_elements_client: 2
+local_time: 0.543747 s
+mpc_time: 0.295748 s
+total_time: 0.839573 s
+num_elements_server: 128
+num_elements_client: 4
+local_time: 0.554673 s
+mpc_time: 0.338108 s
+total_time: 0.892848 s
+num_elements_server: 128
+num_elements_client: 8
+local_time: 0.553705 s
+mpc_time: 0.402337 s
+total_time: 0.956104 s
+num_elements_server: 128
+num_elements_client: 16
+local_time: 0.547465 s
+mpc_time: 0.531937 s
+total_time: 1.07945 s
+num_elements_server: 128
+num_elements_client: 32
+local_time: 0.542007 s
+mpc_time: 0.76088 s
+total_time: 1.30293 s
+num_elements_server: 128
+num_elements_client: 64
+local_time: 0.599547 s
+mpc_time: 1.24438 s
+total_time: 1.84399 s
+num_elements_server: 128
+num_elements_client: 128
+local_time: 0.553661 s
+mpc_time: 2.1421 s
+total_time: 2.69581 s
+num_elements_server: 128
+num_elements_client: 256
+local_time: 0.550479 s
+mpc_time: 4.50059 s
+total_time: 5.05111 s
+num_elements_server: 128
+num_elements_client: 512
+local_time: 0.544558 s
+mpc_time: 7.86193 s
+total_time: 8.40654 s
+num_elements_server: 128
+num_elements_client: 1024
+local_time: 0.59392 s
+mpc_time: 17.2751 s
+total_time: 17.8691 s
+num_elements_server: 128
+num_elements_client: 2048
+local_time: 0.547739 s
+mpc_time: 30.6726 s
+total_time: 31.2204 s
+num_elements_server: 128
+num_elements_client: 4096
+local_time: 0.538912 s
+mpc_time: 65.0128 s
+total_time: 65.5518 s
+num_elements_server: 128
+num_elements_client: 8192
+local_time: 0.550065 s
+mpc_time: 130.184 s
+total_time: 130.735 s
+num_elements_server: 256
+num_elements_client: 1
+local_time: 0.544046 s
+mpc_time: 0.289448 s
+total_time: 0.833555 s
+num_elements_server: 256
+num_elements_client: 2
+local_time: 0.570186 s
+mpc_time: 0.298129 s
+total_time: 0.868366 s
+num_elements_server: 256
+num_elements_client: 4
+local_time: 0.851857 s
+mpc_time: 0.362591 s
+total_time: 1.21459 s
+num_elements_server: 256
+num_elements_client: 8
+local_time: 0.566412 s
+mpc_time: 0.39946 s
+total_time: 0.966039 s
+num_elements_server: 256
+num_elements_client: 16
+local_time: 0.553394 s
+mpc_time: 0.52219 s
+total_time: 1.07566 s
+num_elements_server: 256
+num_elements_client: 32
+local_time: 0.539882 s
+mpc_time: 0.774859 s
+total_time: 1.31483 s
+num_elements_server: 256
+num_elements_client: 64
+local_time: 0.585689 s
+mpc_time: 1.33615 s
+total_time: 1.9219 s
+num_elements_server: 256
+num_elements_client: 128
+local_time: 0.812853 s
+mpc_time: 2.33137 s
+total_time: 3.14428 s
+num_elements_server: 256
+num_elements_client: 256
+local_time: 0.740354 s
+mpc_time: 4.21751 s
+total_time: 4.95795 s
+num_elements_server: 256
+num_elements_client: 512
+local_time: 0.553751 s
+mpc_time: 8.09865 s
+total_time: 8.65249 s
+num_elements_server: 256
+num_elements_client: 1024
+local_time: 0.578378 s
+mpc_time: 15.9768 s
+total_time: 16.5552 s
+num_elements_server: 256
+num_elements_client: 2048
+local_time: 0.595935 s
+mpc_time: 33.5091 s
+total_time: 34.1051 s
+num_elements_server: 256
+num_elements_client: 4096
+local_time: 0.547026 s
+mpc_time: 65.9025 s
+total_time: 66.4495 s
+num_elements_server: 256
+num_elements_client: 8192
+local_time: 0.551841 s
+mpc_time: 129.904 s
+total_time: 130.456 s
+num_elements_server: 512
+num_elements_client: 1
+local_time: 0.542132 s
+mpc_time: 0.296698 s
+total_time: 0.838941 s
+num_elements_server: 512
+num_elements_client: 2
+local_time: 0.553529 s
+mpc_time: 0.317326 s
+total_time: 0.870935 s
+num_elements_server: 512
+num_elements_client: 4
+local_time: 0.538783 s
+mpc_time: 0.347339 s
+total_time: 0.88623 s
+num_elements_server: 512
+num_elements_client: 8
+local_time: 0.548485 s
+mpc_time: 0.421944 s
+total_time: 0.970509 s
+num_elements_server: 512
+num_elements_client: 16
+local_time: 0.542909 s
+mpc_time: 0.805211 s
+total_time: 1.3482 s
+num_elements_server: 512
+num_elements_client: 32
+local_time: 0.54697 s
+mpc_time: 0.843874 s
+total_time: 1.39096 s
+num_elements_server: 512
+num_elements_client: 64
+local_time: 0.549326 s
+mpc_time: 1.37989 s
+total_time: 1.92931 s
+num_elements_server: 512
+num_elements_client: 128
+local_time: 0.563815 s
+mpc_time: 3.0308 s
+total_time: 3.59469 s
+num_elements_server: 512
+num_elements_client: 256
+local_time: 0.538545 s
+mpc_time: 4.55999 s
+total_time: 5.09861 s
+num_elements_server: 512
+num_elements_client: 512
+local_time: 0.561816 s
+mpc_time: 9.36693 s
+total_time: 9.92881 s
+num_elements_server: 512
+num_elements_client: 1024
+local_time: 0.555392 s
+mpc_time: 19.3702 s
+total_time: 19.9257 s
+num_elements_server: 512
+num_elements_client: 2048
+local_time: 0.528105 s
+mpc_time: 36.7635 s
+total_time: 37.2917 s
+num_elements_server: 512
+num_elements_client: 4096
+local_time: 0.527546 s
+mpc_time: 75.4124 s
+total_time: 75.9401 s
+num_elements_server: 512
+num_elements_client: 8192
+local_time: 0.574848 s
+mpc_time: 147.2 s
+total_time: 147.775 s
+num_elements_server: 1024
+num_elements_client: 1
+local_time: 0.559363 s
+mpc_time: 0.296511 s
+total_time: 0.855997 s
+num_elements_server: 1024
+num_elements_client: 2
+local_time: 0.568894 s
+mpc_time: 0.339942 s
+total_time: 0.909059 s
+num_elements_server: 1024
+num_elements_client: 4
+local_time: 0.59758 s
+mpc_time: 0.41485 s
+total_time: 1.01255 s
+num_elements_server: 1024
+num_elements_client: 8
+local_time: 0.606827 s
+mpc_time: 0.526769 s
+total_time: 1.13371 s
+num_elements_server: 1024
+num_elements_client: 16
+local_time: 0.55325 s
+mpc_time: 0.589572 s
+total_time: 1.14293 s
+num_elements_server: 1024
+num_elements_client: 32
+local_time: 0.542454 s
+mpc_time: 0.866502 s
+total_time: 1.40906 s
+num_elements_server: 1024
+num_elements_client: 64
+local_time: 0.551906 s
+mpc_time: 1.46371 s
+total_time: 2.01571 s
+num_elements_server: 1024
+num_elements_client: 128
+local_time: 0.545597 s
+mpc_time: 2.62743 s
+total_time: 3.17323 s
+num_elements_server: 1024
+num_elements_client: 256
+local_time: 0.570141 s
+mpc_time: 5.35332 s
+total_time: 5.92357 s
+num_elements_server: 1024
+num_elements_client: 512
+local_time: 0.545042 s
+mpc_time: 11.1145 s
+total_time: 11.6596 s
+num_elements_server: 1024
+num_elements_client: 1024
+local_time: 0.591522 s
+mpc_time: 19.868 s
+total_time: 20.4597 s
+num_elements_server: 1024
+num_elements_client: 2048
+local_time: 0.546711 s
+mpc_time: 41.6783 s
+total_time: 42.2251 s
+num_elements_server: 1024
+num_elements_client: 4096
+local_time: 0.540125 s
+mpc_time: 79.9364 s
+total_time: 80.4766 s
+num_elements_server: 1024
+num_elements_client: 8192
+local_time: 0.555876 s
+mpc_time: 167.375 s
+total_time: 167.931 s
+num_elements_server: 2048
+num_elements_client: 1
+local_time: 0.560628 s
+mpc_time: 0.287395 s
+total_time: 0.848159 s
+num_elements_server: 2048
+num_elements_client: 2
+local_time: 0.545991 s
+mpc_time: 0.314891 s
+total_time: 0.861018 s
+num_elements_server: 2048
+num_elements_client: 4
+local_time: 0.543061 s
+mpc_time: 0.387979 s
+total_time: 0.931232 s
+num_elements_server: 2048
+num_elements_client: 8
+local_time: 0.546948 s
+mpc_time: 0.447941 s
+total_time: 0.995125 s
+num_elements_server: 2048
+num_elements_client: 16
+local_time: 0.565902 s
+mpc_time: 0.653334 s
+total_time: 1.21944 s
+num_elements_server: 2048
+num_elements_client: 32
+local_time: 0.56387 s
+mpc_time: 0.996775 s
+total_time: 1.56075 s
+num_elements_server: 2048
+num_elements_client: 64
+local_time: 0.545972 s
+mpc_time: 1.59785 s
+total_time: 2.14397 s
+num_elements_server: 2048
+num_elements_client: 128
+local_time: 0.562162 s
+mpc_time: 2.80607 s
+total_time: 3.36837 s
+num_elements_server: 2048
+num_elements_client: 256
+local_time: 0.54198 s
+mpc_time: 5.9351 s
+total_time: 6.47725 s
+num_elements_server: 2048
+num_elements_client: 512
+local_time: 0.552627 s
+mpc_time: 11.5709 s
+total_time: 12.1237 s
+num_elements_server: 2048
+num_elements_client: 1024
+local_time: 0.556821 s
+mpc_time: 23.626 s
+total_time: 24.183 s
+num_elements_server: 2048
+num_elements_client: 2048
+local_time: 0.552508 s
+mpc_time: 43.2261 s
+total_time: 43.7788 s
+num_elements_server: 2048
+num_elements_client: 4096
+local_time: 0.55361 s
+mpc_time: 89.4888 s
+total_time: 90.0426 s
+num_elements_server: 2048
+num_elements_client: 8192
+local_time: 0.569654 s
+mpc_time: 180.243 s
+total_time: 180.813 s
+num_elements_server: 4096
+num_elements_client: 1
+local_time: 0.569879 s
+mpc_time: 0.320991 s
+total_time: 0.891144 s
+num_elements_server: 4096
+num_elements_client: 2
+local_time: 0.582094 s
+mpc_time: 0.329442 s
+total_time: 0.911833 s
+num_elements_server: 4096
+num_elements_client: 4
+local_time: 0.590546 s
+mpc_time: 0.404318 s
+total_time: 0.995096 s
+num_elements_server: 4096
+num_elements_client: 8
+local_time: 0.587887 s
+mpc_time: 0.520421 s
+total_time: 1.10851 s
+num_elements_server: 4096
+num_elements_client: 16
+local_time: 0.553664 s
+mpc_time: 0.66682 s
+total_time: 1.2207 s
+num_elements_server: 4096
+num_elements_client: 32
+local_time: 0.553515 s
+mpc_time: 0.986874 s
+total_time: 1.54069 s
+num_elements_server: 4096
+num_elements_client: 64
+local_time: 0.61408 s
+mpc_time: 1.76719 s
+total_time: 2.38154 s
+num_elements_server: 4096
+num_elements_client: 128
+local_time: 0.555774 s
+mpc_time: 3.84384 s
+total_time: 4.39984 s
+num_elements_server: 4096
+num_elements_client: 256
+local_time: 0.605579 s
+mpc_time: 5.97891 s
+total_time: 6.58477 s
+num_elements_server: 4096
+num_elements_client: 512
+local_time: 0.549717 s
+mpc_time: 12.9053 s
+total_time: 13.4554 s
+num_elements_server: 4096
+num_elements_client: 1024
+local_time: 0.567471 s
+mpc_time: 24.1034 s
+total_time: 24.6711 s
+num_elements_server: 4096
+num_elements_client: 2048
+local_time: 0.556394 s
+mpc_time: 49.1609 s
+total_time: 49.7175 s
+num_elements_server: 4096
+num_elements_client: 4096
+local_time: 0.558409 s
+mpc_time: 96.1969 s
+total_time: 96.7556 s
+num_elements_server: 4096
+num_elements_client: 8192
+local_time: 0.600386 s
+mpc_time: 198.705 s
+total_time: 199.306 s
+num_elements_server: 8192
+num_elements_client: 1
+local_time: 0.560984 s
+mpc_time: 0.304419 s
+total_time: 0.865929 s
+num_elements_server: 8192
+num_elements_client: 2
+local_time: 0.554319 s
+mpc_time: 0.833888 s
+total_time: 1.38874 s
+num_elements_server: 8192
+num_elements_client: 4
+local_time: 0.564714 s
+mpc_time: 0.89951 s
+total_time: 1.4647 s
+num_elements_server: 8192
+num_elements_client: 8
+local_time: 0.56461 s
+mpc_time: 0.996141 s
+total_time: 1.56136 s
+num_elements_server: 8192
+num_elements_client: 16
+local_time: 0.558013 s
+mpc_time: 1.18863 s
+total_time: 1.74699 s
+num_elements_server: 8192
+num_elements_client: 32
+local_time: 0.563358 s
+mpc_time: 1.09591 s
+total_time: 1.65971 s
+num_elements_server: 8192
+num_elements_client: 64
+local_time: 0.5716 s
+mpc_time: 2.33782 s
+total_time: 2.91003 s
+num_elements_server: 8192
+num_elements_client: 128
+local_time: 0.573177 s
+mpc_time: 3.39456 s
+total_time: 3.9683 s
+num_elements_server: 8192
+num_elements_client: 256
+local_time: 0.555472 s
+mpc_time: 7.30579 s
+total_time: 7.86181 s
+num_elements_server: 8192
+num_elements_client: 512
+local_time: 0.576972 s
+mpc_time: 13.9615 s
+total_time: 14.5389 s
+num_elements_server: 8192
+num_elements_client: 1024
+local_time: 0.558371 s
+mpc_time: 28.4069 s
+total_time: 28.9657 s
+num_elements_server: 8192
+num_elements_client: 2048
+local_time: 0.557082 s
+mpc_time: 54.6689 s
+total_time: 55.2264 s
+num_elements_server: 8192
+num_elements_client: 4096
+local_time: 0.577583 s
+mpc_time: 100.71 s
+total_time: 101.288 s
+num_elements_server: 8192
+num_elements_client: 8192
+local_time: 0.541134 s
+mpc_time: 207.71 s
+total_time: 208.251 s
+num_elements_server: 16384
+num_elements_client: 1
+local_time: 0.579151 s
+mpc_time: 0.813221 s
+total_time: 1.39324 s
+num_elements_server: 16384
+num_elements_client: 2
+local_time: 0.559919 s
+mpc_time: 0.820256 s
+total_time: 1.38102 s
+num_elements_server: 16384
+num_elements_client: 4
+local_time: 0.543886 s
+mpc_time: 0.874254 s
+total_time: 1.41895 s
+num_elements_server: 16384
+num_elements_client: 8
+local_time: 0.54584 s
+mpc_time: 0.988333 s
+total_time: 1.53508 s
+num_elements_server: 16384
+num_elements_client: 16
+local_time: 0.570821 s
+mpc_time: 1.20883 s
+total_time: 1.78043 s
+num_elements_server: 16384
+num_elements_client: 32
+local_time: 0.561347 s
+mpc_time: 1.65285 s
+total_time: 2.21494 s
+num_elements_server: 16384
+num_elements_client: 64
+local_time: 0.545696 s
+mpc_time: 2.52694 s
+total_time: 3.07351 s
+num_elements_server: 16384
+num_elements_client: 128
+local_time: 0.549997 s
+mpc_time: 4.23725 s
+total_time: 4.78815 s
+num_elements_server: 16384
+num_elements_client: 256
+local_time: 0.560744 s
+mpc_time: 7.63003 s
+total_time: 8.19163 s
+num_elements_server: 16384
+num_elements_client: 512
+local_time: 0.567033 s
+mpc_time: 15.2093 s
+total_time: 15.7769 s
+num_elements_server: 16384
+num_elements_client: 1024
+local_time: 0.573458 s
+mpc_time: 28.7845 s
+total_time: 29.3588 s
+num_elements_server: 16384
+num_elements_client: 2048
+local_time: 0.563986 s
+mpc_time: 55.8477 s
+total_time: 56.4125 s
+num_elements_server: 16384
+num_elements_client: 4096
+local_time: 0.58007 s
+mpc_time: 108.118 s
+total_time: 108.699 s
+num_elements_server: 16384
+num_elements_client: 8192
+local_time: 0.574287 s
+mpc_time: 218.297 s
+total_time: 218.872 s
+num_elements_server: 32768
+num_elements_client: 1
+local_time: 0.580997 s
+mpc_time: 0.793319 s
+total_time: 1.37597 s
+num_elements_server: 32768
+num_elements_client: 2
+local_time: 0.563316 s
+mpc_time: 1.02725 s
+total_time: 1.59224 s
+num_elements_server: 32768
+num_elements_client: 4
+local_time: 0.542951 s
+mpc_time: 0.886445 s
+total_time: 1.43108 s
+num_elements_server: 32768
+num_elements_client: 8
+local_time: 0.566172 s
+mpc_time: 1.00037 s
+total_time: 1.56787 s
+num_elements_server: 32768
+num_elements_client: 16
+local_time: 0.549176 s
+mpc_time: 0.723942 s
+total_time: 1.2744 s
+num_elements_server: 32768
+num_elements_client: 32
+local_time: 0.859091 s
+mpc_time: 1.68911 s
+total_time: 2.54982 s
+num_elements_server: 32768
+num_elements_client: 64
+local_time: 0.673842 s
+mpc_time: 2.91573 s
+total_time: 3.59104 s
+num_elements_server: 32768
+num_elements_client: 128
+local_time: 0.564379 s
+mpc_time: 4.32429 s
+total_time: 4.88996 s
+num_elements_server: 32768
+num_elements_client: 256
+local_time: 0.565024 s
+mpc_time: 8.04746 s
+total_time: 8.61404 s
+num_elements_server: 32768
+num_elements_client: 512
+local_time: 0.547221 s
+mpc_time: 14.8803 s
+total_time: 15.429 s
+num_elements_server: 32768
+num_elements_client: 1024
+local_time: 0.550225 s
+mpc_time: 30.7217 s
+total_time: 31.2735 s
+num_elements_server: 32768
+num_elements_client: 2048
+local_time: 0.555811 s
+mpc_time: 58.0432 s
+total_time: 58.6005 s
+num_elements_server: 32768
+num_elements_client: 4096
+local_time: 0.568309 s
+mpc_time: 115.72 s
+total_time: 116.29 s
+num_elements_server: 32768
+num_elements_client: 8192
+local_time: 0.577608 s
+mpc_time: 237.454 s
+total_time: 238.033 s
+num_elements_server: 65536
+num_elements_client: 1
+local_time: 0.553019 s
+mpc_time: 0.802905 s
+total_time: 1.3586 s
+num_elements_server: 65536
+num_elements_client: 2
+local_time: 0.591836 s
+mpc_time: 1.05611 s
+total_time: 1.65069 s
+num_elements_server: 65536
+num_elements_client: 4
+local_time: 0.597399 s
+mpc_time: 1.07899 s
+total_time: 1.67879 s
+num_elements_server: 65536
+num_elements_client: 8
+local_time: 0.586882 s
+mpc_time: 0.749068 s
+total_time: 1.33822 s
+num_elements_server: 65536
+num_elements_client: 16
+local_time: 0.567677 s
+mpc_time: 1.24746 s
+total_time: 1.81787 s
+num_elements_server: 65536
+num_elements_client: 32
+local_time: 0.563639 s
+mpc_time: 1.72751 s
+total_time: 2.2941 s
+num_elements_server: 65536
+num_elements_client: 64
+local_time: 0.57583 s
+mpc_time: 2.65551 s
+total_time: 3.23387 s
+num_elements_server: 65536
+num_elements_client: 128
+local_time: 0.574203 s
+mpc_time: 4.61373 s
+total_time: 5.19065 s
+num_elements_server: 65536
+num_elements_client: 256
+local_time: 0.59265 s
+mpc_time: 8.12255 s
+total_time: 8.7181 s
+num_elements_server: 65536
+num_elements_client: 512
+local_time: 0.571149 s
+mpc_time: 15.9302 s
+total_time: 16.5044 s
+num_elements_server: 65536
+num_elements_client: 1024
+local_time: 0.557615 s
+mpc_time: 32.9402 s
+total_time: 33.5005 s
+num_elements_server: 65536
+num_elements_client: 2048
+local_time: 0.573241 s
+mpc_time: 63.3162 s
+total_time: 63.8926 s
+num_elements_server: 65536
+num_elements_client: 4096
+local_time: 0.573618 s
+mpc_time: 125.061 s
+total_time: 125.638 s
+num_elements_server: 65536
+num_elements_client: 8192
+local_time: 0.572741 s
+mpc_time: 250.35 s
+total_time: 250.925 s
+num_elements_server: 131072
+num_elements_client: 1
+local_time: 0.604323 s
+mpc_time: 0.788371 s
+total_time: 1.39775 s
+num_elements_server: 131072
+num_elements_client: 2
+local_time: 0.601618 s
+mpc_time: 0.830393 s
+total_time: 1.43716 s
+num_elements_server: 131072
+num_elements_client: 4
+local_time: 0.613764 s
+mpc_time: 0.888312 s
+total_time: 1.50711 s
+num_elements_server: 131072
+num_elements_client: 8
+local_time: 0.621193 s
+mpc_time: 1.03866 s
+total_time: 1.66503 s
+num_elements_server: 131072
+num_elements_client: 16
+local_time: 0.609056 s
+mpc_time: 1.29441 s
+total_time: 1.90883 s
+num_elements_server: 131072
+num_elements_client: 32
+local_time: 0.611955 s
+mpc_time: 1.79244 s
+total_time: 2.40957 s
+num_elements_server: 131072
+num_elements_client: 64
+local_time: 0.608742 s
+mpc_time: 2.83681 s
+total_time: 3.45035 s
+num_elements_server: 131072
+num_elements_client: 128
+local_time: 0.591016 s
+mpc_time: 5.47639 s
+total_time: 6.0736 s
+num_elements_server: 131072
+num_elements_client: 256
+local_time: 0.59264 s
+mpc_time: 9.66804 s
+total_time: 10.2658 s
+num_elements_server: 131072
+num_elements_client: 512
+local_time: 0.597428 s
+mpc_time: 16.7712 s
+total_time: 17.3739 s
+num_elements_server: 131072
+num_elements_client: 1024
+local_time: 0.580678 s
+mpc_time: 34.1505 s
+total_time: 34.7364 s
+num_elements_server: 131072
+num_elements_client: 2048
+local_time: 0.611321 s
+mpc_time: 68.4067 s
+total_time: 69.0235 s
+num_elements_server: 131072
+num_elements_client: 4096
+local_time: 0.587289 s
+mpc_time: 135.83 s
+total_time: 136.422 s
+num_elements_server: 131072
+num_elements_client: 8192
+local_time: 0.590033 s
+mpc_time: 260.442 s
+total_time: 261.037 s
+num_elements_server: 262144
+num_elements_client: 1
+local_time: 0.642596 s
+mpc_time: 0.773006 s
+total_time: 1.4255 s
+num_elements_server: 262144
+num_elements_client: 2
+local_time: 0.641045 s
+mpc_time: 0.797998 s
+total_time: 1.44935 s
+num_elements_server: 262144
+num_elements_client: 4
+local_time: 0.622834 s
+mpc_time: 0.900779 s
+total_time: 1.53327 s
+num_elements_server: 262144
+num_elements_client: 8
+local_time: 0.639699 s
+mpc_time: 1.03133 s
+total_time: 1.68052 s
+num_elements_server: 262144
+num_elements_client: 16
+local_time: 0.615076 s
+mpc_time: 1.25721 s
+total_time: 1.88217 s
+num_elements_server: 262144
+num_elements_client: 32
+local_time: 0.888876 s
+mpc_time: 1.85689 s
+total_time: 2.75589 s
+num_elements_server: 262144
+num_elements_client: 64
+local_time: 0.646102 s
+mpc_time: 2.84571 s
+total_time: 3.50104 s
+num_elements_server: 262144
+num_elements_client: 128
+local_time: 0.947885 s
+mpc_time: 5.67814 s
+total_time: 6.63545 s
+num_elements_server: 262144
+num_elements_client: 256
+local_time: 0.63261 s
+mpc_time: 9.02328 s
+total_time: 9.66635 s
+num_elements_server: 262144
+num_elements_client: 512
+local_time: 0.657616 s
+mpc_time: 18.3087 s
+total_time: 18.976 s
+num_elements_server: 262144
+num_elements_client: 1024
+local_time: 0.649502 s
+mpc_time: 37.562 s
+total_time: 38.2206 s
+num_elements_server: 262144
+num_elements_client: 2048
+local_time: 0.685321 s
+mpc_time: 73.0465 s
+total_time: 73.7421 s
+num_elements_server: 262144
+num_elements_client: 4096
+local_time: 0.648621 s
+mpc_time: 146.207 s
+total_time: 146.866 s
+num_elements_server: 262144
+num_elements_client: 8192
+local_time: 0.644809 s
+mpc_time: 289.29 s
+total_time: 289.945 s
+PIR type: scs
+num_elements_server: 1
+num_elements_client: 1
+local_time: 6.1e-06 s
+mpc_time: 0.295838 s
+total_time: 0.29589 s
+num_elements_server: 1
+num_elements_client: 2
+local_time: 5.8e-06 s
+mpc_time: 0.311291 s
+total_time: 0.311346 s
+num_elements_server: 1
+num_elements_client: 4
+local_time: 6.4e-06 s
+mpc_time: 0.297404 s
+total_time: 0.29746 s
+num_elements_server: 1
+num_elements_client: 8
+local_time: 6.5e-06 s
+mpc_time: 0.297625 s
+total_time: 0.297676 s
+num_elements_server: 1
+num_elements_client: 16
+local_time: 6.9e-06 s
+mpc_time: 0.298173 s
+total_time: 0.298228 s
+num_elements_server: 1
+num_elements_client: 32
+local_time: 8e-06 s
+mpc_time: 0.330475 s
+total_time: 0.330531 s
+num_elements_server: 1
+num_elements_client: 64
+local_time: 1.05e-05 s
+mpc_time: 0.385357 s
+total_time: 0.385411 s
+num_elements_server: 1
+num_elements_client: 128
+local_time: 1.19e-05 s
+mpc_time: 0.518774 s
+total_time: 0.518834 s
+num_elements_server: 1
+num_elements_client: 256
+local_time: 1.91e-05 s
+mpc_time: 0.723791 s
+total_time: 0.723864 s
+num_elements_server: 1
+num_elements_client: 512
+local_time: 3.59e-05 s
+mpc_time: 1.20014 s
+total_time: 1.20022 s
+num_elements_server: 1
+num_elements_client: 1024
+local_time: 5.2101e-05 s
+mpc_time: 2.05432 s
+total_time: 2.05442 s
+num_elements_server: 1
+num_elements_client: 2048
+local_time: 8.8801e-05 s
+mpc_time: 4.79422 s
+total_time: 4.79439 s
+num_elements_server: 1
+num_elements_client: 4096
+local_time: 0.000280301 s
+mpc_time: 9.09471 s
+total_time: 9.09504 s
+num_elements_server: 1
+num_elements_client: 8192
+local_time: 0.000376902 s
+mpc_time: 16.3379 s
+total_time: 16.3384 s
+num_elements_server: 2
+num_elements_client: 1
+local_time: 7.2e-06 s
+mpc_time: 0.289591 s
+total_time: 0.289645 s
+num_elements_server: 2
+num_elements_client: 2
+local_time: 6.2e-06 s
+mpc_time: 0.295973 s
+total_time: 0.29604 s
+num_elements_server: 2
+num_elements_client: 4
+local_time: 7e-06 s
+mpc_time: 0.286036 s
+total_time: 0.28609 s
+num_elements_server: 2
+num_elements_client: 8
+local_time: 6.6e-06 s
+mpc_time: 0.309608 s
+total_time: 0.30967 s
+num_elements_server: 2
+num_elements_client: 16
+local_time: 7.5e-06 s
+mpc_time: 0.310492 s
+total_time: 0.310552 s
+num_elements_server: 2
+num_elements_client: 32
+local_time: 9.1e-06 s
+mpc_time: 0.336524 s
+total_time: 0.336585 s
+num_elements_server: 2
+num_elements_client: 64
+local_time: 2.72e-05 s
+mpc_time: 0.386862 s
+total_time: 0.386931 s
+num_elements_server: 2
+num_elements_client: 128
+local_time: 9.3e-06 s
+mpc_time: 0.48448 s
+total_time: 0.484535 s
+num_elements_server: 2
+num_elements_client: 256
+local_time: 1.89e-05 s
+mpc_time: 0.745001 s
+total_time: 0.745085 s
+num_elements_server: 2
+num_elements_client: 512
+local_time: 3.1201e-05 s
+mpc_time: 1.12014 s
+total_time: 1.12022 s
+num_elements_server: 2
+num_elements_client: 1024
+local_time: 5.35e-05 s
+mpc_time: 2.23732 s
+total_time: 2.23742 s
+num_elements_server: 2
+num_elements_client: 2048
+local_time: 0.000120301 s
+mpc_time: 4.20748 s
+total_time: 4.20764 s
+num_elements_server: 2
+num_elements_client: 4096
+local_time: 0.000277201 s
+mpc_time: 8.3853 s
+total_time: 8.38563 s
+num_elements_server: 2
+num_elements_client: 8192
+local_time: 0.000423202 s
+mpc_time: 17.5514 s
+total_time: 17.5519 s
+num_elements_server: 4
+num_elements_client: 1
+local_time: 7.4e-06 s
+mpc_time: 0.298533 s
+total_time: 0.298591 s
+num_elements_server: 4
+num_elements_client: 2
+local_time: 6.3e-06 s
+mpc_time: 0.293646 s
+total_time: 0.293697 s
+num_elements_server: 4
+num_elements_client: 4
+local_time: 6.4e-06 s
+mpc_time: 0.291501 s
+total_time: 0.291555 s
+num_elements_server: 4
+num_elements_client: 8
+local_time: 7.7e-06 s
+mpc_time: 0.302861 s
+total_time: 0.30292 s
+num_elements_server: 4
+num_elements_client: 16
+local_time: 8.1e-06 s
+mpc_time: 0.322465 s
+total_time: 0.322523 s
+num_elements_server: 4
+num_elements_client: 32
+local_time: 8.3e-06 s
+mpc_time: 0.361951 s
+total_time: 0.362011 s
+num_elements_server: 4
+num_elements_client: 64
+local_time: 1.03e-05 s
+mpc_time: 0.399795 s
+total_time: 0.399868 s
+num_elements_server: 4
+num_elements_client: 128
+local_time: 1.26e-05 s
+mpc_time: 0.514519 s
+total_time: 0.514598 s
+num_elements_server: 4
+num_elements_client: 256
+local_time: 2.25e-05 s
+mpc_time: 1.27056 s
+total_time: 1.27063 s
+num_elements_server: 4
+num_elements_client: 512
+local_time: 6.76e-05 s
+mpc_time: 1.06255 s
+total_time: 1.06267 s
+num_elements_server: 4
+num_elements_client: 1024
+local_time: 8.0501e-05 s
+mpc_time: 2.72067 s
+total_time: 2.7208 s
+num_elements_server: 4
+num_elements_client: 2048
+local_time: 0.0001078 s
+mpc_time: 4.11405 s
+total_time: 4.1142 s
+num_elements_server: 4
+num_elements_client: 4096
+local_time: 0.000298801 s
+mpc_time: 8.66205 s
+total_time: 8.6624 s
+num_elements_server: 4
+num_elements_client: 8192
+local_time: 0.000502902 s
+mpc_time: 17.314 s
+total_time: 17.3146 s
+num_elements_server: 8
+num_elements_client: 1
+local_time: 7.3e-06 s
+mpc_time: 0.289559 s
+total_time: 0.289614 s
+num_elements_server: 8
+num_elements_client: 2
+local_time: 1.23e-05 s
+mpc_time: 0.291933 s
+total_time: 0.292045 s
+num_elements_server: 8
+num_elements_client: 4
+local_time: 6.9e-06 s
+mpc_time: 0.301143 s
+total_time: 0.301197 s
+num_elements_server: 8
+num_elements_client: 8
+local_time: 7.6e-06 s
+mpc_time: 0.304965 s
+total_time: 0.305036 s
+num_elements_server: 8
+num_elements_client: 16
+local_time: 7.3e-06 s
+mpc_time: 0.313559 s
+total_time: 0.31362 s
+num_elements_server: 8
+num_elements_client: 32
+local_time: 2.4901e-05 s
+mpc_time: 0.331215 s
+total_time: 0.331287 s
+num_elements_server: 8
+num_elements_client: 64
+local_time: 9.9e-06 s
+mpc_time: 0.399096 s
+total_time: 0.399156 s
+num_elements_server: 8
+num_elements_client: 128
+local_time: 1.35e-05 s
+mpc_time: 0.48287 s
+total_time: 0.482928 s
+num_elements_server: 8
+num_elements_client: 256
+local_time: 3.7e-05 s
+mpc_time: 0.739182 s
+total_time: 0.739285 s
+num_elements_server: 8
+num_elements_client: 512
+local_time: 3.86e-05 s
+mpc_time: 1.13035 s
+total_time: 1.13044 s
+num_elements_server: 8
+num_elements_client: 1024
+local_time: 5.44e-05 s
+mpc_time: 1.98784 s
+total_time: 1.98794 s
+num_elements_server: 8
+num_elements_client: 2048
+local_time: 0.0001047 s
+mpc_time: 3.7605 s
+total_time: 3.76066 s
+num_elements_server: 8
+num_elements_client: 4096
+local_time: 0.000190701 s
+mpc_time: 8.25331 s
+total_time: 8.25354 s
+num_elements_server: 8
+num_elements_client: 8192
+local_time: 0.000433702 s
+mpc_time: 18.3965 s
+total_time: 18.397 s
+num_elements_server: 16
+num_elements_client: 1
+local_time: 9.2e-06 s
+mpc_time: 0.307271 s
+total_time: 0.307332 s
+num_elements_server: 16
+num_elements_client: 2
+local_time: 8.5e-06 s
+mpc_time: 0.308001 s
+total_time: 0.308062 s
+num_elements_server: 16
+num_elements_client: 4
+local_time: 8.9e-06 s
+mpc_time: 0.30888 s
+total_time: 0.30894 s
+num_elements_server: 16
+num_elements_client: 8
+local_time: 9.1e-06 s
+mpc_time: 0.314907 s
+total_time: 0.31497 s
+num_elements_server: 16
+num_elements_client: 16
+local_time: 9.2e-06 s
+mpc_time: 0.30929 s
+total_time: 0.309351 s
+num_elements_server: 16
+num_elements_client: 32
+local_time: 1.06e-05 s
+mpc_time: 0.358207 s
+total_time: 0.35828 s
+num_elements_server: 16
+num_elements_client: 64
+local_time: 1.24e-05 s
+mpc_time: 0.392529 s
+total_time: 0.392624 s
+num_elements_server: 16
+num_elements_client: 128
+local_time: 1.42e-05 s
+mpc_time: 0.493582 s
+total_time: 0.493645 s
+num_elements_server: 16
+num_elements_client: 256
+local_time: 1.96e-05 s
+mpc_time: 0.725014 s
+total_time: 0.725095 s
+num_elements_server: 16
+num_elements_client: 512
+local_time: 3.16e-05 s
+mpc_time: 1.21248 s
+total_time: 1.21259 s
+num_elements_server: 16
+num_elements_client: 1024
+local_time: 6.6701e-05 s
+mpc_time: 2.16491 s
+total_time: 2.16503 s
+num_elements_server: 16
+num_elements_client: 2048
+local_time: 0.000148101 s
+mpc_time: 3.68854 s
+total_time: 3.68875 s
+num_elements_server: 16
+num_elements_client: 4096
+local_time: 0.000248801 s
+mpc_time: 8.37558 s
+total_time: 8.37589 s
+num_elements_server: 16
+num_elements_client: 8192
+local_time: 0.000510902 s
+mpc_time: 16.6943 s
+total_time: 16.6948 s
+num_elements_server: 32
+num_elements_client: 1
+local_time: 1.14e-05 s
+mpc_time: 0.314937 s
+total_time: 0.314996 s
+num_elements_server: 32
+num_elements_client: 2
+local_time: 1.14e-05 s
+mpc_time: 0.315624 s
+total_time: 0.315703 s
+num_elements_server: 32
+num_elements_client: 4
+local_time: 1.1401e-05 s
+mpc_time: 0.307033 s
+total_time: 0.30711 s
+num_elements_server: 32
+num_elements_client: 8
+local_time: 1.08e-05 s
+mpc_time: 0.327906 s
+total_time: 0.327973 s
+num_elements_server: 32
+num_elements_client: 16
+local_time: 1.11e-05 s
+mpc_time: 0.327045 s
+total_time: 0.327105 s
+num_elements_server: 32
+num_elements_client: 32
+local_time: 1.23e-05 s
+mpc_time: 0.362307 s
+total_time: 0.362391 s
+num_elements_server: 32
+num_elements_client: 64
+local_time: 1.71e-05 s
+mpc_time: 0.439216 s
+total_time: 0.439303 s
+num_elements_server: 32
+num_elements_client: 128
+local_time: 1.86e-05 s
+mpc_time: 0.5233 s
+total_time: 0.523367 s
+num_elements_server: 32
+num_elements_client: 256
+local_time: 3.87e-05 s
+mpc_time: 0.76622 s
+total_time: 0.766316 s
+num_elements_server: 32
+num_elements_client: 512
+local_time: 4.17e-05 s
+mpc_time: 1.16543 s
+total_time: 1.16553 s
+num_elements_server: 32
+num_elements_client: 1024
+local_time: 5.91e-05 s
+mpc_time: 2.75813 s
+total_time: 2.75823 s
+num_elements_server: 32
+num_elements_client: 2048
+local_time: 0.000128601 s
+mpc_time: 4.18067 s
+total_time: 4.18084 s
+num_elements_server: 32
+num_elements_client: 4096
+local_time: 0.0002538 s
+mpc_time: 9.44713 s
+total_time: 9.44744 s
+num_elements_server: 32
+num_elements_client: 8192
+local_time: 0.000330801 s
+mpc_time: 17.0404 s
+total_time: 17.0408 s
+num_elements_server: 64
+num_elements_client: 1
+local_time: 1.85e-05 s
+mpc_time: 0.348568 s
+total_time: 0.348653 s
+num_elements_server: 64
+num_elements_client: 2
+local_time: 1e-05 s
+mpc_time: 0.337841 s
+total_time: 0.337895 s
+num_elements_server: 64
+num_elements_client: 4
+local_time: 1.41e-05 s
+mpc_time: 0.342364 s
+total_time: 0.342433 s
+num_elements_server: 64
+num_elements_client: 8
+local_time: 1.71e-05 s
+mpc_time: 0.356054 s
+total_time: 0.356174 s
+num_elements_server: 64
+num_elements_client: 16
+local_time: 1.53e-05 s
+mpc_time: 0.38135 s
+total_time: 0.381424 s
+num_elements_server: 64
+num_elements_client: 32
+local_time: 1.61e-05 s
+mpc_time: 0.389675 s
+total_time: 0.389744 s
+num_elements_server: 64
+num_elements_client: 64
+local_time: 1.74e-05 s
+mpc_time: 0.480772 s
+total_time: 0.480842 s
+num_elements_server: 64
+num_elements_client: 128
+local_time: 2.22e-05 s
+mpc_time: 0.592841 s
+total_time: 0.592931 s
+num_elements_server: 64
+num_elements_client: 256
+local_time: 2.88e-05 s
+mpc_time: 0.839635 s
+total_time: 0.839717 s
+num_elements_server: 64
+num_elements_client: 512
+local_time: 4.71e-05 s
+mpc_time: 1.31282 s
+total_time: 1.31292 s
+num_elements_server: 64
+num_elements_client: 1024
+local_time: 7.4401e-05 s
+mpc_time: 2.06121 s
+total_time: 2.06134 s
+num_elements_server: 64
+num_elements_client: 2048
+local_time: 0.0001115 s
+mpc_time: 3.78807 s
+total_time: 3.78825 s
+num_elements_server: 64
+num_elements_client: 4096
+local_time: 0.000306701 s
+mpc_time: 8.52021 s
+total_time: 8.52059 s
+num_elements_server: 64
+num_elements_client: 8192
+local_time: 0.000396301 s
+mpc_time: 16.666 s
+total_time: 16.6664 s
+num_elements_server: 128
+num_elements_client: 1
+local_time: 2.2e-05 s
+mpc_time: 0.450743 s
+total_time: 0.450822 s
+num_elements_server: 128
+num_elements_client: 2
+local_time: 2.4e-05 s
+mpc_time: 0.92282 s
+total_time: 0.922899 s
+num_elements_server: 128
+num_elements_client: 4
+local_time: 2.28e-05 s
+mpc_time: 0.40477 s
+total_time: 0.404842 s
+num_elements_server: 128
+num_elements_client: 8
+local_time: 2.43e-05 s
+mpc_time: 0.43602 s
+total_time: 0.436095 s
+num_elements_server: 128
+num_elements_client: 16
+local_time: 2.46e-05 s
+mpc_time: 0.425428 s
+total_time: 0.425511 s
+num_elements_server: 128
+num_elements_client: 32
+local_time: 3.13e-05 s
+mpc_time: 0.469315 s
+total_time: 0.469402 s
+num_elements_server: 128
+num_elements_client: 64
+local_time: 4.3701e-05 s
+mpc_time: 0.48661 s
+total_time: 0.486787 s
+num_elements_server: 128
+num_elements_client: 128
+local_time: 4.84e-05 s
+mpc_time: 0.626139 s
+total_time: 0.626245 s
+num_elements_server: 128
+num_elements_client: 256
+local_time: 4.04e-05 s
+mpc_time: 0.835027 s
+total_time: 0.835126 s
+num_elements_server: 128
+num_elements_client: 512
+local_time: 8.42e-05 s
+mpc_time: 1.32677 s
+total_time: 1.32691 s
+num_elements_server: 128
+num_elements_client: 1024
+local_time: 0.000106201 s
+mpc_time: 2.28052 s
+total_time: 2.28069 s
+num_elements_server: 128
+num_elements_client: 2048
+local_time: 0.000136 s
+mpc_time: 4.36252 s
+total_time: 4.36272 s
+num_elements_server: 128
+num_elements_client: 4096
+local_time: 0.000232701 s
+mpc_time: 7.7683 s
+total_time: 7.76861 s
+num_elements_server: 128
+num_elements_client: 8192
+local_time: 0.000465802 s
+mpc_time: 17.1573 s
+total_time: 17.1579 s
+num_elements_server: 256
+num_elements_client: 1
+local_time: 2.55e-05 s
+mpc_time: 0.540831 s
+total_time: 0.540933 s
+num_elements_server: 256
+num_elements_client: 2
+local_time: 6.82e-05 s
+mpc_time: 0.547408 s
+total_time: 0.547566 s
+num_elements_server: 256
+num_elements_client: 4
+local_time: 2.75e-05 s
+mpc_time: 0.54161 s
+total_time: 0.541696 s
+num_elements_server: 256
+num_elements_client: 8
+local_time: 4.64e-05 s
+mpc_time: 0.548574 s
+total_time: 0.548685 s
+num_elements_server: 256
+num_elements_client: 16
+local_time: 4.12e-05 s
+mpc_time: 0.579237 s
+total_time: 0.579347 s
+num_elements_server: 256
+num_elements_client: 32
+local_time: 9.53e-05 s
+mpc_time: 0.613644 s
+total_time: 0.613811 s
+num_elements_server: 256
+num_elements_client: 64
+local_time: 7.4201e-05 s
+mpc_time: 0.704845 s
+total_time: 0.704987 s
+num_elements_server: 256
+num_elements_client: 128
+local_time: 9.39e-05 s
+mpc_time: 0.775744 s
+total_time: 0.775905 s
+num_elements_server: 256
+num_elements_client: 256
+local_time: 6.9201e-05 s
+mpc_time: 1.00111 s
+total_time: 1.00125 s
+num_elements_server: 256
+num_elements_client: 512
+local_time: 6.51e-05 s
+mpc_time: 1.50482 s
+total_time: 1.50495 s
+num_elements_server: 256
+num_elements_client: 1024
+local_time: 9.9e-05 s
+mpc_time: 2.35173 s
+total_time: 2.35191 s
+num_elements_server: 256
+num_elements_client: 2048
+local_time: 0.0001933 s
+mpc_time: 5.05817 s
+total_time: 5.05843 s
+num_elements_server: 256
+num_elements_client: 4096
+local_time: 0.000238101 s
+mpc_time: 9.55392 s
+total_time: 9.55422 s
+num_elements_server: 256
+num_elements_client: 8192
+local_time: 0.000462202 s
+mpc_time: 16.1022 s
+total_time: 16.1027 s
+num_elements_server: 512
+num_elements_client: 1
+local_time: 4.57e-05 s
+mpc_time: 0.843117 s
+total_time: 0.843242 s
+num_elements_server: 512
+num_elements_client: 2
+local_time: 7.6201e-05 s
+mpc_time: 0.846401 s
+total_time: 0.846551 s
+num_elements_server: 512
+num_elements_client: 4
+local_time: 6.1e-05 s
+mpc_time: 0.857721 s
+total_time: 0.857862 s
+num_elements_server: 512
+num_elements_client: 8
+local_time: 0.000123301 s
+mpc_time: 0.817285 s
+total_time: 0.817488 s
+num_elements_server: 512
+num_elements_client: 16
+local_time: 8.99e-05 s
+mpc_time: 0.846407 s
+total_time: 0.84661 s
+num_elements_server: 512
+num_elements_client: 32
+local_time: 5.25e-05 s
+mpc_time: 0.801096 s
+total_time: 0.801224 s
+num_elements_server: 512
+num_elements_client: 64
+local_time: 8e-05 s
+mpc_time: 0.942497 s
+total_time: 0.942673 s
+num_elements_server: 512
+num_elements_client: 128
+local_time: 4.97e-05 s
+mpc_time: 1.11707 s
+total_time: 1.11718 s
+num_elements_server: 512
+num_elements_client: 256
+local_time: 7.99e-05 s
+mpc_time: 1.27087 s
+total_time: 1.27102 s
+num_elements_server: 512
+num_elements_client: 512
+local_time: 0.000116901 s
+mpc_time: 1.73635 s
+total_time: 1.73654 s
+num_elements_server: 512
+num_elements_client: 1024
+local_time: 0.000165 s
+mpc_time: 2.78875 s
+total_time: 2.78905 s
+num_elements_server: 512
+num_elements_client: 2048
+local_time: 0.000230901 s
+mpc_time: 4.7347 s
+total_time: 4.73503 s
+num_elements_server: 512
+num_elements_client: 4096
+local_time: 0.000296601 s
+mpc_time: 8.24649 s
+total_time: 8.24687 s
+num_elements_server: 512
+num_elements_client: 8192
+local_time: 0.000464402 s
+mpc_time: 18.3719 s
+total_time: 18.3724 s
+num_elements_server: 1024
+num_elements_client: 1
+local_time: 0.0001392 s
+mpc_time: 1.46463 s
+total_time: 1.46489 s
+num_elements_server: 1024
+num_elements_client: 2
+local_time: 0.000123201 s
+mpc_time: 1.32184 s
+total_time: 1.32207 s
+num_elements_server: 1024
+num_elements_client: 4
+local_time: 0.000117201 s
+mpc_time: 1.34321 s
+total_time: 1.34343 s
+num_elements_server: 1024
+num_elements_client: 8
+local_time: 0.000175601 s
+mpc_time: 1.40373 s
+total_time: 1.40401 s
+num_elements_server: 1024
+num_elements_client: 16
+local_time: 0.000211001 s
+mpc_time: 1.46025 s
+total_time: 1.46058 s
+num_elements_server: 1024
+num_elements_client: 32
+local_time: 0.0001799 s
+mpc_time: 1.4715 s
+total_time: 1.4718 s
+num_elements_server: 1024
+num_elements_client: 64
+local_time: 0.000131001 s
+mpc_time: 1.64575 s
+total_time: 1.64598 s
+num_elements_server: 1024
+num_elements_client: 128
+local_time: 0.000212101 s
+mpc_time: 1.69186 s
+total_time: 1.69239 s
+num_elements_server: 1024
+num_elements_client: 256
+local_time: 0.000146401 s
+mpc_time: 1.99753 s
+total_time: 1.99778 s
+num_elements_server: 1024
+num_elements_client: 512
+local_time: 0.0001122 s
+mpc_time: 2.57062 s
+total_time: 2.57083 s
+num_elements_server: 1024
+num_elements_client: 1024
+local_time: 0.0001985 s
+mpc_time: 3.42315 s
+total_time: 3.42346 s
+num_elements_server: 1024
+num_elements_client: 2048
+local_time: 0.000204701 s
+mpc_time: 5.49697 s
+total_time: 5.4973 s
+num_elements_server: 1024
+num_elements_client: 4096
+local_time: 0.000250901 s
+mpc_time: 10.1464 s
+total_time: 10.1467 s
+num_elements_server: 1024
+num_elements_client: 8192
+local_time: 0.000376601 s
+mpc_time: 19.0676 s
+total_time: 19.068 s
+num_elements_server: 2048
+num_elements_client: 1
+local_time: 0.000208601 s
+mpc_time: 3.32597 s
+total_time: 3.32636 s
+num_elements_server: 2048
+num_elements_client: 2
+local_time: 0.000221201 s
+mpc_time: 3.28408 s
+total_time: 3.28448 s
+num_elements_server: 2048
+num_elements_client: 4
+local_time: 0.0002332 s
+mpc_time: 2.7079 s
+total_time: 2.7083 s
+num_elements_server: 2048
+num_elements_client: 8
+local_time: 0.000240201 s
+mpc_time: 2.68267 s
+total_time: 2.68308 s
+num_elements_server: 2048
+num_elements_client: 16
+local_time: 0.000269401 s
+mpc_time: 2.80305 s
+total_time: 2.80347 s
+num_elements_server: 2048
+num_elements_client: 32
+local_time: 0.000267101 s
+mpc_time: 2.78988 s
+total_time: 2.79038 s
+num_elements_server: 2048
+num_elements_client: 64
+local_time: 0.000193701 s
+mpc_time: 2.94447 s
+total_time: 2.94481 s
+num_elements_server: 2048
+num_elements_client: 128
+local_time: 0.000247101 s
+mpc_time: 2.49868 s
+total_time: 2.49908 s
+num_elements_server: 2048
+num_elements_client: 256
+local_time: 0.0001609 s
+mpc_time: 3.42662 s
+total_time: 3.42689 s
+num_elements_server: 2048
+num_elements_client: 512
+local_time: 0.000340702 s
+mpc_time: 3.84005 s
+total_time: 3.84063 s
+num_elements_server: 2048
+num_elements_client: 1024
+local_time: 0.000332401 s
+mpc_time: 5.07214 s
+total_time: 5.07263 s
+num_elements_server: 2048
+num_elements_client: 2048
+local_time: 0.000399001 s
+mpc_time: 6.8822 s
+total_time: 6.88284 s
+num_elements_server: 2048
+num_elements_client: 4096
+local_time: 0.000374102 s
+mpc_time: 11.3752 s
+total_time: 11.3758 s
+num_elements_server: 2048
+num_elements_client: 8192
+local_time: 0.000636002 s
+mpc_time: 20.8372 s
+total_time: 20.8381 s
+num_elements_server: 4096
+num_elements_client: 1
+local_time: 0.000406102 s
+mpc_time: 5.58124 s
+total_time: 5.5819 s
+num_elements_server: 4096
+num_elements_client: 2
+local_time: 0.000523702 s
+mpc_time: 5.53491 s
+total_time: 5.53576 s
+num_elements_server: 4096
+num_elements_client: 4
+local_time: 0.000547102 s
+mpc_time: 5.48759 s
+total_time: 5.48844 s
+num_elements_server: 4096
+num_elements_client: 8
+local_time: 0.000340902 s
+mpc_time: 5.46852 s
+total_time: 5.46903 s
+num_elements_server: 4096
+num_elements_client: 16
+local_time: 0.000448702 s
+mpc_time: 5.81594 s
+total_time: 5.8167 s
+num_elements_server: 4096
+num_elements_client: 32
+local_time: 0.000529002 s
+mpc_time: 5.16372 s
+total_time: 5.16456 s
+num_elements_server: 4096
+num_elements_client: 64
+local_time: 0.000656602 s
+mpc_time: 5.68341 s
+total_time: 5.68433 s
+num_elements_server: 4096
+num_elements_client: 128
+local_time: 0.000520902 s
+mpc_time: 5.84071 s
+total_time: 5.84149 s
+num_elements_server: 4096
+num_elements_client: 256
+local_time: 0.000406302 s
+mpc_time: 7.12105 s
+total_time: 7.12167 s
+num_elements_server: 4096
+num_elements_client: 512
+local_time: 0.000525902 s
+mpc_time: 6.73526 s
+total_time: 6.73605 s
+num_elements_server: 4096
+num_elements_client: 1024
+local_time: 0.000456002 s
+mpc_time: 8.10902 s
+total_time: 8.10985 s
+num_elements_server: 4096
+num_elements_client: 2048
+local_time: 0.000488202 s
+mpc_time: 9.87843 s
+total_time: 9.87917 s
+num_elements_server: 4096
+num_elements_client: 4096
+local_time: 0.000674703 s
+mpc_time: 13.4748 s
+total_time: 13.4758 s
+num_elements_server: 4096
+num_elements_client: 8192
+local_time: 0.000824903 s
+mpc_time: 24.9576 s
+total_time: 24.9587 s
+num_elements_server: 8192
+num_elements_client: 1
+local_time: 0.000668003 s
+mpc_time: 10.5224 s
+total_time: 10.5235 s
+num_elements_server: 8192
+num_elements_client: 2
+local_time: 0.000789003 s
+mpc_time: 11.0102 s
+total_time: 11.0115 s
+num_elements_server: 8192
+num_elements_client: 4
+local_time: 0.000768003 s
+mpc_time: 10.1991 s
+total_time: 10.2003 s
+num_elements_server: 8192
+num_elements_client: 8
+local_time: 0.000917404 s
+mpc_time: 11.5756 s
+total_time: 11.5769 s
+num_elements_server: 8192
+num_elements_client: 16
+local_time: 0.000871004 s
+mpc_time: 13.189 s
+total_time: 13.1902 s
+num_elements_server: 8192
+num_elements_client: 32
+local_time: 0.000791003 s
+mpc_time: 10.9739 s
+total_time: 10.9751 s
+num_elements_server: 8192
+num_elements_client: 64
+local_time: 0.000674302 s
+mpc_time: 11.5241 s
+total_time: 11.5251 s
+num_elements_server: 8192
+num_elements_client: 128
+local_time: 0.000931403 s
+mpc_time: 10.4243 s
+total_time: 10.4257 s
+num_elements_server: 8192
+num_elements_client: 256
+local_time: 0.000989403 s
+mpc_time: 11.9815 s
+total_time: 11.9828 s
+num_elements_server: 8192
+num_elements_client: 512
+local_time: 0.000940103 s
+mpc_time: 13.157 s
+total_time: 13.1584 s
+num_elements_server: 8192
+num_elements_client: 1024
+local_time: 0.000871503 s
+mpc_time: 14.3915 s
+total_time: 14.3929 s
+num_elements_server: 8192
+num_elements_client: 2048
+local_time: 0.000866503 s
+mpc_time: 16.3206 s
+total_time: 16.322 s
+num_elements_server: 8192
+num_elements_client: 4096
+local_time: 0.000851904 s
+mpc_time: 21.4592 s
+total_time: 21.4604 s
+num_elements_server: 8192
+num_elements_client: 8192
+local_time: 0.0011116 s
+mpc_time: 30.9123 s
+total_time: 30.9139 s
+num_elements_server: 16384
+num_elements_client: 1
+local_time: 0.00164131 s
+mpc_time: 23.8116 s
+total_time: 23.8141 s
+num_elements_server: 16384
+num_elements_client: 2
+local_time: 0.001573 s
+mpc_time: 24.1788 s
+total_time: 24.1811 s
+num_elements_server: 16384
+num_elements_client: 4
+local_time: 0.00152401 s
+mpc_time: 22.6342 s
+total_time: 22.6364 s
+num_elements_server: 16384
+num_elements_client: 8
+local_time: 0.00177831 s
+mpc_time: 24.6158 s
+total_time: 24.6185 s
+num_elements_server: 16384
+num_elements_client: 16
+local_time: 0.0016116 s
+mpc_time: 24.1738 s
+total_time: 24.1764 s
+num_elements_server: 16384
+num_elements_client: 32
+local_time: 0.0015066 s
+mpc_time: 22.4864 s
+total_time: 22.4887 s
+num_elements_server: 16384
+num_elements_client: 64
+local_time: 0.0015835 s
+mpc_time: 25.0937 s
+total_time: 25.0961 s
+num_elements_server: 16384
+num_elements_client: 128
+local_time: 0.0016203 s
+mpc_time: 23.538 s
+total_time: 23.5404 s
+num_elements_server: 16384
+num_elements_client: 256
+local_time: 0.0014749 s
+mpc_time: 25.9076 s
+total_time: 25.9097 s
+num_elements_server: 16384
+num_elements_client: 512
+local_time: 0.0013075 s
+mpc_time: 23.83 s
+total_time: 23.8321 s
+num_elements_server: 16384
+num_elements_client: 1024
+local_time: 0.00188181 s
+mpc_time: 26.8557 s
+total_time: 26.8586 s
+num_elements_server: 16384
+num_elements_client: 2048
+local_time: 0.00156491 s
+mpc_time: 28.3696 s
+total_time: 28.3719 s
+num_elements_server: 16384
+num_elements_client: 4096
+local_time: 0.00194661 s
+mpc_time: 33.3536 s
+total_time: 33.3563 s
+num_elements_server: 16384
+num_elements_client: 8192
+local_time: 0.00194701 s
+mpc_time: 40.7706 s
+total_time: 40.7735 s
+num_elements_server: 32768
+num_elements_client: 1
+local_time: 0.00336861 s
+mpc_time: 49.124 s
+total_time: 49.129 s
+num_elements_server: 32768
+num_elements_client: 2
+local_time: 0.00319731 s
+mpc_time: 51.2194 s
+total_time: 51.2241 s
+num_elements_server: 32768
+num_elements_client: 4
+local_time: 0.00315811 s
+mpc_time: 49.8843 s
+total_time: 49.8888 s
+num_elements_server: 32768
+num_elements_client: 8
+local_time: 0.00369721 s
+mpc_time: 44.987 s
+total_time: 44.993 s
+num_elements_server: 32768
+num_elements_client: 16
+local_time: 0.00307171 s
+mpc_time: 50.0087 s
+total_time: 50.0132 s
+num_elements_server: 32768
+num_elements_client: 32
+local_time: 0.00269591 s
+mpc_time: 49.2336 s
+total_time: 49.2376 s
+num_elements_server: 32768
+num_elements_client: 64
+local_time: 0.00255721 s
+mpc_time: 45.1742 s
+total_time: 45.1782 s
+num_elements_server: 32768
+num_elements_client: 128
+local_time: 0.00305021 s
+mpc_time: 46.1874 s
+total_time: 46.1918 s
+num_elements_server: 32768
+num_elements_client: 256
+local_time: 0.00338951 s
+mpc_time: 47.9135 s
+total_time: 47.9184 s
+num_elements_server: 32768
+num_elements_client: 512
+local_time: 0.00383341 s
+mpc_time: 49.8771 s
+total_time: 49.8826 s
+num_elements_server: 32768
+num_elements_client: 1024
+local_time: 0.00297181 s
+mpc_time: 49.3584 s
+total_time: 49.3628 s
+num_elements_server: 32768
+num_elements_client: 2048
+local_time: 0.00338801 s
+mpc_time: 54.7633 s
+total_time: 54.7682 s
+num_elements_server: 32768
+num_elements_client: 4096
+local_time: 0.00368751 s
+mpc_time: 56.9515 s
+total_time: 56.9567 s
+num_elements_server: 32768
+num_elements_client: 8192
+local_time: 0.00331611 s
+mpc_time: 66.4811 s
+total_time: 66.486 s
+num_elements_server: 65536
+num_elements_client: 1
+local_time: 0.00589732 s
+mpc_time: 100.576 s
+total_time: 100.585 s
+num_elements_server: 65536
+num_elements_client: 2
+local_time: 0.00573782 s
+mpc_time: 103.302 s
+total_time: 103.311 s
+num_elements_server: 65536
+num_elements_client: 4
+local_time: 0.00681172 s
+mpc_time: 100.528 s
+total_time: 100.539 s
+num_elements_server: 65536
+num_elements_client: 8
+local_time: 0.00562922 s
+mpc_time: 106.75 s
+total_time: 106.758 s
+num_elements_server: 65536
+num_elements_client: 16
+local_time: 0.00593282 s
+mpc_time: 102.692 s
+total_time: 102.7 s
+num_elements_server: 65536
+num_elements_client: 32
+local_time: 0.00539482 s
+mpc_time: 100.516 s
+total_time: 100.524 s
+num_elements_server: 65536
+num_elements_client: 64
+local_time: 0.00593222 s
+mpc_time: 98.9534 s
+total_time: 98.962 s
+num_elements_server: 65536
+num_elements_client: 128
+local_time: 0.00549882 s
+mpc_time: 103.334 s
+total_time: 103.342 s
+num_elements_server: 65536
+num_elements_client: 256
+local_time: 0.00599422 s
+mpc_time: 101.381 s
+total_time: 101.39 s
+num_elements_server: 65536
+num_elements_client: 512
+local_time: 0.00558542 s
+mpc_time: 93.9864 s
+total_time: 93.9948 s
+num_elements_server: 65536
+num_elements_client: 1024
+local_time: 0.00525122 s
+mpc_time: 107.031 s
+total_time: 107.038 s
+num_elements_server: 65536
+num_elements_client: 2048
+local_time: 0.00571212 s
+mpc_time: 106.107 s
+total_time: 106.115 s
+num_elements_server: 65536
+num_elements_client: 4096
+local_time: 0.00630593 s
+mpc_time: 111.205 s
+total_time: 111.214 s
+num_elements_server: 65536
+num_elements_client: 8192
+local_time: 0.00585353 s
+mpc_time: 120.658 s
+total_time: 120.666 s
+num_elements_server: 131072
+num_elements_client: 1
+local_time: 0.0128885 s
+mpc_time: 224.854 s
+total_time: 224.872 s
+num_elements_server: 131072
+num_elements_client: 2
+local_time: 0.0108612 s
+mpc_time: 210.245 s
+total_time: 210.261 s
+num_elements_server: 131072
+num_elements_client: 4
+local_time: 0.0116114 s
+mpc_time: 206.079 s
+total_time: 206.096 s
+num_elements_server: 131072
+num_elements_client: 8
+local_time: 0.0123923 s
+mpc_time: 209.043 s
+total_time: 209.061 s
+num_elements_server: 131072
+num_elements_client: 16
+local_time: 0.0105225 s
+mpc_time: 206.085 s
+total_time: 206.104 s
+num_elements_server: 131072
+num_elements_client: 32
+local_time: 0.0107267 s
+mpc_time: 208.891 s
+total_time: 208.907 s
+num_elements_server: 131072
+num_elements_client: 64
+local_time: 0.00998944 s
+mpc_time: 211.955 s
+total_time: 211.97 s
+num_elements_server: 131072
+num_elements_client: 128
+local_time: 0.0102297 s
+mpc_time: 213.688 s
+total_time: 213.704 s
+num_elements_server: 131072
+num_elements_client: 256
+local_time: 0.0109215 s
+mpc_time: 207.544 s
+total_time: 207.56 s
+num_elements_server: 131072
+num_elements_client: 512
+local_time: 0.0106832 s
+mpc_time: 210.993 s
+total_time: 211.009 s
+num_elements_server: 131072
+num_elements_client: 1024
+local_time: 0.0275558 s
+mpc_time: 215.073 s
+total_time: 215.111 s
+num_elements_server: 131072
+num_elements_client: 2048
+local_time: 0.0307269 s
+mpc_time: 225.098 s
+total_time: 225.138 s
+num_elements_server: 131072
+num_elements_client: 4096
+local_time: 0.00995254 s
+mpc_time: 217.548 s
+total_time: 217.563 s
+num_elements_server: 131072
+num_elements_client: 8192
+local_time: 0.0108551 s
+mpc_time: 238.329 s
+total_time: 238.345 s
+num_elements_server: 262144
+num_elements_client: 1
+local_time: 0.0206998 s
+mpc_time: 451.482 s
+total_time: 451.512 s
+num_elements_server: 262144
+num_elements_client: 2
+local_time: 0.0199606 s
+mpc_time: 462.745 s
+total_time: 462.774 s
+num_elements_server: 262144
+num_elements_client: 4
+local_time: 0.0211103 s
+mpc_time: 447.922 s
+total_time: 447.953 s
+num_elements_server: 262144
+num_elements_client: 8
+local_time: 0.0212588 s
+mpc_time: 449.501 s
+total_time: 449.532 s
+num_elements_server: 262144
+num_elements_client: 16
+local_time: 0.0214429 s
+mpc_time: 437.35 s
+total_time: 437.381 s
+num_elements_server: 262144
+num_elements_client: 32
+local_time: 0.0206234 s
+mpc_time: 435.126 s
+total_time: 435.155 s
+num_elements_server: 262144
+num_elements_client: 64
+local_time: 0.0227234 s
+mpc_time: 433.274 s
+total_time: 433.307 s
+num_elements_server: 262144
+num_elements_client: 128
+local_time: 0.0213647 s
+mpc_time: 430.234 s
+total_time: 430.264 s
+num_elements_server: 262144
+num_elements_client: 256
+local_time: 0.0221114 s
+mpc_time: 412.973 s
+total_time: 413.005 s
+num_elements_server: 262144
+num_elements_client: 512
+local_time: 0.0227887 s
+mpc_time: 424.346 s
+total_time: 424.378 s
+num_elements_server: 262144
+num_elements_client: 1024
+local_time: 0.0215196 s
+mpc_time: 431.343 s
+total_time: 431.374 s
+num_elements_server: 262144
+num_elements_client: 2048
+local_time: 0.0211598 s
+mpc_time: 437.06 s
+total_time: 437.091 s
+num_elements_server: 262144
+num_elements_client: 4096
+local_time: 0.0210867 s
+mpc_time: 445.478 s
+total_time: 445.509 s
+num_elements_server: 262144
+num_elements_client: 8192
+local_time: 0.0210952 s
+mpc_time: 456.046 s
+total_time: 456.077 s
+PIR type: poly
+num_elements_server: 1
+num_elements_client: 1
+local_time: 0.000361101 s
+mpc_time: 0.264985 s
+total_time: 0.265589 s
+num_elements_server: 1
+num_elements_client: 2
+local_time: 0.000204001 s
+mpc_time: 0.263573 s
+total_time: 0.263819 s
+num_elements_server: 1
+num_elements_client: 4
+local_time: 7.06e-05 s
+mpc_time: 0.270702 s
+total_time: 0.270833 s
+num_elements_server: 1
+num_elements_client: 8
+local_time: 8.71e-05 s
+mpc_time: 0.277503 s
+total_time: 0.27765 s
+num_elements_server: 1
+num_elements_client: 16
+local_time: 0.0001149 s
+mpc_time: 0.286925 s
+total_time: 0.287087 s
+num_elements_server: 1
+num_elements_client: 32
+local_time: 9.21e-05 s
+mpc_time: 0.340819 s
+total_time: 0.340959 s
+num_elements_server: 1
+num_elements_client: 64
+local_time: 0.000100301 s
+mpc_time: 0.394331 s
+total_time: 0.394476 s
+num_elements_server: 1
+num_elements_client: 128
+local_time: 0.0001137 s
+mpc_time: 0.540071 s
+total_time: 0.540243 s
+num_elements_server: 1
+num_elements_client: 256
+local_time: 8.03e-05 s
+mpc_time: 0.78726 s
+total_time: 0.787386 s
+num_elements_server: 1
+num_elements_client: 512
+local_time: 9.9201e-05 s
+mpc_time: 1.39111 s
+total_time: 1.39126 s
+num_elements_server: 1
+num_elements_client: 1024
+local_time: 0.000121801 s
+mpc_time: 2.5333 s
+total_time: 2.53348 s
+num_elements_server: 1
+num_elements_client: 2048
+local_time: 0.000211101 s
+mpc_time: 4.8342 s
+total_time: 4.83446 s
+num_elements_server: 1
+num_elements_client: 4096
+local_time: 0.000227801 s
+mpc_time: 9.33577 s
+total_time: 9.33605 s
+num_elements_server: 1
+num_elements_client: 8192
+local_time: 0.000385301 s
+mpc_time: 20.0093 s
+total_time: 20.0097 s
+num_elements_server: 2
+num_elements_client: 1
+local_time: 0.000177601 s
+mpc_time: 0.250636 s
+total_time: 0.250866 s
+num_elements_server: 2
+num_elements_client: 2
+local_time: 0.0001041 s
+mpc_time: 0.256853 s
+total_time: 0.257044 s
+num_elements_server: 2
+num_elements_client: 4
+local_time: 0.0001298 s
+mpc_time: 0.266876 s
+total_time: 0.267051 s
+num_elements_server: 2
+num_elements_client: 8
+local_time: 0.0001069 s
+mpc_time: 0.281145 s
+total_time: 0.28131 s
+num_elements_server: 2
+num_elements_client: 16
+local_time: 0.0001023 s
+mpc_time: 0.298139 s
+total_time: 0.298358 s
+num_elements_server: 2
+num_elements_client: 32
+local_time: 0.000130301 s
+mpc_time: 0.337496 s
+total_time: 0.337715 s
+num_elements_server: 2
+num_elements_client: 64
+local_time: 0.000123 s
+mpc_time: 0.409499 s
+total_time: 0.409675 s
+num_elements_server: 2
+num_elements_client: 128
+local_time: 0.0001114 s
+mpc_time: 0.55742 s
+total_time: 0.557617 s
+num_elements_server: 2
+num_elements_client: 256
+local_time: 0.000170601 s
+mpc_time: 0.809674 s
+total_time: 0.809899 s
+num_elements_server: 2
+num_elements_client: 512
+local_time: 0.000115601 s
+mpc_time: 1.47786 s
+total_time: 1.47804 s
+num_elements_server: 2
+num_elements_client: 1024
+local_time: 0.000150401 s
+mpc_time: 2.46169 s
+total_time: 2.4619 s
+num_elements_server: 2
+num_elements_client: 2048
+local_time: 0.000159601 s
+mpc_time: 5.1341 s
+total_time: 5.13431 s
+num_elements_server: 2
+num_elements_client: 4096
+local_time: 0.000288301 s
+mpc_time: 8.97282 s
+total_time: 8.97317 s
+num_elements_server: 2
+num_elements_client: 8192
+local_time: 0.000393002 s
+mpc_time: 18.8723 s
+total_time: 18.8727 s
+num_elements_server: 4
+num_elements_client: 1
+local_time: 0.000156001 s
+mpc_time: 0.253304 s
+total_time: 0.253514 s
+num_elements_server: 4
+num_elements_client: 2
+local_time: 0.0001719 s
+mpc_time: 0.259411 s
+total_time: 0.259632 s
+num_elements_server: 4
+num_elements_client: 4
+local_time: 0.000228201 s
+mpc_time: 0.274745 s
+total_time: 0.27502 s
+num_elements_server: 4
+num_elements_client: 8
+local_time: 0.000332801 s
+mpc_time: 0.277561 s
+total_time: 0.277953 s
+num_elements_server: 4
+num_elements_client: 16
+local_time: 0.000130701 s
+mpc_time: 0.298724 s
+total_time: 0.298895 s
+num_elements_server: 4
+num_elements_client: 32
+local_time: 9.24e-05 s
+mpc_time: 0.328211 s
+total_time: 0.328356 s
+num_elements_server: 4
+num_elements_client: 64
+local_time: 0.000144401 s
+mpc_time: 0.402655 s
+total_time: 0.402911 s
+num_elements_server: 4
+num_elements_client: 128
+local_time: 0.000173801 s
+mpc_time: 0.52535 s
+total_time: 0.525587 s
+num_elements_server: 4
+num_elements_client: 256
+local_time: 0.000171301 s
+mpc_time: 0.81674 s
+total_time: 0.816967 s
+num_elements_server: 4
+num_elements_client: 512
+local_time: 0.000184701 s
+mpc_time: 1.41427 s
+total_time: 1.41451 s
+num_elements_server: 4
+num_elements_client: 1024
+local_time: 0.0002297 s
+mpc_time: 3.20413 s
+total_time: 3.20441 s
+num_elements_server: 4
+num_elements_client: 2048
+local_time: 0.0001795 s
+mpc_time: 5.02728 s
+total_time: 5.02752 s
+num_elements_server: 4
+num_elements_client: 4096
+local_time: 0.000336502 s
+mpc_time: 10.4024 s
+total_time: 10.4029 s
+num_elements_server: 4
+num_elements_client: 8192
+local_time: 0.000383001 s
+mpc_time: 19.477 s
+total_time: 19.4775 s
+num_elements_server: 8
+num_elements_client: 1
+local_time: 0.000198401 s
+mpc_time: 0.24813 s
+total_time: 0.248403 s
+num_elements_server: 8
+num_elements_client: 2
+local_time: 0.000147501 s
+mpc_time: 0.265156 s
+total_time: 0.265352 s
+num_elements_server: 8
+num_elements_client: 4
+local_time: 0.000195901 s
+mpc_time: 0.268505 s
+total_time: 0.268751 s
+num_elements_server: 8
+num_elements_client: 8
+local_time: 0.0001722 s
+mpc_time: 0.284906 s
+total_time: 0.285141 s
+num_elements_server: 8
+num_elements_client: 16
+local_time: 0.000182101 s
+mpc_time: 0.291763 s
+total_time: 0.29202 s
+num_elements_server: 8
+num_elements_client: 32
+local_time: 0.000176601 s
+mpc_time: 0.333911 s
+total_time: 0.33415 s
+num_elements_server: 8
+num_elements_client: 64
+local_time: 0.000220801 s
+mpc_time: 0.399218 s
+total_time: 0.399513 s
+num_elements_server: 8
+num_elements_client: 128
+local_time: 0.000220201 s
+mpc_time: 0.558586 s
+total_time: 0.558863 s
+num_elements_server: 8
+num_elements_client: 256
+local_time: 0.000345801 s
+mpc_time: 0.793693 s
+total_time: 0.794092 s
+num_elements_server: 8
+num_elements_client: 512
+local_time: 0.000229501 s
+mpc_time: 1.43292 s
+total_time: 1.43321 s
+num_elements_server: 8
+num_elements_client: 1024
+local_time: 0.000208201 s
+mpc_time: 2.45652 s
+total_time: 2.45678 s
+num_elements_server: 8
+num_elements_client: 2048
+local_time: 0.000249701 s
+mpc_time: 5.02317 s
+total_time: 5.02348 s
+num_elements_server: 8
+num_elements_client: 4096
+local_time: 0.000453502 s
+mpc_time: 9.52917 s
+total_time: 9.5297 s
+num_elements_server: 8
+num_elements_client: 8192
+local_time: 0.000447902 s
+mpc_time: 19.9857 s
+total_time: 19.9862 s
+num_elements_server: 16
+num_elements_client: 1
+local_time: 0.000371101 s
+mpc_time: 0.253359 s
+total_time: 0.253794 s
+num_elements_server: 16
+num_elements_client: 2
+local_time: 0.000316102 s
+mpc_time: 0.271843 s
+total_time: 0.27221 s
+num_elements_server: 16
+num_elements_client: 4
+local_time: 0.000411001 s
+mpc_time: 0.269111 s
+total_time: 0.269589 s
+num_elements_server: 16
+num_elements_client: 8
+local_time: 0.000346601 s
+mpc_time: 0.278667 s
+total_time: 0.27906 s
+num_elements_server: 16
+num_elements_client: 16
+local_time: 0.000286501 s
+mpc_time: 0.303475 s
+total_time: 0.303829 s
+num_elements_server: 16
+num_elements_client: 32
+local_time: 0.000371101 s
+mpc_time: 0.328694 s
+total_time: 0.329111 s
+num_elements_server: 16
+num_elements_client: 64
+local_time: 0.000361101 s
+mpc_time: 0.410353 s
+total_time: 0.410806 s
+num_elements_server: 16
+num_elements_client: 128
+local_time: 0.000355801 s
+mpc_time: 0.525099 s
+total_time: 0.525503 s
+num_elements_server: 16
+num_elements_client: 256
+local_time: 0.000473302 s
+mpc_time: 0.837296 s
+total_time: 0.837836 s
+num_elements_server: 16
+num_elements_client: 512
+local_time: 0.000477002 s
+mpc_time: 1.41412 s
+total_time: 1.41465 s
+num_elements_server: 16
+num_elements_client: 1024
+local_time: 0.000382001 s
+mpc_time: 2.47154 s
+total_time: 2.47201 s
+num_elements_server: 16
+num_elements_client: 2048
+local_time: 0.000380002 s
+mpc_time: 4.64936 s
+total_time: 4.64979 s
+num_elements_server: 16
+num_elements_client: 4096
+local_time: 0.000434301 s
+mpc_time: 9.7499 s
+total_time: 9.75041 s
+num_elements_server: 16
+num_elements_client: 8192
+local_time: 0.000578002 s
+mpc_time: 17.4319 s
+total_time: 17.4325 s
+num_elements_server: 32
+num_elements_client: 1
+local_time: 0.000711202 s
+mpc_time: 0.251565 s
+total_time: 0.252348 s
+num_elements_server: 32
+num_elements_client: 2
+local_time: 0.000899803 s
+mpc_time: 0.262488 s
+total_time: 0.26351 s
+num_elements_server: 32
+num_elements_client: 4
+local_time: 0.000707503 s
+mpc_time: 0.266998 s
+total_time: 0.267751 s
+num_elements_server: 32
+num_elements_client: 8
+local_time: 0.000672903 s
+mpc_time: 0.275955 s
+total_time: 0.276671 s
+num_elements_server: 32
+num_elements_client: 16
+local_time: 0.000618902 s
+mpc_time: 0.28941 s
+total_time: 0.290074 s
+num_elements_server: 32
+num_elements_client: 32
+local_time: 0.000718003 s
+mpc_time: 0.336334 s
+total_time: 0.3371 s
+num_elements_server: 32
+num_elements_client: 64
+local_time: 0.000694402 s
+mpc_time: 0.502518 s
+total_time: 0.503266 s
+num_elements_server: 32
+num_elements_client: 128
+local_time: 0.000748603 s
+mpc_time: 1.15485 s
+total_time: 1.15565 s
+num_elements_server: 32
+num_elements_client: 256
+local_time: 0.000788003 s
+mpc_time: 0.878189 s
+total_time: 0.879048 s
+num_elements_server: 32
+num_elements_client: 512
+local_time: 0.000752802 s
+mpc_time: 1.50699 s
+total_time: 1.50781 s
+num_elements_server: 32
+num_elements_client: 1024
+local_time: 0.000656702 s
+mpc_time: 2.53474 s
+total_time: 2.53546 s
+num_elements_server: 32
+num_elements_client: 2048
+local_time: 0.0010354 s
+mpc_time: 5.57094 s
+total_time: 5.57203 s
+num_elements_server: 32
+num_elements_client: 4096
+local_time: 0.000754702 s
+mpc_time: 9.0325 s
+total_time: 9.03332 s
+num_elements_server: 32
+num_elements_client: 8192
+local_time: 0.000941703 s
+mpc_time: 19.133 s
+total_time: 19.134 s
+num_elements_server: 64
+num_elements_client: 1
+local_time: 0.00163381 s
+mpc_time: 0.259318 s
+total_time: 0.260998 s
+num_elements_server: 64
+num_elements_client: 2
+local_time: 0.00193921 s
+mpc_time: 0.257065 s
+total_time: 0.259055 s
+num_elements_server: 64
+num_elements_client: 4
+local_time: 0.00167681 s
+mpc_time: 0.26787 s
+total_time: 0.269622 s
+num_elements_server: 64
+num_elements_client: 8
+local_time: 0.00160251 s
+mpc_time: 0.274575 s
+total_time: 0.27623 s
+num_elements_server: 64
+num_elements_client: 16
+local_time: 0.00148041 s
+mpc_time: 0.292436 s
+total_time: 0.293972 s
+num_elements_server: 64
+num_elements_client: 32
+local_time: 0.00158971 s
+mpc_time: 0.324561 s
+total_time: 0.326202 s
+num_elements_server: 64
+num_elements_client: 64
+local_time: 0.00163291 s
+mpc_time: 0.394978 s
+total_time: 0.396666 s
+num_elements_server: 64
+num_elements_client: 128
+local_time: 0.00147891 s
+mpc_time: 0.544178 s
+total_time: 0.545717 s
+num_elements_server: 64
+num_elements_client: 256
+local_time: 0.00169021 s
+mpc_time: 0.836659 s
+total_time: 0.838408 s
+num_elements_server: 64
+num_elements_client: 512
+local_time: 0.00159691 s
+mpc_time: 1.33452 s
+total_time: 1.33618 s
+num_elements_server: 64
+num_elements_client: 1024
+local_time: 0.00170111 s
+mpc_time: 2.5425 s
+total_time: 2.54428 s
+num_elements_server: 64
+num_elements_client: 2048
+local_time: 0.00177481 s
+mpc_time: 4.50317 s
+total_time: 4.50504 s
+num_elements_server: 64
+num_elements_client: 4096
+local_time: 0.00181371 s
+mpc_time: 9.77253 s
+total_time: 9.77441 s
+num_elements_server: 64
+num_elements_client: 8192
+local_time: 0.00232961 s
+mpc_time: 18.2656 s
+total_time: 18.268 s
+num_elements_server: 128
+num_elements_client: 1
+local_time: 0.00514122 s
+mpc_time: 0.256512 s
+total_time: 0.261712 s
+num_elements_server: 128
+num_elements_client: 2
+local_time: 0.00421342 s
+mpc_time: 0.265925 s
+total_time: 0.27021 s
+num_elements_server: 128
+num_elements_client: 4
+local_time: 0.00420122 s
+mpc_time: 0.266489 s
+total_time: 0.270794 s
+num_elements_server: 128
+num_elements_client: 8
+local_time: 0.00387542 s
+mpc_time: 0.273951 s
+total_time: 0.277882 s
+num_elements_server: 128
+num_elements_client: 16
+local_time: 0.00404932 s
+mpc_time: 0.291064 s
+total_time: 0.295186 s
+num_elements_server: 128
+num_elements_client: 32
+local_time: 0.00396802 s
+mpc_time: 0.318884 s
+total_time: 0.322906 s
+num_elements_server: 128
+num_elements_client: 64
+local_time: 0.00400252 s
+mpc_time: 0.391419 s
+total_time: 0.395498 s
+num_elements_server: 128
+num_elements_client: 128
+local_time: 0.00444182 s
+mpc_time: 0.548085 s
+total_time: 0.552626 s
+num_elements_server: 128
+num_elements_client: 256
+local_time: 0.00348441 s
+mpc_time: 0.853894 s
+total_time: 0.857451 s
+num_elements_server: 128
+num_elements_client: 512
+local_time: 0.00628942 s
+mpc_time: 1.45888 s
+total_time: 1.46524 s
+num_elements_server: 128
+num_elements_client: 1024
+local_time: 0.00448842 s
+mpc_time: 2.46681 s
+total_time: 2.47137 s
+num_elements_server: 128
+num_elements_client: 2048
+local_time: 0.00432862 s
+mpc_time: 4.67393 s
+total_time: 4.67835 s
+num_elements_server: 128
+num_elements_client: 4096
+local_time: 0.00423812 s
+mpc_time: 9.58897 s
+total_time: 9.59328 s
+num_elements_server: 128
+num_elements_client: 8192
+local_time: 0.00443692 s
+mpc_time: 19.21 s
+total_time: 19.2145 s
+num_elements_server: 256
+num_elements_client: 1
+local_time: 0.0100171 s
+mpc_time: 0.518372 s
+total_time: 0.528518 s
+num_elements_server: 256
+num_elements_client: 2
+local_time: 0.00941243 s
+mpc_time: 0.284898 s
+total_time: 0.294421 s
+num_elements_server: 256
+num_elements_client: 4
+local_time: 0.00869653 s
+mpc_time: 0.29357 s
+total_time: 0.302337 s
+num_elements_server: 256
+num_elements_client: 8
+local_time: 0.00828043 s
+mpc_time: 0.284067 s
+total_time: 0.292418 s
+num_elements_server: 256
+num_elements_client: 16
+local_time: 0.00940703 s
+mpc_time: 0.297872 s
+total_time: 0.307339 s
+num_elements_server: 256
+num_elements_client: 32
+local_time: 0.00858413 s
+mpc_time: 0.320291 s
+total_time: 0.328939 s
+num_elements_server: 256
+num_elements_client: 64
+local_time: 0.00920734 s
+mpc_time: 0.386853 s
+total_time: 0.396125 s
+num_elements_server: 256
+num_elements_client: 128
+local_time: 0.00924643 s
+mpc_time: 0.531588 s
+total_time: 0.540927 s
+num_elements_server: 256
+num_elements_client: 256
+local_time: 0.00819553 s
+mpc_time: 0.818277 s
+total_time: 0.826527 s
+num_elements_server: 256
+num_elements_client: 512
+local_time: 0.00818723 s
+mpc_time: 1.34095 s
+total_time: 1.34926 s
+num_elements_server: 256
+num_elements_client: 1024
+local_time: 0.00932324 s
+mpc_time: 2.4658 s
+total_time: 2.4752 s
+num_elements_server: 256
+num_elements_client: 2048
+local_time: 0.00997674 s
+mpc_time: 5.20109 s
+total_time: 5.21114 s
+num_elements_server: 256
+num_elements_client: 4096
+local_time: 0.00945243 s
+mpc_time: 9.67902 s
+total_time: 9.68855 s
+num_elements_server: 256
+num_elements_client: 8192
+local_time: 0.0100608 s
+mpc_time: 17.8955 s
+total_time: 17.9057 s
+num_elements_server: 512
+num_elements_client: 1
+local_time: 0.0196735 s
+mpc_time: 0.250269 s
+total_time: 0.270037 s
+num_elements_server: 512
+num_elements_client: 2
+local_time: 0.0189455 s
+mpc_time: 0.262324 s
+total_time: 0.281455 s
+num_elements_server: 512
+num_elements_client: 4
+local_time: 0.0204377 s
+mpc_time: 0.267593 s
+total_time: 0.288122 s
+num_elements_server: 512
+num_elements_client: 8
+local_time: 0.0193542 s
+mpc_time: 0.277028 s
+total_time: 0.296511 s
+num_elements_server: 512
+num_elements_client: 16
+local_time: 0.0194936 s
+mpc_time: 0.300653 s
+total_time: 0.32024 s
+num_elements_server: 512
+num_elements_client: 32
+local_time: 0.0184811 s
+mpc_time: 0.333296 s
+total_time: 0.351874 s
+num_elements_server: 512
+num_elements_client: 64
+local_time: 0.0220075 s
+mpc_time: 0.401037 s
+total_time: 0.423138 s
+num_elements_server: 512
+num_elements_client: 128
+local_time: 0.0189147 s
+mpc_time: 0.533718 s
+total_time: 0.552722 s
+num_elements_server: 512
+num_elements_client: 256
+local_time: 0.0229169 s
+mpc_time: 0.842252 s
+total_time: 0.865267 s
+num_elements_server: 512
+num_elements_client: 512
+local_time: 0.019293 s
+mpc_time: 1.35696 s
+total_time: 1.37635 s
+num_elements_server: 512
+num_elements_client: 1024
+local_time: 0.0203416 s
+mpc_time: 2.57971 s
+total_time: 2.60015 s
+num_elements_server: 512
+num_elements_client: 2048
+local_time: 0.0193786 s
+mpc_time: 5.01735 s
+total_time: 5.03682 s
+num_elements_server: 512
+num_elements_client: 4096
+local_time: 0.0197184 s
+mpc_time: 9.73475 s
+total_time: 9.75458 s
+num_elements_server: 512
+num_elements_client: 8192
+local_time: 0.0191012 s
+mpc_time: 19.3304 s
+total_time: 19.3497 s
+num_elements_server: 1024
+num_elements_client: 1
+local_time: 0.0447833 s
+mpc_time: 0.261404 s
+total_time: 0.306365 s
+num_elements_server: 1024
+num_elements_client: 2
+local_time: 0.048396 s
+mpc_time: 0.263724 s
+total_time: 0.312266 s
+num_elements_server: 1024
+num_elements_client: 4
+local_time: 0.0445349 s
+mpc_time: 0.272385 s
+total_time: 0.317057 s
+num_elements_server: 1024
+num_elements_client: 8
+local_time: 0.0465921 s
+mpc_time: 0.282752 s
+total_time: 0.329481 s
+num_elements_server: 1024
+num_elements_client: 16
+local_time: 0.0479956 s
+mpc_time: 0.30465 s
+total_time: 0.352819 s
+num_elements_server: 1024
+num_elements_client: 32
+local_time: 0.0433879 s
+mpc_time: 0.325902 s
+total_time: 0.369415 s
+num_elements_server: 1024
+num_elements_client: 64
+local_time: 0.0400494 s
+mpc_time: 0.397585 s
+total_time: 0.437801 s
+num_elements_server: 1024
+num_elements_client: 128
+local_time: 0.0403557 s
+mpc_time: 0.527997 s
+total_time: 0.568515 s
+num_elements_server: 1024
+num_elements_client: 256
+local_time: 0.0397981 s
+mpc_time: 0.79518 s
+total_time: 0.835117 s
+num_elements_server: 1024
+num_elements_client: 512
+local_time: 0.0413363 s
+mpc_time: 1.39599 s
+total_time: 1.43749 s
+num_elements_server: 1024
+num_elements_client: 1024
+local_time: 0.0415667 s
+mpc_time: 2.51638 s
+total_time: 2.55806 s
+num_elements_server: 1024
+num_elements_client: 2048
+local_time: 0.043229 s
+mpc_time: 4.63606 s
+total_time: 4.67945 s
+num_elements_server: 1024
+num_elements_client: 4096
+local_time: 0.0417175 s
+mpc_time: 9.62235 s
+total_time: 9.66425 s
+num_elements_server: 1024
+num_elements_client: 8192
+local_time: 0.0428066 s
+mpc_time: 19.3738 s
+total_time: 19.4168 s
+num_elements_server: 2048
+num_elements_client: 1
+local_time: 0.0914353 s
+mpc_time: 0.255065 s
+total_time: 0.346704 s
+num_elements_server: 2048
+num_elements_client: 2
+local_time: 0.0878299 s
+mpc_time: 0.270982 s
+total_time: 0.359073 s
+num_elements_server: 2048
+num_elements_client: 4
+local_time: 0.0968704 s
+mpc_time: 0.268826 s
+total_time: 0.365901 s
+num_elements_server: 2048
+num_elements_client: 8
+local_time: 0.083953 s
+mpc_time: 0.272427 s
+total_time: 0.356604 s
+num_elements_server: 2048
+num_elements_client: 16
+local_time: 0.0879912 s
+mpc_time: 0.291896 s
+total_time: 0.380074 s
+num_elements_server: 2048
+num_elements_client: 32
+local_time: 0.089907 s
+mpc_time: 0.325552 s
+total_time: 0.415662 s
+num_elements_server: 2048
+num_elements_client: 64
+local_time: 0.0857128 s
+mpc_time: 0.417623 s
+total_time: 0.503572 s
+num_elements_server: 2048
+num_elements_client: 128
+local_time: 0.102869 s
+mpc_time: 0.570764 s
+total_time: 0.673844 s
+num_elements_server: 2048
+num_elements_client: 256
+local_time: 0.0997016 s
+mpc_time: 0.84683 s
+total_time: 0.946727 s
+num_elements_server: 2048
+num_elements_client: 512
+local_time: 0.091551 s
+mpc_time: 2.24025 s
+total_time: 2.33204 s
+num_elements_server: 2048
+num_elements_client: 1024
+local_time: 0.0895326 s
+mpc_time: 2.55149 s
+total_time: 2.6413 s
+num_elements_server: 2048
+num_elements_client: 2048
+local_time: 0.0884964 s
+mpc_time: 5.02368 s
+total_time: 5.1124 s
+num_elements_server: 2048
+num_elements_client: 4096
+local_time: 0.0880414 s
+mpc_time: 9.85804 s
+total_time: 9.94625 s
+num_elements_server: 2048
+num_elements_client: 8192
+local_time: 0.0868893 s
+mpc_time: 18.2037 s
+total_time: 18.2907 s
+num_elements_server: 4096
+num_elements_client: 1
+local_time: 0.198507 s
+mpc_time: 0.24967 s
+total_time: 0.448618 s
+num_elements_server: 4096
+num_elements_client: 2
+local_time: 0.194741 s
+mpc_time: 0.26206 s
+total_time: 0.457202 s
+num_elements_server: 4096
+num_elements_client: 4
+local_time: 0.197229 s
+mpc_time: 0.261489 s
+total_time: 0.45913 s
+num_elements_server: 4096
+num_elements_client: 8
+local_time: 0.186296 s
+mpc_time: 0.288166 s
+total_time: 0.47483 s
+num_elements_server: 4096
+num_elements_client: 16
+local_time: 0.18987 s
+mpc_time: 0.293645 s
+total_time: 0.483964 s
+num_elements_server: 4096
+num_elements_client: 32
+local_time: 0.191895 s
+mpc_time: 0.332145 s
+total_time: 0.524458 s
+num_elements_server: 4096
+num_elements_client: 64
+local_time: 0.195025 s
+mpc_time: 0.411595 s
+total_time: 0.607042 s
+num_elements_server: 4096
+num_elements_client: 128
+local_time: 0.19534 s
+mpc_time: 0.535605 s
+total_time: 0.73137 s
+num_elements_server: 4096
+num_elements_client: 256
+local_time: 0.192183 s
+mpc_time: 0.836615 s
+total_time: 1.02909 s
+num_elements_server: 4096
+num_elements_client: 512
+local_time: 0.192432 s
+mpc_time: 1.39079 s
+total_time: 1.58355 s
+num_elements_server: 4096
+num_elements_client: 1024
+local_time: 0.198598 s
+mpc_time: 2.49705 s
+total_time: 2.69598 s
+num_elements_server: 4096
+num_elements_client: 2048
+local_time: 0.186839 s
+mpc_time: 5.675 s
+total_time: 5.86222 s
+num_elements_server: 4096
+num_elements_client: 4096
+local_time: 0.193831 s
+mpc_time: 9.7302 s
+total_time: 9.92441 s
+num_elements_server: 4096
+num_elements_client: 8192
+local_time: 0.199236 s
+mpc_time: 18.8409 s
+total_time: 19.0405 s
+num_elements_server: 8192
+num_elements_client: 1
+local_time: 0.416431 s
+mpc_time: 0.257874 s
+total_time: 0.674964 s
+num_elements_server: 8192
+num_elements_client: 2
+local_time: 0.44411 s
+mpc_time: 0.265528 s
+total_time: 0.710269 s
+num_elements_server: 8192
+num_elements_client: 4
+local_time: 0.436649 s
+mpc_time: 0.269527 s
+total_time: 0.706783 s
+num_elements_server: 8192
+num_elements_client: 8
+local_time: 0.418579 s
+mpc_time: 0.28563 s
+total_time: 0.70479 s
+num_elements_server: 8192
+num_elements_client: 16
+local_time: 0.429565 s
+mpc_time: 0.313268 s
+total_time: 0.743272 s
+num_elements_server: 8192
+num_elements_client: 32
+local_time: 0.440492 s
+mpc_time: 0.330944 s
+total_time: 0.771987 s
+num_elements_server: 8192
+num_elements_client: 64
+local_time: 0.421875 s
+mpc_time: 0.427964 s
+total_time: 0.850685 s
+num_elements_server: 8192
+num_elements_client: 128
+local_time: 0.423891 s
+mpc_time: 0.571045 s
+total_time: 0.995536 s
+num_elements_server: 8192
+num_elements_client: 256
+local_time: 0.45824 s
+mpc_time: 0.833087 s
+total_time: 1.29199 s
+num_elements_server: 8192
+num_elements_client: 512
+local_time: 0.425111 s
+mpc_time: 1.34821 s
+total_time: 1.77401 s
+num_elements_server: 8192
+num_elements_client: 1024
+local_time: 0.428043 s
+mpc_time: 2.44859 s
+total_time: 2.8772 s
+num_elements_server: 8192
+num_elements_client: 2048
+local_time: 0.420559 s
+mpc_time: 4.74016 s
+total_time: 5.16127 s
+num_elements_server: 8192
+num_elements_client: 4096
+local_time: 0.419605 s
+mpc_time: 9.4694 s
+total_time: 9.88958 s
+num_elements_server: 8192
+num_elements_client: 8192
+local_time: 0.417633 s
+mpc_time: 20.5427 s
+total_time: 20.961 s
+num_elements_server: 16384
+num_elements_client: 1
+local_time: 0.928397 s
+mpc_time: 0.249747 s
+total_time: 1.17927 s
+num_elements_server: 16384
+num_elements_client: 2
+local_time: 0.939899 s
+mpc_time: 0.266505 s
+total_time: 1.20725 s
+num_elements_server: 16384
+num_elements_client: 4
+local_time: 1.01063 s
+mpc_time: 0.289792 s
+total_time: 1.30165 s
+num_elements_server: 16384
+num_elements_client: 8
+local_time: 1.03434 s
+mpc_time: 0.296816 s
+total_time: 1.33227 s
+num_elements_server: 16384
+num_elements_client: 16
+local_time: 0.960546 s
+mpc_time: 0.304195 s
+total_time: 1.26607 s
+num_elements_server: 16384
+num_elements_client: 32
+local_time: 0.919955 s
+mpc_time: 0.36231 s
+total_time: 1.28342 s
+num_elements_server: 16384
+num_elements_client: 64
+local_time: 0.970814 s
+mpc_time: 0.444109 s
+total_time: 1.41596 s
+num_elements_server: 16384
+num_elements_client: 128
+local_time: 0.924304 s
+mpc_time: 0.571047 s
+total_time: 1.49653 s
+num_elements_server: 16384
+num_elements_client: 256
+local_time: 0.930894 s
+mpc_time: 0.866041 s
+total_time: 1.79821 s
+num_elements_server: 16384
+num_elements_client: 512
+local_time: 0.947611 s
+mpc_time: 1.40523 s
+total_time: 2.35395 s
+num_elements_server: 16384
+num_elements_client: 1024
+local_time: 0.950657 s
+mpc_time: 2.50503 s
+total_time: 3.45684 s
+num_elements_server: 16384
+num_elements_client: 2048
+local_time: 0.956194 s
+mpc_time: 4.74998 s
+total_time: 5.70723 s
+num_elements_server: 16384
+num_elements_client: 4096
+local_time: 0.904287 s
+mpc_time: 9.63132 s
+total_time: 10.5368 s
+num_elements_server: 16384
+num_elements_client: 8192
+local_time: 0.928118 s
+mpc_time: 19.9019 s
+total_time: 20.8312 s
+num_elements_server: 32768
+num_elements_client: 1
+local_time: 2.01264 s
+mpc_time: 0.260224 s
+total_time: 2.27501 s
+num_elements_server: 32768
+num_elements_client: 2
+local_time: 2.05655 s
+mpc_time: 0.275036 s
+total_time: 2.33363 s
+num_elements_server: 32768
+num_elements_client: 4
+local_time: 1.97729 s
+mpc_time: 0.282898 s
+total_time: 2.26252 s
+num_elements_server: 32768
+num_elements_client: 8
+local_time: 2.11188 s
+mpc_time: 0.302702 s
+total_time: 2.41645 s
+num_elements_server: 32768
+num_elements_client: 16
+local_time: 2.03478 s
+mpc_time: 0.317247 s
+total_time: 2.35413 s
+num_elements_server: 32768
+num_elements_client: 32
+local_time: 2.00772 s
+mpc_time: 0.379214 s
+total_time: 2.389 s
+num_elements_server: 32768
+num_elements_client: 64
+local_time: 1.97769 s
+mpc_time: 0.484364 s
+total_time: 2.4641 s
+num_elements_server: 32768
+num_elements_client: 128
+local_time: 2.00325 s
+mpc_time: 0.551036 s
+total_time: 2.55619 s
+num_elements_server: 32768
+num_elements_client: 256
+local_time: 2.02091 s
+mpc_time: 0.871621 s
+total_time: 2.89455 s
+num_elements_server: 32768
+num_elements_client: 512
+local_time: 2.0415 s
+mpc_time: 1.39821 s
+total_time: 3.44187 s
+num_elements_server: 32768
+num_elements_client: 1024
+local_time: 1.96821 s
+mpc_time: 2.49112 s
+total_time: 4.46112 s
+num_elements_server: 32768
+num_elements_client: 2048
+local_time: 2.01034 s
+mpc_time: 4.82352 s
+total_time: 6.83591 s
+num_elements_server: 32768
+num_elements_client: 4096
+local_time: 2.13889 s
+mpc_time: 10.4129 s
+total_time: 12.5539 s
+num_elements_server: 32768
+num_elements_client: 8192
+local_time: 2.01249 s
+mpc_time: 19.9725 s
+total_time: 21.9872 s
+num_elements_server: 65536
+num_elements_client: 1
+local_time: 4.30167 s
+mpc_time: 0.26795 s
+total_time: 4.57366 s
+num_elements_server: 65536
+num_elements_client: 2
+local_time: 4.34635 s
+mpc_time: 0.284694 s
+total_time: 4.63483 s
+num_elements_server: 65536
+num_elements_client: 4
+local_time: 4.32837 s
+mpc_time: 0.288811 s
+total_time: 4.62124 s
+num_elements_server: 65536
+num_elements_client: 8
+local_time: 4.28626 s
+mpc_time: 0.299931 s
+total_time: 4.58987 s
+num_elements_server: 65536
+num_elements_client: 16
+local_time: 4.32866 s
+mpc_time: 0.354069 s
+total_time: 4.68652 s
+num_elements_server: 65536
+num_elements_client: 32
+local_time: 4.3654 s
+mpc_time: 0.415707 s
+total_time: 4.78497 s
+num_elements_server: 65536
+num_elements_client: 64
+local_time: 4.30818 s
+mpc_time: 0.58056 s
+total_time: 4.89302 s
+num_elements_server: 65536
+num_elements_client: 128
+local_time: 4.36335 s
+mpc_time: 0.591198 s
+total_time: 4.95865 s
+num_elements_server: 65536
+num_elements_client: 256
+local_time: 4.36851 s
+mpc_time: 0.895513 s
+total_time: 5.26815 s
+num_elements_server: 65536
+num_elements_client: 512
+local_time: 4.44904 s
+mpc_time: 1.41485 s
+total_time: 5.86784 s
+num_elements_server: 65536
+num_elements_client: 1024
+local_time: 4.35154 s
+mpc_time: 2.50068 s
+total_time: 6.85594 s
+num_elements_server: 65536
+num_elements_client: 2048
+local_time: 4.44492 s
+mpc_time: 5.14128 s
+total_time: 9.58974 s
+num_elements_server: 65536
+num_elements_client: 4096
+local_time: 4.47198 s
+mpc_time: 9.53857 s
+total_time: 14.0146 s
+num_elements_server: 65536
+num_elements_client: 8192
+local_time: 4.36344 s
+mpc_time: 18.7132 s
+total_time: 23.0807 s
+num_elements_server: 131072
+num_elements_client: 1
+local_time: 9.41558 s
+mpc_time: 0.280491 s
+total_time: 9.70345 s
+num_elements_server: 131072
+num_elements_client: 2
+local_time: 9.45334 s
+mpc_time: 0.302999 s
+total_time: 9.76331 s
+num_elements_server: 131072
+num_elements_client: 4
+local_time: 9.39708 s
+mpc_time: 0.319001 s
+total_time: 9.72383 s
+num_elements_server: 131072
+num_elements_client: 8
+local_time: 9.34771 s
+mpc_time: 0.344109 s
+total_time: 9.69915 s
+num_elements_server: 131072
+num_elements_client: 16
+local_time: 9.38631 s
+mpc_time: 0.395949 s
+total_time: 9.78938 s
+num_elements_server: 131072
+num_elements_client: 32
+local_time: 9.44715 s
+mpc_time: 0.511236 s
+total_time: 9.96524 s
+num_elements_server: 131072
+num_elements_client: 64
+local_time: 9.42803 s
+mpc_time: 0.75839 s
+total_time: 10.1978 s
+num_elements_server: 131072
+num_elements_client: 128
+local_time: 9.32308 s
+mpc_time: 0.62316 s
+total_time: 9.95323 s
+num_elements_server: 131072
+num_elements_client: 256
+local_time: 8.98458 s
+mpc_time: 0.967951 s
+total_time: 9.959 s
+num_elements_server: 131072
+num_elements_client: 512
+local_time: 9.37903 s
+mpc_time: 1.4712 s
+total_time: 10.8571 s
+num_elements_server: 131072
+num_elements_client: 1024
+local_time: 9.07153 s
+mpc_time: 2.58365 s
+total_time: 11.6618 s
+num_elements_server: 131072
+num_elements_client: 2048
+local_time: 9.20072 s
+mpc_time: 5.37579 s
+total_time: 14.583 s
+num_elements_server: 131072
+num_elements_client: 4096
+local_time: 9.13866 s
+mpc_time: 9.26101 s
+total_time: 18.4069 s
+num_elements_server: 131072
+num_elements_client: 8192
+local_time: 9.12684 s
+mpc_time: 18.0038 s
+total_time: 27.1372 s
+num_elements_server: 262144
+num_elements_client: 1
+local_time: 19.4361 s
+mpc_time: 0.30294 s
+total_time: 19.7548 s
+num_elements_server: 262144
+num_elements_client: 2
+local_time: 20.4012 s
+mpc_time: 0.335158 s
+total_time: 20.7536 s
+num_elements_server: 262144
+num_elements_client: 4
+local_time: 20.3911 s
+mpc_time: 0.648808 s
+total_time: 21.0551 s
+num_elements_server: 262144
+num_elements_client: 8
+local_time: 19.8172 s
+mpc_time: 0.405347 s
+total_time: 20.2374 s
+num_elements_server: 262144
+num_elements_client: 16
+local_time: 19.7979 s
+mpc_time: 0.498049 s
+total_time: 20.3106 s
+num_elements_server: 262144
+num_elements_client: 32
+local_time: 19.5951 s
+mpc_time: 0.758333 s
+total_time: 20.369 s
+num_elements_server: 262144
+num_elements_client: 64
+local_time: 19.5958 s
+mpc_time: 1.09444 s
+total_time: 20.7074 s
+num_elements_server: 262144
+num_elements_client: 128
+local_time: 19.8291 s
+mpc_time: 0.727271 s
+total_time: 20.5746 s
+num_elements_server: 262144
+num_elements_client: 256
+local_time: 19.5202 s
+mpc_time: 0.989972 s
+total_time: 20.5249 s
+num_elements_server: 262144
+num_elements_client: 512
+local_time: 19.4194 s
+mpc_time: 1.53339 s
+total_time: 20.9674 s
+num_elements_server: 262144
+num_elements_client: 1024
+local_time: 19.1572 s
+mpc_time: 2.66433 s
+total_time: 21.8368 s
+num_elements_server: 262144
+num_elements_client: 2048
+local_time: 19.2039 s
+mpc_time: 5.6086 s
+total_time: 24.8276 s
+num_elements_server: 262144
+num_elements_client: 4096
+local_time: 19.1934 s
+mpc_time: 9.42637 s
+total_time: 28.6343 s
+num_elements_server: 262144
+num_elements_client: 8192
+local_time: 19.1397 s
+mpc_time: 19.7 s
+total_time: 38.8542 s
