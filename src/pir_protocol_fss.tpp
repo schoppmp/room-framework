@@ -7,7 +7,8 @@ extern "C" {
 template<typename K, typename V>
 void pir_protocol_fss<K,V>::run_server(
   const pir_protocol_fss<K,V>::pair_range input,
-  const pir_protocol_fss<K,V>::value_range defaults
+  const pir_protocol_fss<K,V>::value_range defaults,
+  bool shared_output
 ) {
   double local_time = 0, mpc_time = 0;
   double start = timestamp(), end;
@@ -67,7 +68,8 @@ void pir_protocol_fss<K,V>::run_server(
 template<typename K, typename V>
 void pir_protocol_fss<K,V>::run_client(
   const pir_protocol_fss<K,V>::key_range input,
-  const pir_protocol_fss<K,V>::value_range output
+  const pir_protocol_fss<K,V>::value_range output,
+  bool shared_output
 ) {
   double local_time = 0, mpc_time = 0;
   double start = timestamp(), end;

@@ -30,19 +30,22 @@ public:
     std::ptrdiff_t>>;
 
   // most generic functions to be implemented by subclasses
-  virtual void run_server(const pair_range input, const value_range defaults) = 0;
-  virtual void run_client(const key_range input, const value_range output) = 0;
+  virtual void run_server(const pair_range input, const value_range defaults,
+    bool shared_output = false) = 0;
+  virtual void run_client(const key_range input, value_range output,
+    bool shared_output = false) = 0;
 
   // adapter for separate key and value ranges; can be overloaded by subclasses
   // but also provides a default implementation
   virtual void run_server(const key_range input_keys,
-    const value_range input_values, const value_range defaults);
+    const value_range input_values, const value_range defaults,
+    bool shared_output = false);
 
   // adapter for converting an any_range of pairs to a pair_range
   void run_server(
     boost::any_range<std::pair<const K, V>, boost::single_pass_traversal_tag,
-    std::pair<const K, V>&, boost::use_default> input, value_range defaults
-  );
+    std::pair<const K, V>&, boost::use_default> input, value_range defaults,
+    bool shared_output = false);
 };
 
 #include "pir_protocol.tpp"

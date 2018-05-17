@@ -86,8 +86,8 @@ void pir_scs_oblivc(void *vargs) {
     }
   }
   if(num_valid != len2) {
-    printf("IMPLEMENTATION ERROR: there must be %zd valid elements after "
-      "shuffling, but we have %zd", len2, num_valid);
+    fprintf(stderr, "IMPLEMENTATION ERROR: there must be %zd valid elements "
+      "after shuffling, but we have %zd", len2, num_valid);
   }
 
   // reveal valid pairs to client

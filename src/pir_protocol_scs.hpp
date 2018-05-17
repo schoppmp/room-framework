@@ -18,8 +18,10 @@ public:
   using key_range = typename pir_protocol<K, V>::key_range;
   using value_range = typename pir_protocol<K, V>::value_range;
 
-  void run_server(const pair_range input, const value_range defaults);
-  void run_client(const key_range input, const value_range output);
+  void run_server(const pair_range input, const value_range defaults,
+    bool shared_output);
+  void run_client(const key_range input, value_range output,
+    bool shared_output);
 };
 
 #include "pir_protocol_scs.tpp"
