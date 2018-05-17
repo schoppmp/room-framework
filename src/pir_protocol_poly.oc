@@ -32,6 +32,7 @@ void pir_poly_oblivc(void *vargs) {
   }
 
   OcCopy cpy = ocCopyCharN(args->value_type_size);
+  obliv uint8_t *zero_value = calloc(args->value_type_size, sizeof(obliv uint8_t));
   for(size_t i = 0; i < num_ciphertexts; i++) {
     obliv bool ok = 1;
     // check if decryption was successful
@@ -39,10 +40,21 @@ void pir_poly_oblivc(void *vargs) {
       ok &= (plaintexts[i*block_size + j] == 0);
     }
     size_t offset = args->statistical_security / 8;
+    obliv uint8_t *current_value = &result2[i*args->value_type_size];
     obliv if(ok) {
-      ocCopy(&cpy, &result2[i*args->value_type_size], &plaintexts[i*block_size + offset]);
+      ocCopy(&cpy, current_value, &plaintexts[i*block_size + offset]);
     } else {
-      ocCopy(&cpy, &result2[i*args->value_type_size], &result1[i*args->value_type_size]);
+      if(args->shared_output) {
+        ocCopy(&cpy, current_value, zero_value);
+      } else {
+        ocCopy(&cpy, current_value, &result1[i*args->value_type_size]);
+      }
+    }
+    if(args->shared_output) {
+      // subtract server's share from client's share (which is either zero or
+      // the value found in the map)
+      __obliv_c__setPlainSub(current_value, current_value,
+        &result1[i*args->value_type_size], 8 * args->value_type_size);
     }
   }
   revealOblivCharArray(args->result, result2, num_ciphertexts * args->value_type_size, 2);
@@ -53,4 +65,5 @@ void pir_poly_oblivc(void *vargs) {
   free(ciphertexts);
   free(plaintexts);
   free(key);
+  free(zero_value);
 }
