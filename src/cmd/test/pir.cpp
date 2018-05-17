@@ -102,9 +102,11 @@ int main(int argc, const char **argv) {
       // run PIR protocol
       benchmark([&]() {
         proto->run_server(server_in, defaults);
-        // run again with shared output
-        proto->run_server(server_keys_in, server_values_in, defaults, true);
       }, "PIR Protocol (Server)");
+      // run again with shared output
+      benchmark([&]() {
+        proto->run_server(server_keys_in, server_values_in, defaults, true);
+      }, "PIR Protocol (Server, shared)");
 
       // send result for testing
       chan.send(defaults);
@@ -119,9 +121,11 @@ int main(int argc, const char **argv) {
       std::vector<value_type> result_shared(client_in.size());
       benchmark([&]() {
         proto->run_client(client_in, result);
-        // run again with shared output
-        proto->run_client(client_in, result_shared, true);
       }, "PIR Protocol (Client)");
+      // run again with shared output
+      benchmark([&]() {
+        proto->run_client(client_in, result_shared, true);
+      }, "PIR Protocol (Client, shared)");
 
       // check correctness of the result
       std::map<key_type, value_type> server_in;
