@@ -37,6 +37,7 @@ void pir_fss_oblivc(void *vargs) {
   // select client's values
   OcCopy cpy2 = ocCopyCharN(args->value_type_size);
   obliv uint8_t *current_value = calloc(args->value_type_size + 1, sizeof(obliv uint8_t));
+  obliv uint8_t *zero_value = calloc(args->value_type_size, sizeof(obliv uint8_t));
   for(size_t i = 0; i < args->num_client_keys; i++) {
     obliv if(client_keys[i] < args->num_server_values) {
       floram_read(current_value, ram, client_keys[i]);
@@ -46,7 +47,17 @@ void pir_fss_oblivc(void *vargs) {
     obliv if(current_value[args->value_type_size]&1 == 1) {
       ocCopy(&cpy2, current_value_client, current_value);
     } else {
-      ocCopy(&cpy2, current_value_client, current_value_server);
+      if(args->shared_output) {
+        ocCopy(&cpy2, current_value_client, zero_value);
+      } else {
+        ocCopy(&cpy2, current_value_client, current_value_server);
+      }
+    }
+    if(args->shared_output) {
+      // subtract server's share from client's share (which is either zero or
+      // the value found in the ORAM)
+      __obliv_c__setPlainSub(current_value_client, current_value_client,
+        current_value_server, 8 * args->value_type_size);
     }
     current_value[args->value_type_size] = 0;
   }
@@ -59,6 +70,7 @@ void pir_fss_oblivc(void *vargs) {
   free(client_values1);
   free(client_values2);
   free(current_value);
+  free(zero_value);
   if(ocCurrentParty() == 2) {
     free(args->server_values);
   }

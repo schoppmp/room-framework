@@ -29,7 +29,7 @@ void pir_scs_oblivc(void *vargs) {
   size_t pair_size = key_size + value_size;
   size_t opair_size_bits = 8 * pair_size + 1; // last bit is set when element is client's
   OcCopy cpy_opair = ocCopyBoolN(opair_size_bits);
-  OcCopy cpy_value = ocCopyBoolN(8 * value_size);
+  OcCopy cpy_value = ocCopyCharN(value_size);
   size_t len1 = ocBroadcastLLong(args->num_elements, 1);
   size_t len2 = ocBroadcastLLong(args->num_elements, 2);
 
