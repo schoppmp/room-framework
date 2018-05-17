@@ -65,7 +65,7 @@ int main(int argc, const char **argv) {
   auto chan = party.connect_to(1 - party.get_id());
 
   using key_type = uint32_t;
-  using value_type = uint8_t;
+  using value_type = uint32_t;
   try {
     std::unique_ptr<pir_protocol<key_type, value_type>> proto;
     if(conf.pir_type == "poly") {
@@ -87,7 +87,7 @@ int main(int argc, const char **argv) {
       std::vector<key_type> server_keys_in(conf.num_elements_server);
       std::vector<value_type> server_values_in(conf.num_elements_server);
       for(size_t i = 0; i < conf.num_elements_server; i++) {
-        key_type current_key = 2*i + 42;
+        key_type current_key = 2*i + 1;
         value_type current_value = primes.next();
         server_in[current_key] = current_value;
         // also save in separate vectors to test alternative approach
@@ -101,10 +101,9 @@ int main(int argc, const char **argv) {
       std::generate(defaults.begin(), defaults.end(), [&]{return dist(r);});
       // run PIR protocol
       benchmark([&]() {
-        bool map = 0;
-        if(map) proto->run_server(server_in, defaults);
-        // alternatively, call with two separate ranges for keys and values
-        else proto->run_server(server_keys_in, server_values_in, defaults);
+        proto->run_server(server_in, defaults);
+        // run again with shared output
+        proto->run_server(server_keys_in, server_values_in, defaults, true);
       }, "PIR Protocol (Server)");
 
       // send result for testing
@@ -113,13 +112,15 @@ int main(int argc, const char **argv) {
     } else {
       // generate client elements
       std::vector<key_type> client_in(conf.num_elements_client);
-      std::iota(client_in.begin(), client_in.end(), 23);
+      std::iota(client_in.begin(), client_in.end(), 7);
 
       // run PIR protocol
       std::vector<value_type> result(client_in.size());
+      std::vector<value_type> result_shared(client_in.size());
       benchmark([&]() {
         proto->run_client(client_in, result);
-        // proto->run_client(client_in.begin(), result.begin(), client_in.size());
+        // run again with shared output
+        proto->run_client(client_in, result_shared, true);
       }, "PIR Protocol (Client)");
 
       // check correctness of the result
@@ -129,15 +130,23 @@ int main(int argc, const char **argv) {
       chan.recv(server_in);
       bool incorrect_output = false;
       for(size_t i = 0; i < result.size(); i++) {
-        value_type expected;
+        value_type expected, expected_shared;
         try {
           expected = server_in.at(client_in[i]);
+          expected_shared = expected;
         } catch (std::out_of_range& e) {
           expected = result_server[i];
+          expected_shared = 0;
         }
         if(expected != result[i]) {
           std::cerr << "Input " << client_in[i] << ", expected " << expected <<
             ", got " << result[i] << "\n";
+          incorrect_output = true;
+        }
+        value_type sum_shared = result_shared[i] + result_server[i];
+        if(expected_shared != sum_shared) {
+          std::cerr << "Input " << client_in[i] << ", expected " << expected_shared <<
+            ", got " << sum_shared << " (shared)\n";
           incorrect_output = true;
         }
       }

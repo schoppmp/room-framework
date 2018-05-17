@@ -40,7 +40,8 @@ void pir_protocol_scs<K,V>::run_server(
     .input_values = input_values_bytes.data(),
     .input_defaults = input_defaults_bytes.data(),
     .result_keys = nullptr,
-    .result_values = nullptr
+    .result_values = nullptr,
+    .shared_output = shared_output
   };
   end = timestamp();
   local_time += end - start;
@@ -96,7 +97,8 @@ void pir_protocol_scs<K,V>::run_client(
     .input_values = nullptr,
     .input_defaults = nullptr,
     .result_keys = output_keys_bytes.data(),
-    .result_values = output_values_bytes.data()
+    .result_values = output_values_bytes.data(),
+    .shared_output = shared_output
   };
 
   end = timestamp();

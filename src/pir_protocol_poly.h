@@ -8,6 +8,7 @@ typedef struct {
   const uint8_t *input; // either encrypted elements or the key
   const uint8_t *defaults;
   uint8_t *result;
+  bool shared_output;
 } pir_poly_oblivc_args;
 
 void pir_poly_oblivc(void *args);

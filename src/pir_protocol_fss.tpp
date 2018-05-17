@@ -42,7 +42,8 @@ void pir_protocol_fss<K,V>::run_server(
     .num_client_keys = default_length,
     .client_keys = nullptr,
     .result = nullptr,
-    .local_time = 0.
+    .local_time = 0.,
+    .shared_output = shared_output
   };
   end = timestamp();
   local_time += end - start;
@@ -86,7 +87,8 @@ void pir_protocol_fss<K,V>::run_client(
     .num_client_keys = length,
     .client_keys = input_size_t.data(),
     .result = output_bytes.data(),
-    .local_time = 0.
+    .local_time = 0.,
+    .shared_output = shared_output
   };
   end = timestamp();
   local_time += end - start;

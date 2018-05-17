@@ -80,7 +80,8 @@ void pir_protocol_poly<K,V>::run_server(
       .input_size = key.size(),
       .input = key.data(),
       .defaults = defaults_bytes.data(),
-      .result = nullptr
+      .result = nullptr,
+      .shared_output = shared_output
     };
     end = timestamp();
     local_time += end - start;
@@ -141,7 +142,8 @@ void pir_protocol_poly<K,V>::run_client(
       .input_size = ciphertexts_client.size(),
       .input = ciphertexts_client.data(),
       .defaults = nullptr,
-      .result = result.data()
+      .result = result.data(),
+      .shared_output = shared_output
     };
     // serialize ciphertexts and elements (used as ctr in decryption)
     for(size_t i = 0; i < values_client.length(); i++) {

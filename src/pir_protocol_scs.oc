@@ -29,6 +29,7 @@ void pir_scs_oblivc(void *vargs) {
   size_t pair_size = key_size + value_size;
   size_t opair_size_bits = 8 * pair_size + 1; // last bit is set when element is client's
   OcCopy cpy_opair = ocCopyBoolN(opair_size_bits);
+  OcCopy cpy_value = ocCopyBoolN(8 * value_size);
   size_t len1 = ocBroadcastLLong(args->num_elements, 1);
   size_t len2 = ocBroadcastLLong(args->num_elements, 2);
 
@@ -42,9 +43,13 @@ void pir_scs_oblivc(void *vargs) {
       &args->input_values[i * value_size], value_size, 1);
   }
   for(size_t i = 0; i < len2; i++) {
+    obliv bool* dest = &opairs[(len1+i) * opair_size_bits + 8 * key_size];
     // set default values for party 2 inputs
-    feedOblivCharArray(&opairs[(len1+i) * opair_size_bits + 8 * key_size],
-      &args->input_defaults[i * value_size], value_size, 1);
+    feedOblivCharArray(dest,&args->input_defaults[i*value_size], value_size, 1);
+    if(args->shared_output) {
+      // negate client value so shares add up to zero
+      __obliv_c__setNeg(dest, dest, 8 * value_size);
+    }
   }
   for(size_t i = 0; i < len2; i++) {
     // party 2 just has keys, values are set by party 1 (the defaults)
@@ -62,10 +67,24 @@ void pir_scs_oblivc(void *vargs) {
     // compare current key to last
     __obliv_c__setEqualTo(&equal, &opairs[(i-1)*opair_size_bits],
       &opairs[i*opair_size_bits], 8 * key_size);
-    obliv if(equal) { // swap client and server pair by swapping flags
+    obliv bool values_sum[8 * value_size];
+    obliv bool *el1, *el2;
+    if(args->shared_output) {
+      // add up client and server values
+      el1 = &opairs[(i-1) * opair_size_bits + 8 * key_size];
+      el2 = &opairs[i * opair_size_bits + 8 * key_size];
+      __obliv_c__setPlainAdd(values_sum, el1, el2, 8 * value_size);
+    }
+    obliv if(equal) {
       obliv bool temp;
-      ocSwap(&ocCopyBool, &opairs[i*opair_size_bits - 1],
-        &opairs[(i+1)*opair_size_bits - 1], &temp);
+      if(args->shared_output) {
+        ocCopy(&cpy_value, el1, values_sum);
+        ocCopy(&cpy_value, el2, values_sum);
+      } else {
+         // swap client and server pair by swapping flags
+        ocSwap(&ocCopyBool, &opairs[i*opair_size_bits - 1],
+          &opairs[(i+1)*opair_size_bits - 1], &temp);
+      }
     }
   }
 
