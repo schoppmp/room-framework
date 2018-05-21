@@ -19,7 +19,7 @@ void pir_fss_oblivc(void *vargs) {
   // CPRG floram crashes when the ORAM is too small -> minimum size 8 (why?)
   OcCopy cpy = ocCopyCharN(args->value_type_size + 1); // one extra byte for valid flag
   size_t floram_size = args->num_server_values < 8 ? 8 : args->num_server_values;
-  floram *ram = floram_new(&cpy, args->server_values, floram_size, 1, 1);
+  floram *ram = floram_new(&cpy, args->server_values, floram_size, args->cprg, 1);
   end = timestamp();
   args->local_time = end - start;
 

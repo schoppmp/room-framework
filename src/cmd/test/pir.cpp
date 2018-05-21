@@ -30,7 +30,7 @@ protected:
     if(statistical_security <= 0) {
       BOOST_THROW_EXCEPTION(po::error("'statistical_security' must be positive"));
     }
-    if(pir_type != "poly" && pir_type != "fss" && pir_type != "scs") {
+      if(pir_type != "poly" && pir_type != "fss" && pir_type != "fss_cprg "&& pir_type != "scs") {
       BOOST_THROW_EXCEPTION(po::error("'pir_type' must be either `poly` or `fss`"));
     }
     mpc_config::validate();
@@ -74,6 +74,9 @@ int main(int argc, const char **argv) {
     } else if(conf.pir_type == "fss") {
       proto = std::unique_ptr<pir_protocol<key_type, value_type>>(
         new pir_protocol_fss<key_type, value_type>(chan));
+    } else if(conf.pir_type == "fss_cprg") {
+      proto = std::unique_ptr<pir_protocol<key_type, value_type>>(
+        new pir_protocol_fss<key_type, value_type>(chan, true));
     } else if(conf.pir_type == "scs") {
       proto = std::unique_ptr<pir_protocol<key_type, value_type>>(
         new pir_protocol_scs<key_type, value_type>(chan));

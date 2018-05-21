@@ -10,6 +10,7 @@ typedef struct {
   size_t *client_keys;
   uint8_t *result;
   double local_time;
+  bool cprg;
   bool shared_output;
 } pir_fss_oblivc_args;
 

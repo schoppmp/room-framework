@@ -11,10 +11,11 @@ static_assert(std::is_integral<K>::value, "FSS-based PIR only works for integral
 private:
   comm_channel& chan;
   bool print_times;
+  bool cprg;
 
 public:
-  pir_protocol_fss(comm_channel& chan, bool print_times = false) :
-    chan(chan), print_times(print_times) { }
+  pir_protocol_fss(comm_channel& chan, bool cprg = false, bool print_times = false) :
+    chan(chan), cprg(cprg), print_times(print_times) { }
   ~pir_protocol_fss() { }
 
   using pair_range = typename pir_protocol<K, V>::pair_range;

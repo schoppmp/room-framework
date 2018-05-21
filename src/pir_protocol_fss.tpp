@@ -43,6 +43,7 @@ void pir_protocol_fss<K,V>::run_server(
     .client_keys = nullptr,
     .result = nullptr,
     .local_time = 0.,
+    .cprg = cprg,
     .shared_output = shared_output
   };
   end = timestamp();
@@ -88,6 +89,7 @@ void pir_protocol_fss<K,V>::run_client(
     .client_keys = input_size_t.data(),
     .result = output_bytes.data(),
     .local_time = 0.,
+    .cprg = cprg,
     .shared_output = shared_output
   };
   end = timestamp();

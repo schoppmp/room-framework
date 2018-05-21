@@ -98,9 +98,17 @@ void pir_scs_oblivc(void *vargs) {
   // get indexes of valid pairs; this doesn't reveal anything, since they're random
   bool *valid = calloc(len1 + len2, sizeof(bool));
   size_t num_valid = 0;
+  // do two loops, one for each party, since otherwise obliv-c introduces
+  // one communication round per iteration
   for(size_t i = 0; i < len1 + len2; i++) {
-    revealOblivBool(&valid[i], opairs[(i+1)*opair_size_bits - 1], 0);
-    if(valid[i]) {
+    revealOblivBool(&valid[i], opairs[(i+1)*opair_size_bits - 1], 1);
+    if(ocCurrentParty() == 1 && valid[i]) {
+      num_valid++;
+    }
+  }
+  for(size_t i = 0; i < len1 + len2; i++) {
+    revealOblivBool(&valid[i], opairs[(i+1)*opair_size_bits - 1], 2);
+    if(ocCurrentParty() == 2 && valid[i]) {
       num_valid++;
     }
   }
