@@ -46,18 +46,24 @@ void pir_scs_oblivc(void *vargs) {
     obliv bool* dest = &opairs[(len1+i) * opair_size_bits + 8 * key_size];
     // set default values for party 2 inputs
     feedOblivCharArray(dest,&args->input_defaults[i*value_size], value_size, 1);
-    if(args->shared_output) {
-      // negate client value so shares add up to zero
-      __obliv_c__setNeg(dest, dest, 8 * value_size);
-    }
   }
   for(size_t i = 0; i < len2; i++) {
     // party 2 just has keys, values are set by party 1 (the defaults)
     feedOblivCharArray(&opairs[(len1+i) * opair_size_bits],
       &args->input_keys[i * key_size], key_size, 2);
+  }
+
+  // initialize public parts of party 2 shares
+  for(size_t i = 0; i < len2; i++) {
     // mark pair as owned by party 2 -> set last bit to 1
     opairs[(len1+i+1) * opair_size_bits - 1] = 1;
+    if(args->shared_output) {
+      obliv bool* dest = &opairs[(len1+i) * opair_size_bits + 8 * key_size];
+      // negate client value so shares add up to zero
+      __obliv_c__setNeg(dest, dest, 8 * value_size);
+    }
   }
+
   // merge
   omerge_batcher(&cpy_opair, opairs, len1, len1+len2, cmp_pair_by_key);
 
