@@ -79,12 +79,13 @@ void pir_scs_oblivc(void *vargs) {
   omerge_batcher(&cpy_opair, opairs, len1, len1+len2, cmp_pair_by_key);
 
   // compare
+  obliv char *values_sum = calloc(value_size, sizeof(obliv char));
+  obliv bool temp;
   for(size_t i = 1; i < len1+len2; i++) {
     obliv bool equal = 0;
     // compare current key to last
     __obliv_c__setEqualTo(&equal, &opairs[(i-1)*opair_size_bits],
       &opairs[i*opair_size_bits], 8 * key_size);
-    obliv bool values_sum[8 * value_size];
     obliv bool *el1, *el2;
     if(args->shared_output) {
       // add up client and server values
@@ -93,7 +94,6 @@ void pir_scs_oblivc(void *vargs) {
       __obliv_c__setPlainAdd(values_sum, el1, el2, 8 * value_size);
     }
     obliv if(equal) {
-      obliv bool temp;
       if(args->shared_output) {
         ocCopy(&cpy_value, el1, values_sum);
         ocCopy(&cpy_value, el2, values_sum);
@@ -104,6 +104,7 @@ void pir_scs_oblivc(void *vargs) {
       }
     }
   }
+  free(values_sum);
 
   // shuffle
   // there is a bug in the implementation of ocShuffleData: an empty perm_out
