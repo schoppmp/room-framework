@@ -32,9 +32,12 @@ RUN mkdir /deps; \
 
 # copy everything into minimal image
 FROM gcr.io/distroless/base
-COPY config /config
+# debug
+#FROM base/devel
 COPY --from=build /app/bin /bin
 COPY --from=build /deps /deps
+
+COPY config config
 
 # let the minimal image find libraries in the correct order
 ENV LD_LIBRARY_PATH=/lib/x86_64-linux-gnu/:/deps
