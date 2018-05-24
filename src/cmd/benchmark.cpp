@@ -31,7 +31,7 @@ protected:
       BOOST_THROW_EXCEPTION(po::error("'statistical_security' must be positive"));
     }
     for(auto& pir_type : pir_types) {
-      if(pir_type != "poly" && pir_type != "fss" && pir_type != "fss_cprg "&& pir_type != "scs") {
+      if(pir_type != "poly" && pir_type != "fss" && pir_type != "fss_cprg" && pir_type != "scs") {
       BOOST_THROW_EXCEPTION(po::error("'pir_type' must be either `poly`, `scs`, `fss` or `fss_cprg`"));
       }
     }
