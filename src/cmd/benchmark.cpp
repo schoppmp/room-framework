@@ -11,7 +11,7 @@
 #include "pir_protocol_poly.hpp"
 #include "pir_protocol_fss.hpp"
 #include "pir_protocol_scs.hpp"
-#include "utils.h"
+#include "util/time.h"
 
 
 class test_pir_config : public virtual mpc_config {

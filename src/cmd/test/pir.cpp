@@ -11,7 +11,7 @@
 #include "pir_protocol_poly.hpp"
 #include "pir_protocol_fss.hpp"
 #include "pir_protocol_scs.hpp"
-#include "utils.h"
+#include "util/time.h"
 
 
 class test_pir_config : public virtual mpc_config {
@@ -30,7 +30,7 @@ protected:
     if(statistical_security <= 0) {
       BOOST_THROW_EXCEPTION(po::error("'statistical_security' must be positive"));
     }
-      if(pir_type != "poly" && pir_type != "fss" && pir_type != "fss_cprg" && pir_type != "scs") {
+    if(pir_type != "poly" && pir_type != "fss" && pir_type != "fss_cprg" && pir_type != "scs") {
       BOOST_THROW_EXCEPTION(po::error("'pir_type' must be either `poly`, `scs`, `fss` or `fss_cprg`"));
     }
     mpc_config::validate();
