@@ -5,7 +5,7 @@
 #include <NTL/vector.h>
 
 #include "fastpoly/recursive.h"
-#include "mpc-utils/boost_serialization.hpp"
+#include "mpc-utils/boost_serialization/ntl.hpp"
 #include "mpc-utils/mpc_config.hpp"
 #include "mpc-utils/party.hpp"
 #include "pir_protocol_poly.hpp"

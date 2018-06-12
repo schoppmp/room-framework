@@ -1,11 +1,11 @@
 #pragma once
+#include <boost/optional.hpp>
+
 #include "mpc-utils/comm_channel.hpp"
+#include "mpc-utils/boost_serialization/eigen.hpp"
 #include "util/blocking_queue.hpp"
 #include "util/randomize_matrix.hpp"
-#include <boost/numeric/ublas/io.hpp>
-#include <boost/numeric/ublas/matrix.hpp>
-#include <boost/numeric/ublas/matrix_proxy.hpp>
-#include <boost/optional.hpp>
+#include "pir_protocol.hpp"
 
 /**
  * error_info structs for reporting input dimension in exceptions
@@ -28,9 +28,8 @@ protected:
   int role;
 
 public:
-  using triple = std::tuple<boost::numeric::ublas::matrix<T>,
-                   boost::numeric::ublas::matrix<T>,
-                   boost::numeric::ublas::matrix<T> >;
+  using matrix = Eigen::Matrix<T, Eigen::Dynamic, Eigen::Dynamic>;
+  using triple = std::tuple<matrix, matrix, matrix>;
 
   triple_provider(size_t l, size_t m, size_t n, int role):
     l(l), m(m), n(n), role(role) {};
@@ -51,14 +50,14 @@ private:
   std::mt19937 r;
 
   triple compute_fake_triple() {
-      using namespace boost::numeric::ublas;
+      using matrix = typename triple_provider<T, is_shared>::matrix;
       size_t l = this->l, m = this->m, n = this->n;
       int role = this->role;
 
       std::uniform_int_distribution<T> dist;
-      matrix<T> U(l, m), U_mask = is_shared ? matrix<T>(l, m) : zero_matrix<T>(l, m);
-      matrix<T> V(m, n), V_mask = is_shared ? matrix<T>(m, n) : zero_matrix<T>(m, n);
-      matrix<T> Z_mask(l, n);
+      matrix U(l, m), U_mask = matrix::Zero(l, m);
+      matrix V(m, n), V_mask = matrix::Zero(m, n);
+      matrix Z_mask(l, n);
 
       randomize_matrix(r, U);
       randomize_matrix(r, V);
@@ -71,7 +70,7 @@ private:
       if(role == 0) {
           return std::make_tuple(U - U_mask, V_mask, Z_mask);
       } else {
-          return std::make_tuple(U_mask, V - V_mask, prod(U, V) - Z_mask);
+          return std::make_tuple(U_mask, V - V_mask, U * V - Z_mask);
       }
   }
 
@@ -92,21 +91,21 @@ public:
 };
 
 
-template<class MATRIX_A, class MATRIX_B,
-  typename T = typename MATRIX_A::value_type, bool is_shared,
-  typename std::enable_if<std::is_same<T, typename MATRIX_B::value_type>::value, int>::type = 0>
-boost::numeric::ublas::matrix<T> matrix_multiplication(
-    const boost::numeric::ublas::matrix_expression<MATRIX_A>& A_in,
-    const boost::numeric::ublas::matrix_expression<MATRIX_B>& B_in,
+template<class Derived_A, class Derived_B,
+  typename T = typename Derived_A::Scalar, bool is_shared,
+  typename std::enable_if<std::is_same<T, typename Derived_B::Scalar>::value, int>::type = 0>
+Eigen::Matrix<T, Eigen::Dynamic, Eigen::Dynamic> matrix_multiplication(
+    const Eigen::MatrixBase<Derived_A>& A_in,
+    const Eigen::MatrixBase<Derived_B>& B_in,
     comm_channel& channel, int role,
     triple_provider<T, is_shared>& triples,
     ssize_t chunk_size_in = -1
 ) {
-  using namespace boost::numeric::ublas;
-  const MATRIX_A& A = A_in();
-  const MATRIX_B& B = B_in();
+  using matrix = Eigen::Matrix<T, Eigen::Dynamic, Eigen::Dynamic>;
+  const Derived_A& A = A_in.derived();
+  const Derived_B& B = B_in.derived();
   // A : l x m, B: m x n, C: l x n
-  size_t l = A.size1(), m = A.size2(), n = B.size2();
+  size_t l = A.rows(), m = A.cols(), n = B.cols();
   size_t chunk_size = chunk_size_in;
   if(chunk_size_in == -1) {
     chunk_size = l;
@@ -114,7 +113,7 @@ boost::numeric::ublas::matrix<T> matrix_multiplication(
 
   try {
     // check if argument sizes are valid
-    if (m != B.size1()) {
+    if (m != B.rows()) {
         BOOST_THROW_EXCEPTION(std::invalid_argument("Matrix sizes do not match"));
     }
     if(chunk_size != triples.get_l() || triples.get_m() != m || triples.get_n() != n) {
@@ -125,21 +124,21 @@ boost::numeric::ublas::matrix<T> matrix_multiplication(
     }
     if(l % chunk_size) { //TODO: allow for different chunk sizes
         BOOST_THROW_EXCEPTION(boost::enable_error_info(std::invalid_argument(
-            "`A_in.size1()` must be divisible by `chunk_size`")));
+            "`A_in.rows()` must be divisible by `chunk_size`")));
     }
 
-    std::vector<std::function<matrix<T>()>> compute_chunks;
+    std::vector<std::function<matrix()>> compute_chunks;
     for(size_t i = 0; i*chunk_size < l; i++) {
-      compute_chunks.push_back([&triples, &channel, &B, &A, chunk_size, m, n, role, i]() -> matrix<T> {
-        auto chunk_A = subrange(A, i*chunk_size, (i+1)*chunk_size, 0, A.size2());
-        // get a multiplication triple
-        matrix<T> U, V, Z;
+      compute_chunks.push_back([&triples, &channel, &B, &A, chunk_size, m, n, role, i]() -> matrix {
+        auto chunk_A = A.block(i * chunk_size, 0, chunk_size, A.cols());
+        // get a multiplication triple; TODO: threaded triple provider
+        matrix U, V, Z;
         std::tie(U, V, Z) = triples.get();
 
         // role 0 sends A - U and receives B - V simultaneously
         // then compute share of the result
-        matrix<T, row_major> E = (is_shared || role == 0) * (chunk_A - U), E2(chunk_size, m);
-        matrix<T, row_major> F = (is_shared || role == 1) * (B - V), F2(m, n);
+        matrix E = (is_shared || role == 0) * (chunk_A - U), E2(chunk_size, m);
+        matrix F = (is_shared || role == 1) * (B - V), F2(m, n);
         if(role == 0) {
             channel.send_recv(E, F2);
             if(is_shared) {
@@ -147,7 +146,7 @@ boost::numeric::ublas::matrix<T> matrix_multiplication(
                 E += E2;
             }
             F += F2;
-            return prod(E, V) + prod(U, F) + Z;
+            return (E * V) + (U * F) + Z;
         } else {
             channel.send_recv(F, E2);
             if(is_shared) {
@@ -155,19 +154,19 @@ boost::numeric::ublas::matrix<T> matrix_multiplication(
                 F += F2;
             }
             E += E2;
-            return prod(E, F) + prod(E, V) + prod(U, F) + Z;
+            return (E * F) + (E * V) + (U * F) + Z;
         }
       });
     }
-    matrix<T> result = zero_matrix<T>(l, n);
+    matrix result = matrix::Zero(l, n);
     // TODO: threading
     for(size_t i = 0; i*chunk_size < l; i++) {
-      subrange(result, i*chunk_size, (i+1)*chunk_size, 0, result.size2()) = compute_chunks[i]();
+      result.block(i*chunk_size, 0, chunk_size, result.cols()) = compute_chunks[i]();
     }
     return result;
   } catch(boost::exception& e) {
-    e << error_a_size1(A.size1()) << error_a_size2(A.size2())
-      << error_b_size1(B.size1()) << error_b_size2(B.size2());
+    e << error_a_size1(A.rows()) << error_a_size2(A.cols())
+      << error_b_size1(B.rows()) << error_b_size2(B.cols());
     e << error_chunk_size(chunk_size_in);
     throw;
   }
