@@ -18,7 +18,8 @@ OBLIVCC = $(OBLIVC_PATH)/bin/oblivcc
 OBLIVCCFLAGS = -g -D_Float128=double
 
 LDFLAGS = $(STATIC_FILES) -lntl -lboost_program_options -lboost_serialization \
-	-lboost_system -lboost_thread -lboost_iostreams -lgcrypt -lgmp -lgomp
+	-lboost_system -lboost_thread -lboost_iostreams -lboost_chrono -lgcrypt \
+	-lgmp -lgomp
 INCLUDES = -I$(SRCDIR) -I$(LIBDIR) -I$(LIBDIR)/obliv-c/src/ext/oblivc \
 	-I$(LIBDIR)/absentminded-crypto-kit/src \
 	-I$(LIBDIR)/IteratorTypeErasure/any_iterator \
