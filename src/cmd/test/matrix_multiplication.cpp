@@ -5,6 +5,7 @@
 #include "util/reservoir_sampling.hpp"
 #include "util/time.h"
 #include <Eigen/Dense>
+#include <Eigen/Sparse>
 
 // generates random matrices and multiplies them using multiplication triples
 int main(int argc, const char *argv[]) {
@@ -37,8 +38,8 @@ int main(int argc, const char *argv[]) {
     // generate test data
     size_t l = 5000, m = 50000, n = 1;
     size_t chunk_size = 1000;
-    matrix A(l, m);
-    matrix B(m, n);
+    Eigen::SparseMatrix<T, Eigen::ColMajor> A(l, m);
+    Eigen::SparseMatrix<T, Eigen::RowMajor> B(m, n);
     int seed = 12345; // seed random number generator deterministically
     std::mt19937 prg(seed);
     std::uniform_int_distribution<T> dist;
@@ -48,33 +49,37 @@ int main(int argc, const char *argv[]) {
     size_t k_A = 2000;
     size_t k_B = 1000;
 
-    A = matrix::Zero(l, m);
-    matrix nonzeros_A(l, k_A);
-    randomize_matrix(prg, nonzeros_A);
     auto indices_A = reservoir_sampling(prg, k_A, m);
-    for(size_t i = 0; i < indices_A.size(); i++) {
-      A.col(indices_A[i]) = nonzeros_A.col(i);
+    std::vector<Eigen::Triplet<T>> triplets_A;
+    for(size_t j = 0; j < indices_A.size(); j++) {
+      for(size_t i = 0; i < A.rows(); i++) {
+        triplets_A.push_back(Eigen::Triplet<T>(i, j, dist(prg)));
+      }
     }
-    B = matrix::Zero(m, n);
-    matrix nonzeros_B(k_B, n);
-    randomize_matrix(prg, nonzeros_B);
+    A.setFromTriplets(triplets_A.begin(), triplets_A.end());
     auto indices_B =  reservoir_sampling(prg, k_B, m);
+    std::vector<Eigen::Triplet<T>> triplets_B;
     for(size_t i = 0; i < indices_B.size(); i++) {
-      B.row(indices_B[i]) = nonzeros_B.row(i);
+      for(size_t j = 0; j < B.cols(); j++) {
+        triplets_B.push_back(Eigen::Triplet<T>(i, j, dist(prg)));
+      }
     }
+    B.setFromTriplets(triplets_B.begin(), triplets_B.end());
 
     // run dense multiplication
     std::cout << "Running dense matrix multiplication\n";
 
     try {
         fake_triple_provider<T> triples(chunk_size, m, n, p.get_id());
+        channel.sync();
         benchmark([&]{
           triples.precompute(l / chunk_size);
         }, "Fake Triple Generation");
 
         matrix C;
+        channel.sync();
         benchmark([&]{
-          C = matrix_multiplication(A, B, channel, p.get_id(), triples, chunk_size);
+          C = matrix_multiplication(matrix(A), matrix(B), channel, p.get_id(), triples, chunk_size);
         }, "Dense matrix multiplication");
 
         // exchange shares for checking result

@@ -95,8 +95,8 @@ template<class Derived_A, class Derived_B,
   typename T = typename Derived_A::Scalar, bool is_shared,
   typename std::enable_if<std::is_same<T, typename Derived_B::Scalar>::value, int>::type = 0>
 Eigen::Matrix<T, Eigen::Dynamic, Eigen::Dynamic> matrix_multiplication(
-    const Eigen::MatrixBase<Derived_A>& A_in,
-    const Eigen::MatrixBase<Derived_B>& B_in,
+    const Eigen::EigenBase<Derived_A>& A_in,
+    const Eigen::EigenBase<Derived_B>& B_in,
     comm_channel& channel, int role,
     triple_provider<T, is_shared>& triples,
     ssize_t chunk_size_in = -1
