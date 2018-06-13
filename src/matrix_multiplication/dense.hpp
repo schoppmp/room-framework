@@ -24,6 +24,7 @@ typedef boost::error_info<struct tag_CHUNK_SIZE,size_t> error_chunk_size;
 template<typename T, bool is_shared = false>
 class triple_provider {
 protected:
+  // TODO: allow to pass compile-time sizes
   size_t l, m, n;
   int role;
 
@@ -42,6 +43,7 @@ public:
 };
 
 template<typename T, bool is_shared = false>
+// TODO: CRTP instead of virtual inheritance
 class fake_triple_provider : public virtual triple_provider<T, is_shared> {
 using triple = typename triple_provider<T, is_shared>::triple;
 private:
@@ -94,14 +96,15 @@ public:
 template<class Derived_A, class Derived_B,
   typename T = typename Derived_A::Scalar, bool is_shared,
   typename std::enable_if<std::is_same<T, typename Derived_B::Scalar>::value, int>::type = 0>
-Eigen::Matrix<T, Eigen::Dynamic, Eigen::Dynamic> matrix_multiplication(
+Eigen::Matrix<T, Derived_A::RowsAtCompileTime, Derived_B::ColsAtCompileTime>
+matrix_multiplication(
     const Eigen::EigenBase<Derived_A>& A_in,
     const Eigen::EigenBase<Derived_B>& B_in,
     comm_channel& channel, int role,
     triple_provider<T, is_shared>& triples,
     ssize_t chunk_size_in = -1
 ) {
-  using matrix = Eigen::Matrix<T, Eigen::Dynamic, Eigen::Dynamic>;
+  using matrix_result = Eigen::Matrix<T, Derived_A::RowsAtCompileTime, Derived_B::ColsAtCompileTime>;
   const Derived_A& A = A_in.derived();
   const Derived_B& B = B_in.derived();
   // A : l x m, B: m x n, C: l x n
@@ -127,18 +130,19 @@ Eigen::Matrix<T, Eigen::Dynamic, Eigen::Dynamic> matrix_multiplication(
             "`A_in.rows()` must be divisible by `chunk_size`")));
     }
 
-    std::vector<std::function<matrix()>> compute_chunks;
+    using matrix_triple = typename std::remove_reference<decltype(triples)>::type::matrix;
+    std::vector<std::function<matrix_triple()>> compute_chunks;
     for(size_t i = 0; i*chunk_size < l; i++) {
-      compute_chunks.push_back([&triples, &channel, &B, &A, chunk_size, m, n, role, i]() -> matrix {
-        auto chunk_A = A.block(i * chunk_size, 0, chunk_size, A.cols());
+      compute_chunks.push_back([&triples, &channel, &B, &A, chunk_size, m, n, role, i]() -> matrix_triple {
+        auto chunk_A = A.middleRows(i * chunk_size, chunk_size);
         // get a multiplication triple; TODO: threaded triple provider
-        matrix U, V, Z;
+        matrix_triple U, V, Z;
         std::tie(U, V, Z) = triples.get();
 
         // role 0 sends A - U and receives B - V simultaneously
         // then compute share of the result
-        matrix E = (is_shared || role == 0) * (chunk_A - U), E2(chunk_size, m);
-        matrix F = (is_shared || role == 1) * (B - V), F2(m, n);
+        matrix_triple E = (is_shared || role == 0) * (chunk_A - U), E2(chunk_size, m);
+        matrix_triple F = (is_shared || role == 1) * (B - V), F2(m, n);
         if(role == 0) {
             channel.send_recv(E, F2);
             if(is_shared) {
@@ -158,10 +162,10 @@ Eigen::Matrix<T, Eigen::Dynamic, Eigen::Dynamic> matrix_multiplication(
         }
       });
     }
-    matrix result = matrix::Zero(l, n);
+    matrix_result result = matrix_result::Zero(l, n);
     // TODO: threading
     for(size_t i = 0; i*chunk_size < l; i++) {
-      result.block(i*chunk_size, 0, chunk_size, result.cols()) = compute_chunks[i]();
+      result.middleRows(i*chunk_size, chunk_size) = compute_chunks[i]();
     }
     return result;
   } catch(boost::exception& e) {

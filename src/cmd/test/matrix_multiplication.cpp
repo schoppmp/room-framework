@@ -10,7 +10,6 @@
 // generates random matrices and multiplies them using multiplication triples
 int main(int argc, const char *argv[]) {
     using T = uint32_t;
-    using matrix = Eigen::Matrix<T, Eigen::Dynamic, Eigen::Dynamic>;
     // parse config
     mpc_config conf;
     conf.set_default_filename("config/test/matrix_multiplication.ini");
@@ -36,7 +35,10 @@ int main(int argc, const char *argv[]) {
     auto channel = p.connect_to(1 - p.get_id());
 
     // generate test data
-    size_t l = 5000, m = 50000, n = 1;
+    const size_t l = 5000, m = 50000, n = 1;
+    using matrix_A = Eigen::Matrix<T, Eigen::Dynamic, Eigen::Dynamic>;
+    using matrix_B = Eigen::Matrix<T, Eigen::Dynamic, n>;
+    using matrix_C = Eigen::Matrix<T, Eigen::Dynamic, n>;
     size_t chunk_size = 1000;
     Eigen::SparseMatrix<T, Eigen::ColMajor> A(l, m);
     Eigen::SparseMatrix<T, Eigen::RowMajor> B(m, n);
@@ -76,15 +78,15 @@ int main(int argc, const char *argv[]) {
           triples.precompute(l / chunk_size);
         }, "Fake Triple Generation");
 
-        matrix C;
+        matrix_C C;
         channel.sync();
         benchmark([&]{
-          C = matrix_multiplication(matrix(A), matrix(B), channel, p.get_id(), triples, chunk_size);
+          C = matrix_multiplication(matrix_A(A), matrix_B(B), channel, p.get_id(), triples, chunk_size);
         }, "Dense matrix multiplication");
 
         // exchange shares for checking result
         std::cout << "Verifying\n";
-        matrix C2;
+        matrix_C C2;
         channel.send_recv(C, C2);
         if(p.get_id() == 0) {
             channel.send_recv(A, B);
