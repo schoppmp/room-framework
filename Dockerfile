@@ -8,6 +8,7 @@ RUN opam init -y; \
   opam switch -y 4.06.0; \
   eval `opam config env`; \
   opam install -y camlp4 ocamlfind ocamlbuild batteries;
+RUN pacman --noconfirm -Syu eigen
 
 # (re-)build library dependencies
 WORKDIR /app
@@ -16,6 +17,7 @@ COPY Makefile /app/Makefile
 RUN eval `opam config env`; \
   make cleanall; \
   make libs
+
 
 # build binaries
 COPY src /app/src
