@@ -86,14 +86,15 @@ public:
       triples.push(this->compute_fake_triple());
     }
   }
-  // thread-safe!
+  // can be called concurrently with precompute(); however, only one thread may
+  // call get() at the same time.
   triple get() {
     return triples.pop();
   }
 };
 
 
-template<class Derived_A, class Derived_B,
+template<typename Derived_A, typename Derived_B,
   typename T = typename Derived_A::Scalar, bool is_shared,
   typename std::enable_if<std::is_same<T, typename Derived_B::Scalar>::value, int>::type = 0>
 Eigen::Matrix<T, Derived_A::RowsAtCompileTime, Derived_B::ColsAtCompileTime>
