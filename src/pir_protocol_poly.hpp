@@ -2,6 +2,8 @@
 
 #include <numeric>
 #include <NTL/vector.h>
+#include <NTL/ZZ.h>
+#include <NTL/ZZ_pX.h>
 #include <gcrypt.h>
 
 #include "pir_protocol.hpp"
