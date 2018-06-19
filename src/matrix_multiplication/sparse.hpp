@@ -15,10 +15,11 @@ std::vector<size_t> compute_inner_indices(Eigen::SparseMatrix<T, Opts, Index>& m
   return std::vector<size_t>(indices.begin(), indices.end());
 }
 
-// maps the inner indexes of `m` to random indexes in [k],
-template<typename T, int Opts, typename Index, typename Generator>
+// generates a partial permutation from `g` that maps `all_inner_indices`
+// to random positions in [k], and also returns the array of unmapped positions
+template<typename Generator>
 std::pair<std::unordered_map<size_t, size_t>, std::vector<size_t>>
-permute_inner_indices(Generator&& g, Eigen::SparseMatrix<T, Opts, Index>& m,
+permute_inner_indices(Generator&& g,
   const std::vector<size_t>& all_inner_indices, size_t k
 ) {
   if(all_inner_indices.size() > k) {
@@ -52,9 +53,13 @@ matrix_multiplication( // TODO: somehow derive row-/column sparsity
 ) {
   try {
     size_t k;
+    std::vector<size_t> inner_indices;
+    Eigen::SparseMatrix<T, Eigen::RowMajor> A;
+    Eigen::SparseMatrix<T, Eigen::ColMajor> B;
+    // compute own indices and exchange k values if not given as arguments
     if(role == 0) {
-      Eigen::SparseMatrix<T, Eigen::RowMajor> A = A_in.derived();
-      auto inner_indices = compute_inner_indices(A);
+      A = A_in.derived();
+      inner_indices = compute_inner_indices(A);
       if(k_A == -1) {
         k_A = inner_indices.size();
         channel.send(k_A);
@@ -62,28 +67,9 @@ matrix_multiplication( // TODO: somehow derive row-/column sparsity
       if(k_B == -1) {
         channel.recv(k_B);
       }
-      k = k_A + k_B;
-      Eigen::SparseMatrix<T> B(k, B_in.cols());
-      int seed; // TODO: use wrapper around AES-based PRG from Obliv-C
-      auto gen = newBCipherRandomGen();
-      randomizeBuffer(gen, (char*) &seed, sizeof(int));
-      releaseBCipherRandomGen(gen);
-      std::mt19937 prg(seed);
-      auto perm_result = permute_inner_indices(prg, A, inner_indices, k);
-      // run ROOM protocol to give client their permutation
-      prot.run_server(perm_result.first, perm_result.second);
-      // apply permutation locally
-      Eigen::SparseMatrix<T> perm_A(A.cols(), k);
-      std::vector<Eigen::Triplet<T>> perm_A_triplets;
-      for(auto pair : perm_result.first) {
-        perm_A_triplets.push_back(
-          Eigen::Triplet<T>(pair.first, pair.second, 1));
-      }
-      perm_A.setFromTriplets(perm_A_triplets.begin(), perm_A_triplets.end());
-      return matrix_multiplication(A * perm_A, B, channel, role, triples, chunk_size_in);
     } else {
-      Eigen::SparseMatrix<T, Eigen::ColMajor> B = B_in.derived();
-      auto inner_indices = compute_inner_indices(B);
+      B = B_in.derived();
+      inner_indices = compute_inner_indices(B);
       if(k_A == -1) {
         channel.recv(k_A);
       }
@@ -91,19 +77,46 @@ matrix_multiplication( // TODO: somehow derive row-/column sparsity
         k_B = inner_indices.size();
         channel.send(k_B);
       }
-      k = k_A + k_B;
-      Eigen::SparseMatrix<T> A(A_in.rows(), k);
-      std::vector<size_t> perm_values(k_B);
-      // get permutation from ROOM protocol
+    }
+    k = k_A + k_B;
+    std::vector<std::pair<size_t, size_t>> perm(inner_indices.size());
+    // generate correlated permutations; party with the higher number of indices
+    // acts as the server of the ROOM protocol
+    if((k_A > k_B) == (role == 0)) {
+      int seed; // TODO: use wrapper around AES-based PRG from Obliv-C
+      auto gen = newBCipherRandomGen();
+      randomizeBuffer(gen, (char*) &seed, sizeof(int));
+      releaseBCipherRandomGen(gen);
+      std::mt19937 prg(seed);
+      auto perm_result = permute_inner_indices(prg, inner_indices, k);
+      // run ROOM protocol to give client their permutation
+      prot.run_server(perm_result.first, perm_result.second);
+      boost::copy(perm_result.first, perm.begin());
+    } else {
+      std::vector<size_t> perm_values(role == 0 ? k_A : k_B);
       prot.run_client(inner_indices, perm_values);
+      boost::copy(combine_pair(inner_indices, perm_values), perm.begin());
+    }
+    // apply permutation and multiply
+    if(role == 0) {
+      decltype(A) perm_A(A.cols(), k);
       // generate local permutation matrix
-      Eigen::SparseMatrix<T> perm_B(k, B.rows());
+      std::vector<Eigen::Triplet<T>> perm_A_triplets;
+      for(auto pair : perm) {
+        perm_A_triplets.push_back(Eigen::Triplet<T>(pair.first, pair.second, 1));
+      }
+      perm_A.setFromTriplets(perm_A_triplets.begin(), perm_A_triplets.end());
+      B.resize(k, B_in.cols());
+      return matrix_multiplication(A * perm_A, B, channel, role, triples, chunk_size_in);
+    } else {
+      decltype(B) perm_B(k, B.rows());
+      // generate local permutation matrix
       std::vector<Eigen::Triplet<T>> perm_B_triplets;
-      for(size_t i = 0; i < k_B; i++) {
-        perm_B_triplets.push_back(
-          Eigen::Triplet<T>(perm_values[i], inner_indices[i], 1));
+      for(auto pair: perm) {
+        perm_B_triplets.push_back(Eigen::Triplet<T>(pair.second, pair.first, 1));
       }
       perm_B.setFromTriplets(perm_B_triplets.begin(), perm_B_triplets.end());
+      A.resize(A_in.rows(), k);
       return matrix_multiplication(A, perm_B * B, channel, role, triples, chunk_size_in);
     }
   } catch(boost::exception& e) {

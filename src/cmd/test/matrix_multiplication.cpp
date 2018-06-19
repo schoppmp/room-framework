@@ -53,7 +53,7 @@ int main(int argc, const char *argv[]) {
 
 
     std::cout << "Generating random data\n";
-    size_t k_A = 1000;
+    size_t k_A = 100;
     size_t k_B = 2000;
 
     auto indices_A = reservoir_sampling(prg, k_A, m);
