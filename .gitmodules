@@ -6,7 +6,7 @@
 	url = git@github.com:schoppmp/FastPolynomial.git
 [submodule "lib/obliv-c"]
 	path = lib/obliv-c
-	url = git@github.com:samee/obliv-c.git
+	url = git@github.com:schoppmp/obliv-c.git
 [submodule "lib/absentminded-crypto-kit"]
 	path = lib/absentminded-crypto-kit
 	url = https://bitbucket.org/schoppmp/absentminded-crypto-kit
