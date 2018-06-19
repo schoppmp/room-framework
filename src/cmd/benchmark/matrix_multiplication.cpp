@@ -95,76 +95,79 @@ int main(int argc, const char *argv[]) {
 
   // generate test data
   size_t m = conf.inner_dim;
-  for(size_t l = 1; l <= conf.max_rows_server; l*=2) {               // I can
-  for(size_t n = 1; n <= conf.max_cols_client; n*=2) {               // haz
-  for(size_t k_A = 1; k_A <= conf.max_nonzero_cols_server; k_A*=2) { // Rust
-  for(size_t k_B = 1; k_B <= conf.max_nonzero_rows_client; k_B*=2) { // PLLZZZ
-    std::cout << "l = " << l << "\nn = " << n << "\nk_A = " << k_A << "\nk_B = "
-      << k_B << "\n";
-    ssize_t chunk_size = l;
-    Eigen::SparseMatrix<T> A(l, m);
-    Eigen::SparseMatrix<T> B(m, n);
-    std::cout << "Generating random data\n";
+  for(size_t num_runs = 0; ; num_runs++) {
+    std::cout << "Run " << num_runs << "\n";
+    for(size_t l = 1; l <= conf.max_rows_server; l*=2) {                // I can
+    for(size_t n = 1; n <= conf.max_cols_client; n*=2) {                // haz
+    for(size_t k_A = 64; k_A <= conf.max_nonzero_cols_server; k_A*=2) { // Rust
+    for(size_t k_B = 64; k_B <= conf.max_nonzero_rows_client; k_B*=2) { // PLLZZZ
+      std::cout << "l = " << l << "\nn = " << n << "\nk_A = " << k_A << "\nk_B = "
+        << k_B << "\n";
+      ssize_t chunk_size = l;
+      Eigen::SparseMatrix<T> A(l, m);
+      Eigen::SparseMatrix<T> B(m, n);
+      std::cout << "Generating random data\n";
 
-    auto indices_A = reservoir_sampling(prg, k_A, m);
-    std::vector<Eigen::Triplet<T>> triplets_A;
-    for(size_t j = 0; j < indices_A.size(); j++) {
-      for(size_t i = 0; i < A.rows(); i++) {
-        triplets_A.push_back(Eigen::Triplet<T>(i, indices_A[j], dist(prg)));
+      auto indices_A = reservoir_sampling(prg, k_A, m);
+      std::vector<Eigen::Triplet<T>> triplets_A;
+      for(size_t j = 0; j < indices_A.size(); j++) {
+        for(size_t i = 0; i < A.rows(); i++) {
+          triplets_A.push_back(Eigen::Triplet<T>(i, indices_A[j], dist(prg)));
+        }
       }
-    }
-    A.setFromTriplets(triplets_A.begin(), triplets_A.end());
-    auto indices_B =  reservoir_sampling(prg, k_B, m);
-    std::vector<Eigen::Triplet<T>> triplets_B;
-    for(size_t i = 0; i < indices_B.size(); i++) {
-      for(size_t j = 0; j < B.cols(); j++) {
-        triplets_B.push_back(Eigen::Triplet<T>(indices_B[i], j, dist(prg)));
+      A.setFromTriplets(triplets_A.begin(), triplets_A.end());
+      auto indices_B =  reservoir_sampling(prg, k_B, m);
+      std::vector<Eigen::Triplet<T>> triplets_B;
+      for(size_t i = 0; i < indices_B.size(); i++) {
+        for(size_t j = 0; j < B.cols(); j++) {
+          triplets_B.push_back(Eigen::Triplet<T>(indices_B[i], j, dist(prg)));
+        }
       }
-    }
-    B.setFromTriplets(triplets_B.begin(), triplets_B.end());
+      B.setFromTriplets(triplets_B.begin(), triplets_B.end());
 
-    for(auto type : conf.pir_types) {
-      std::cout << "Running sparse matrix multiplication (" << type << ")\n";
-      try {
-          fake_triple_provider<T> triples(chunk_size, k_A + k_B, n, p.get_id());
-          channel.sync();
-          benchmark([&]{
-            triples.precompute(l / chunk_size);
-          }, "Fake Triple Generation");
+      for(auto type : conf.pir_types) {
+        std::cout << "Running sparse matrix multiplication (" << type << ")\n";
+        try {
+            fake_triple_provider<T> triples(chunk_size, k_A + k_B, n, p.get_id());
+            channel.sync();
+            benchmark([&]{
+              triples.precompute(l / chunk_size);
+            }, "Fake Triple Generation");
 
-          dense_matrix C;
-          channel.sync();
-          benchmark([&]{
-            C = matrix_multiplication(A, B, *protos[type],
-              channel, p.get_id(), triples, chunk_size, k_A, k_B);
-          }, "Sparse matrix multiplication");
+            dense_matrix C;
+            channel.sync();
+            benchmark([&]{
+              C = matrix_multiplication(A, B, *protos[type],
+                channel, p.get_id(), triples, chunk_size, k_A, k_B);
+            }, "Sparse matrix multiplication");
 
-          // exchange shares for checking result
-          std::cout << "Verifying\n";
-          dense_matrix C2;
-          channel.send_recv(C, C2);
-          if(p.get_id() == 0) {
-              channel.send_recv(A, B);
-          } else {
-              channel.send_recv(B, A);
-          }
+            // exchange shares for checking result
+            std::cout << "Verifying\n";
+            dense_matrix C2;
+            channel.send_recv(C, C2);
+            if(p.get_id() == 0) {
+                channel.send_recv(A, B);
+            } else {
+                channel.send_recv(B, A);
+            }
 
-          // verify result
-          C += C2;
-          C2 = A * B;
-          for(size_t i = 0; i < C.rows(); i++) {
-              for(size_t j = 0; j < C.cols(); j++) {
-                  if(C(i, j) != C2(i, j)) {
-                      std::cerr << "Verification failed at index (" << i << ", " << j
-                                << "). Expected " << C2(i, j) << ", got " << C(i, j) <<"\n";
-                  }
-              }
-          }
-          std::cout << "Verification finished\n";
-      } catch(boost::exception &ex) {
-          std::cerr << boost::diagnostic_information(ex);
-          return 1;
+            // verify result
+            C += C2;
+            C2 = A * B;
+            for(size_t i = 0; i < C.rows(); i++) {
+                for(size_t j = 0; j < C.cols(); j++) {
+                    if(C(i, j) != C2(i, j)) {
+                        std::cerr << "Verification failed at index (" << i << ", " << j
+                                  << "). Expected " << C2(i, j) << ", got " << C(i, j) <<"\n";
+                    }
+                }
+            }
+            std::cout << "Verification finished\n";
+        } catch(boost::exception &ex) {
+            std::cerr << boost::diagnostic_information(ex);
+            return 1;
+        }
       }
-    }
-  }}}}
+    }}}}
+  }
 }
