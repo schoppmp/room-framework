@@ -50,7 +50,7 @@ public:
       ("max_elements_client,n", po::value(&max_elements_client)->required(), "Number of non-zero elements in the client's database")
       ("statistical_security,s", po::value(&statistical_security)->default_value(40), "Statistical security parameter")
       ("pir_type", po::value(&pir_types)->composing(), "PIR type: poly | fss | scs; can be passed multiple times");
-    set_default_filename("config/benchmark.ini");
+    set_default_filename("config/benchmark/pir.ini");
   }
 };
 
