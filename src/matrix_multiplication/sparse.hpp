@@ -39,7 +39,7 @@ permute_inner_indices(Generator&& g,
 }
 
 template<typename Derived_A, typename Derived_B, typename K, typename V,
-  typename T = typename Derived_A::Scalar, bool is_shared,
+  typename T = typename Derived_A::Scalar,
   typename std::enable_if<std::is_same<T, typename Derived_B::Scalar>::value, int>::type = 0>
 Eigen::Matrix<T, Derived_A::RowsAtCompileTime, Derived_B::ColsAtCompileTime>
 matrix_multiplication( // TODO: somehow derive row-/column sparsity
@@ -47,7 +47,7 @@ matrix_multiplication( // TODO: somehow derive row-/column sparsity
     const Eigen::SparseMatrixBase<Derived_B>& B_in,
     pir_protocol<K, V>& prot,
     comm_channel& channel, int role,
-    triple_provider<T, is_shared>& triples,
+    triple_provider<T, false>& triples, // TODO: implement shared variant by pseudorandomly permuting indexes in another garbled circuit
     ssize_t chunk_size_in = -1,
     ssize_t k_A = -1, ssize_t k_B = -1 // saves a communication round if set
 ) {
@@ -99,23 +99,23 @@ matrix_multiplication( // TODO: somehow derive row-/column sparsity
     }
     // apply permutation and multiply
     if(role == 0) {
-      decltype(A) perm_A(A.cols(), k);
+      Eigen::SparseMatrix<T, Eigen::ColMajor> perm_A(A.cols(), k);
       // generate local permutation matrix
-      std::vector<Eigen::Triplet<T>> perm_A_triplets;
+      std::vector<size_t> sizes(k, 1);
+      perm_A.reserve(sizes);
       for(auto pair : perm) {
-        perm_A_triplets.push_back(Eigen::Triplet<T>(pair.first, pair.second, 1));
+        perm_A.insert(pair.first, pair.second) = 1;
       }
-      perm_A.setFromTriplets(perm_A_triplets.begin(), perm_A_triplets.end());
       B.resize(k, B_in.cols());
       return matrix_multiplication(A * perm_A, B, channel, role, triples, chunk_size_in);
     } else {
-      decltype(B) perm_B(k, B.rows());
+      Eigen::SparseMatrix<T, Eigen::RowMajor> perm_B(k, B.rows());
       // generate local permutation matrix
-      std::vector<Eigen::Triplet<T>> perm_B_triplets;
+      std::vector<size_t> sizes(k, 1);
+      perm_B.reserve(sizes);
       for(auto pair: perm) {
-        perm_B_triplets.push_back(Eigen::Triplet<T>(pair.second, pair.first, 1));
+        perm_B.insert(pair.second, pair.first) = 1;
       }
-      perm_B.setFromTriplets(perm_B_triplets.begin(), perm_B_triplets.end());
       A.resize(A_in.rows(), k);
       return matrix_multiplication(A, perm_B * B, channel, role, triples, chunk_size_in);
     }
