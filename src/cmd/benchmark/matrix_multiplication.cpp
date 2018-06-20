@@ -104,26 +104,27 @@ int main(int argc, const char *argv[]) {
       std::cout << "l = " << l << "\nn = " << n << "\nk_A = " << k_A << "\nk_B = "
         << k_B << "\n";
       ssize_t chunk_size = l;
-      Eigen::SparseMatrix<T> A(l, m);
-      Eigen::SparseMatrix<T> B(m, n);
+      Eigen::SparseMatrix<T, Eigen::RowMajor> A(l, m);
+      Eigen::SparseMatrix<T, Eigen::ColMajor> B(m, n);
       std::cout << "Generating random data\n";
 
       auto indices_A = reservoir_sampling(prg, k_A, m);
-      std::vector<Eigen::Triplet<T>> triplets_A;
+      auto indices_B =  reservoir_sampling(prg, k_B, m);
+      std::vector<size_t> k_As(l, k_A), k_Bs(n, k_B);
+      // reserve space explicitly instead of using triplets to make sure we are
+      // independent of m
+      A.reserve(k_As);
+      B.reserve(k_Bs);
       for(size_t j = 0; j < indices_A.size(); j++) {
         for(size_t i = 0; i < A.rows(); i++) {
-          triplets_A.push_back(Eigen::Triplet<T>(i, indices_A[j], dist(prg)));
+          A.insert(i, indices_A[j]) = dist(prg);
         }
       }
-      A.setFromTriplets(triplets_A.begin(), triplets_A.end());
-      auto indices_B =  reservoir_sampling(prg, k_B, m);
-      std::vector<Eigen::Triplet<T>> triplets_B;
       for(size_t i = 0; i < indices_B.size(); i++) {
         for(size_t j = 0; j < B.cols(); j++) {
-          triplets_B.push_back(Eigen::Triplet<T>(indices_B[i], j, dist(prg)));
+          B.insert(indices_B[i], j) = dist(prg);
         }
       }
-      B.setFromTriplets(triplets_B.begin(), triplets_B.end());
 
       for(auto type : conf.pir_types) {
         std::cout << "Running sparse matrix multiplication (" << type << ")\n";
