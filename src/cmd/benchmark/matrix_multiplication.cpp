@@ -109,22 +109,21 @@ int main(int argc, const char *argv[]) {
       std::cout << "Generating random data\n";
 
       auto indices_A = reservoir_sampling(prg, k_A, m);
-      auto indices_B =  reservoir_sampling(prg, k_B, m);
-      std::vector<size_t> k_As(l, k_A), k_Bs(n, k_B);
-      // reserve space explicitly instead of using triplets to make sure we are
-      // independent of m
-      A.reserve(k_As);
-      B.reserve(k_Bs);
+      std::vector<Eigen::Triplet<T>> triplets_A;
       for(size_t j = 0; j < indices_A.size(); j++) {
         for(size_t i = 0; i < A.rows(); i++) {
-          A.insert(i, indices_A[j]) = dist(prg);
+          triplets_A.push_back(Eigen::Triplet<T>(i, indices_A[j], dist(prg)));
         }
       }
+      A.setFromTriplets(triplets_A.begin(), triplets_A.end());
+      auto indices_B =  reservoir_sampling(prg, k_B, m);
+      std::vector<Eigen::Triplet<T>> triplets_B;
       for(size_t i = 0; i < indices_B.size(); i++) {
         for(size_t j = 0; j < B.cols(); j++) {
-          B.insert(indices_B[i], j) = dist(prg);
+          triplets_B.push_back(Eigen::Triplet<T>(indices_B[i], j, dist(prg)));
         }
       }
+      B.setFromTriplets(triplets_B.begin(), triplets_B.end());
 
       for(auto type : conf.pir_types) {
         try {
