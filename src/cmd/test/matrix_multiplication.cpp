@@ -38,8 +38,8 @@ protected:
       BOOST_THROW_EXCEPTION(po::error("'statistical_security' must be positive"));
     }
     for(auto& pir_type : pir_types) {
-      if(pir_type != "poly" && pir_type != "fss" && pir_type != "fss_cprg" && pir_type != "scs") {
-      BOOST_THROW_EXCEPTION(po::error("'pir_type' must be either `poly`, `scs`, `fss` or `fss_cprg`"));
+      if(pir_type != "dense" && pir_type != "poly" && pir_type != "fss" && pir_type != "fss_cprg" && pir_type != "scs") {
+      BOOST_THROW_EXCEPTION(po::error("'pir_type' must be either `dense`, `poly`, `scs`, `fss` or `fss_cprg`"));
       }
     }
     mpc_config::validate();
@@ -62,7 +62,7 @@ public:
       ("nonzero_cols_server,k_A", po::value(&nonzero_cols_server)->required(), "Number of non-zero columns in the server's matrix A")
       ("nonzero_rows_client,k_B", po::value(&nonzero_rows_client)->required(), "Number of non-zero rows in the client's B")
       ("statistical_security,s", po::value(&statistical_security)->default_value(40), "Statistical security parameter; used only for pir_type=poly")
-      ("pir_type", po::value(&pir_types)->composing(), "PIR type: poly | fss | scs; can be passed multiple times");
+      ("pir_type", po::value(&pir_types)->composing(), "PIR type: dense | poly | fss | scs; can be passed multiple times");
     set_default_filename("config/test/matrix_multiplication.ini");
   }
 };
@@ -113,48 +113,6 @@ int main(int argc, const char *argv[]) {
     }
     B.setFromTriplets(triplets_B.begin(), triplets_B.end());
 
-    // std::cout << "Running dense matrix multiplication\n";
-    // try {
-    //     fake_triple_provider<T> triples(chunk_size, m, n, p.get_id());
-    //     channel.sync();
-    //     benchmark([&]{
-    //       triples.precompute(l / chunk_size);
-    //     }, "Fake Triple Generation");
-    //
-    //     dense_matrix C;
-    //     channel.sync();
-    //     benchmark([&]{
-    //       C = matrix_multiplication(dense_matrix(A), dense_matrix(B), channel,
-    //         p.get_id(), triples, chunk_size);
-    //     }, "Dense matrix multiplication");
-    //
-    //     // exchange shares for checking result
-    //     std::cout << "Verifying\n";
-    //     dense_matrix C2;
-    //     channel.send_recv(C, C2);
-    //     if(p.get_id() == 0) {
-    //         channel.send_recv(A, B);
-    //     } else {
-    //         channel.send_recv(B, A);
-    //     }
-    //
-    //     // verify result
-    //     C += C2;
-    //     C2 = A * B;
-    //     for(size_t i = 0; i < C.rows(); i++) {
-    //         for(size_t j = 0; j < C.cols(); j++) {
-    //             if(C(i, j) != C2(i, j)) {
-    //                 std::cerr << "Verification failed at index (" << i << ", " << j
-    //                           << "). Expected " << C2(i, j) << ", got " << C(i, j) <<"\n";
-    //             }
-    //         }
-    //     }
-    //     std::cout << "Verification finished\n";
-    // } catch(boost::exception &ex) {
-    //     std::cerr << boost::diagnostic_information(ex);
-    //     return 1;
-    // }
-
     std::map<std::string, std::shared_ptr<pir_protocol<size_t, size_t>>> protos {
       {"poly", std::make_shared<pir_protocol_poly<size_t, size_t>>(channel, conf.statistical_security, true)},
       {"scs", std::make_shared<pir_protocol_scs<size_t, size_t>>(channel, true)},
@@ -162,20 +120,34 @@ int main(int argc, const char *argv[]) {
       {"fss", std::make_shared<pir_protocol_fss<size_t, size_t>>(channel)},
     };
     for(auto type : conf.pir_types) {
-      std::cout << "Running sparse matrix multiplication (" << type << ")\n";
+      std::cout << "Running matrix multiplication (" << type << ")\n";
       try {
-          fake_triple_provider<T> triples(chunk_size, k_A + k_B, n, p.get_id());
-          channel.sync();
-          benchmark([&]{
-            triples.precompute(l / chunk_size);
-          }, "Fake Triple Generation");
-
           dense_matrix C;
-          channel.sync();
-          benchmark([&]{
-            C = matrix_multiplication(A, B, *protos[type],
-              channel, p.get_id(), triples, chunk_size, k_A, k_B);
-          }, "Sparse matrix multiplication");
+          if(type == "dense") {
+              fake_triple_provider<T> triples(chunk_size, m, n, p.get_id());
+              channel.sync();
+              benchmark([&]{
+                triples.precompute(l / chunk_size);
+              }, "Fake Triple Generation");
+
+              channel.sync();
+              benchmark([&]{
+                C = matrix_multiplication(dense_matrix(A), dense_matrix(B), channel,
+                  p.get_id(), triples, chunk_size);
+              }, "Dense matrix multiplication");
+          } else {
+              fake_triple_provider<T> triples(chunk_size, k_A + k_B, n, p.get_id());
+              channel.sync();
+              benchmark([&]{
+                triples.precompute(l / chunk_size);
+              }, "Fake Triple Generation");
+
+              channel.sync();
+              benchmark([&]{
+                C = matrix_multiplication(A, B, *protos[type],
+                  channel, p.get_id(), triples, chunk_size, k_A, k_B);
+              }, "Sparse matrix multiplication");
+          }
 
           // exchange shares for checking result
           std::cout << "Verifying\n";
