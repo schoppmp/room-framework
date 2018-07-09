@@ -118,8 +118,8 @@ int main(int argc, const char *argv[]) {
       size_t k_A = get_ceil(conf.nonzero_cols_server, experiment);
       size_t k_B = get_ceil(conf.nonzero_rows_client, experiment);
       auto& type = get_ceil(conf.pir_types, experiment);
-      std::cout << "l = " << l << "\nn = " << n << "\nk_A = " << k_A << "\nk_B = "
-        << k_B << "\npir_type = " << type << "\n";
+      std::cout << "l = " << l << "\nm = " << m << "\nn = " << n << "\nk_A = "
+        << k_A << "\nk_B = " << k_B << "\npir_type = " << type << "\n";
       ssize_t chunk_size = l;
       Eigen::SparseMatrix<T, Eigen::RowMajor> A(l, m);
       Eigen::SparseMatrix<T, Eigen::ColMajor> B(m, n);
@@ -155,7 +155,7 @@ int main(int argc, const char *argv[]) {
           benchmark([&]{
             C = matrix_multiplication(dense_matrix(A), dense_matrix(B), channel,
               p.get_id(), triples, chunk_size);
-          }, "Dense matrix multiplication");
+          }, "Total");
         } else {
           fake_triple_provider<T> triples(chunk_size, k_A + k_B, n, p.get_id());
           channel.sync();
@@ -166,8 +166,8 @@ int main(int argc, const char *argv[]) {
           channel.sync();
           benchmark([&]{
             C = matrix_multiplication(A, B, *protos[type],
-              channel, p.get_id(), triples, chunk_size, k_A, k_B);
-          }, "Sparse matrix multiplication");
+              channel, p.get_id(), triples, chunk_size, k_A, k_B, true);
+          }, "Total");
         }
 
         // exchange shares for checking result
