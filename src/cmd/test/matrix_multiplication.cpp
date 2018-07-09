@@ -59,8 +59,8 @@ public:
       ("rows_server,l", po::value(&rows_server)->required(), "Number of rows in the server's matrix")
       ("inner_dim,m", po::value(&inner_dim)->required(), "Number of columns in A and number of rows in B")
       ("cols_client,n", po::value(&cols_client)->required(), "Number of columns in the client's matrix")
-      ("nonzero_cols_server,k_A", po::value(&nonzero_cols_server)->required(), "Number of non-zero columns in the server's matrix A")
-      ("nonzero_rows_client,k_B", po::value(&nonzero_rows_client)->required(), "Number of non-zero rows in the client's B")
+      ("nonzero_cols_server,a", po::value(&nonzero_cols_server)->required(), "Number of non-zero columns in the server's matrix A")
+      ("nonzero_rows_client,b", po::value(&nonzero_rows_client)->required(), "Number of non-zero rows in the client's B")
       ("statistical_security,s", po::value(&statistical_security)->default_value(40), "Statistical security parameter; used only for pir_type=poly")
       ("pir_type", po::value(&pir_types)->composing(), "PIR type: dense | poly | fss | scs; can be passed multiple times");
     set_default_filename("config/test/matrix_multiplication.ini");
