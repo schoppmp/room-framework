@@ -3,25 +3,24 @@ FROM base/devel as build
 # install dependencies in build container
 RUN pacman --noconfirm -Syu \
   ocaml ocaml-findlib opam \
-  ntl boost boost-libs cmake
+  ntl boost boost-libs cmake eigen
 RUN opam init -y; \
   opam switch -y 4.06.0; \
   eval `opam config env`; \
   opam install -y camlp4 ocamlfind ocamlbuild batteries;
-RUN pacman --noconfirm -Syu eigen
 
 # (re-)build library dependencies
 WORKDIR /app
 COPY lib /app/lib
 COPY Makefile /app/Makefile
 RUN eval `opam config env`; \
-  make cleanall; \
+  make -C lib clean; \
   make libs
-
 
 # build binaries
 COPY src /app/src
 RUN eval `opam config env`; \
+  make clean; \
   make
 
 # copy dependencies
@@ -33,13 +32,14 @@ RUN mkdir /deps; \
   done
 
 # copy everything into minimal image
-FROM gcr.io/distroless/base
+FROM base/archlinux
 # debug
 #FROM base/devel
 COPY --from=build /app/bin /bin
 COPY --from=build /deps /deps
 
 COPY config config
+COPY benchmarks /benchmarks
 
 # let the minimal image find libraries in the correct order
 ENV LD_LIBRARY_PATH=/lib/x86_64-linux-gnu/:/deps
