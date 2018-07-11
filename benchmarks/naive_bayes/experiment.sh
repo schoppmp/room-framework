@@ -6,7 +6,7 @@
 # 'Languages, ngrams=5': (272796.,0.0052),
 
 config=$(mktemp)
-for dataset in 1124247,124 101531,101 1017,29 272796,1418; do
+for dataset in 124247,124 101531,101 1017,29 272796,1418; do
   d=$(echo $dataset | cut -d, -f1)
   s=$(echo $dataset | cut -d, -f2)
   for type in poly scs fss_cprg; do
