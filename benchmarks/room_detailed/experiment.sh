@@ -13,14 +13,6 @@ for n in 500 5000 50000; do
 done
 cat >> $config << EOF
 statistical_security = 40
-
-[server]
-host=localhost
-port=12347
-
-[server]
-host=localhost
-port=12357
 EOF
 
 DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
