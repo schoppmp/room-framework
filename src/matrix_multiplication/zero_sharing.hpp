@@ -28,8 +28,70 @@ std::vector<T> zero_sharing_server(
   NTL::ZZ modulus(modulus((NTL::ZZ(1) << 128) - 159));
   NTL::ZZ_pPush push(modulus);
   gcryDefaultLibInit();
+  auto cipher = GCRY_CIPHER_AES128;
+  gcry_cipher_hd_t handle;
   dhRandomInit();
+  const size_t block_size = 16;
+  const size_t element_size = sizeof(T) + block_size;
+  // set up OT arguments
+  bool *choices = calloc(n, sizeof(bool));
+  for(auto i : I) {
+    choices[i] = 1;
+  }
+  std::vector<uint8_t> ot_result(element_size * n);
+  // receive key shares at positions in I, result shares at positions not in I
+  ProtocolDesc pd;
+  if(chan.connect_to_oblivc(pd) == -1) {
+    BOOST_THROW_EXCEPTION(std::runtime_error("run_server: connection failed"));
+  }
+  setCurrentParty(&pd, 1);
+  auto ot = honestOTExtRecverNew(&pd, 0);
+  honestOTExtRecv1Of2(ot, ot_result.data(), choices, n, element_size);
+  honestOTExtRecverRelease(ot);
+  // unpack
+  std::vector<T> s(n);
+  std::vector<T> t(l); // encrypted shares corresponding to indices in I
+  NTL::Vec<NTL::ZZ_p> share_K(l);
+  NTL::Vec<NTL::ZZ_p> interpolate_pos(l);
+  size_t num_shares = 0;
+  for(size_t i = 0; i < n; i++) {
+    if(choices[i]) {
+      deserialize_le(&t[num_shares], &ot_result[i * element_size], 1);
+      NTL::conv(&share_K[num_shares], NTL::ZZFromBytes(
+        &ot_result[i * element_size + sizeof(T)], block_size));
+      NTL::conv(&interpolate_pos[num_shares], i+1);
+    } else {
+      deserialize_le(&s[i], &ot_result[i * element_size], 1);
+    }
+  }
+  // combine shares to get Key
+  NTL::ZZ_pX poly;
+  poly_interpolate_zp_recursive(l - 1, interpolate_pos.data(), share_K.data(),
+    poly);
+  std::vector<uint8_t> K(block_size);
+  NTL::BytesFromZZ(K.data(), NTL::conv<NTL::ZZ>(NTL::ConstTerm(poly)), block_size);
+  // decrypt shares not in I
+  gcry_cipher_open(&handle, cipher, GCRY_CIPHER_MODE_CTR, 0);
+  gcry_cipher_setkey(handle, K.data(), block_size);
+  std::vector<T> s(n);
+  for(size_t i = 0; i < n; i++) {
+    if(choices[i]) {
+      continue;
+    }
+    uint8_t buf[block_size] = {0};
+    uint8_t ctr[block_size] = {0};
+    serialize_le(&ctr, i, 1);
+    gcry_cipher_setctr(handle, ctr, block_size);
+    gcry_cipher_encrypt(handle, buf, block_size, nullptr, 0);
+    T r;
+    deserialize_le(&r, buf, 1);
+    s[i] ^= r;
+  }
+  gcry_cipher_close(handle);
 
+  // TODO: decrypt shares in yao protocol
+  free(choices);
+  cleanupProtocol(&pd);
 }
 
 template<typename T>
@@ -76,6 +138,7 @@ std::vector<T> zero_sharing_client(
     deserialize_le(&t[i], buf, 1);
     t[i] ^= s[i];
   }
+  gcry_cipher_close(handle);
   // secret-share K
   NTL::ZZ modulus(modulus((NTL::ZZ(1) << 128) - 159));
   NTL::ZZ_pPush push(modulus);
@@ -92,14 +155,14 @@ std::vector<T> zero_sharing_client(
   NTL::SetCoeff(poly, 0, K_coeff);
   poly_evaluate_zp_recursive(n - 1, poly, eval_pos, share_K);
   // set up OT arguments (we are the sender)
-  size_t element_size = sizeof(T) + block_size; // one element of t + one share of K
-  std::vector<uint8_t> opt0(element_size * n);
-  std::vector<uint8_t> opt1(element_size * n);
+  const size_t element_size = sizeof(T) + block_size; // one element of t + one share of K
+  std::vector<uint8_t> opt0(element_size * n, 0);
+  std::vector<uint8_t> opt1(element_size * n, 0);
   for(size_t i = 0; i < n; i++) {
-    serialize_le(&opt0[i * element_size], &s[i], 1);
+    serialize_le(&opt0[i * element_size], &r[i], 1);
     serialize_le(&opt1[i * element_size], &t[i], 1);
     NTL::BytesFromZZ(&opt1[i * element_size + sizeof(T)],
-      NTL::conv<NTL::ZZ>(share_K[i]), blocK_size);
+      NTL::conv<NTL::ZZ>(share_K[i]), block_size);
   }
   // run OT extension
   dhRandomInit();
@@ -108,7 +171,10 @@ std::vector<T> zero_sharing_client(
     BOOST_THROW_EXCEPTION(std::runtime_error("run_server: connection failed"));
   }
   setCurrentParty(&pd, 2);
-  auto s = honestOTExtSenderNew(&pd, 0);
-  honestOTExtSend1Of2(s, opt0, opt1, n, element_size);
+  auto ot = honestOTExtSenderNew(&pd, 0);
+  honestOTExtSend1Of2(ot, opt0, opt1, n, element_size);
+  honestOTExtSenderRelease(ot);
   // TODO: run yao protocol to generate server's shares
+
+  cleanupProtocol(&pd);
 }
