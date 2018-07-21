@@ -1,12 +1,10 @@
 #pragma once
-#include <boost/optional.hpp>
-
+#include <Eigen/Dense>
 #include "mpc-utils/comm_channel.hpp"
 #include "mpc-utils/boost_serialization/eigen.hpp"
 #include "util/blocking_queue.hpp"
 #include "util/randomize_matrix.hpp"
 #include "pir_protocol.hpp"
-
 /**
  * error_info structs for reporting input dimension in exceptions
  */

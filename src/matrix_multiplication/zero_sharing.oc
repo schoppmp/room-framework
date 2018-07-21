@@ -1,4 +1,5 @@
 #include <obliv.oh>
+#include "zero_sharing.h"
 
 void zero_sharing_oblivc(void *vargs) {
   zero_sharing_oblivc_args *args = vargs;
