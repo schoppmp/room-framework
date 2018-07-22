@@ -23,34 +23,52 @@ protected:
     if(statistical_security <= 0) {
       BOOST_THROW_EXCEPTION(po::error("'statistical_security' must be positive"));
     }
+    if(rows_server.size() == 0) {
+      BOOST_THROW_EXCEPTION(po::error("'rows_server' must be passed at least once"));
+    }
     for(auto l : rows_server) {
       if(l <= 0) {
         BOOST_THROW_EXCEPTION(po::error("'rows_server' must be positive"));
       }
+    }
+    if(inner_dim.size() == 0) {
+      BOOST_THROW_EXCEPTION(po::error("'inner_dim' must be passed at least once"));
     }
     for(auto m : inner_dim) {
       if(m <= 0) {
         BOOST_THROW_EXCEPTION(po::error("'inner_dim' must be positive"));
       }
     }
+    if(cols_client.size() == 0) {
+      BOOST_THROW_EXCEPTION(po::error("'cols_client' must be passed at least once"));
+    }
     for(auto n : cols_client) {
       if(n <= 0) {
         BOOST_THROW_EXCEPTION(po::error("'cols_client' must be positive"));
       }
+    }
+    if(nonzero_cols_server.size() == 0) {
+      BOOST_THROW_EXCEPTION(po::error("'nonzero_cols_server' must be passed at least once"));
     }
     for(auto k_A : nonzero_cols_server) {
       if(k_A <= 0) {
         BOOST_THROW_EXCEPTION(po::error("'nonzero_cols_server' must be positive"));
       }
     }
+    if(nonzero_rows_client.size() == 0) {
+      BOOST_THROW_EXCEPTION(po::error("'nonzero_rows_client' must be passed at least once"));
+    }
     for(auto k_B : nonzero_rows_client) {
       if(k_B <= 0) {
         BOOST_THROW_EXCEPTION(po::error("'nonzero_rows_client' must be positive"));
       }
     }
+    if(pir_types.size() == 0) {
+      BOOST_THROW_EXCEPTION(po::error("'pir_type' must be passed at least once"));
+    }
     for(auto& pir_type : pir_types) {
       if(pir_type != "dense" && pir_type != "poly" && pir_type != "fss" && pir_type != "fss_cprg" && pir_type != "scs") {
-      BOOST_THROW_EXCEPTION(po::error("'pir_type' must be either `dense`, `poly`, `scs`, `fss` or `fss_cprg`"));
+        BOOST_THROW_EXCEPTION(po::error("'pir_type' must be either `dense`, `poly`, `scs`, `fss` or `fss_cprg`"));
       }
     }
     mpc_config::validate();
