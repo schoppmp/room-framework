@@ -83,11 +83,11 @@ matrix_multiplication( // TODO: somehow derive row-/column sparsity
       }
     }
     k = k_A + k_B;
+    double start = 0;
     std::vector<std::pair<size_t, size_t>> perm(inner_indices.size());
     // generate correlated permutations; party with the higher number of indices
     // acts as the server of the ROOM protocol
     if((k_A > k_B) == (role == 0)) {
-      double start = 0;
       if(print_times) {
         start = timestamp();
       }
@@ -100,56 +100,57 @@ matrix_multiplication( // TODO: somehow derive row-/column sparsity
       // run ROOM protocol to give client their permutation
       prot.run_server(perm_result.first, perm_result.second);
       boost::copy(perm_result.first, perm.begin());
-      if(print_times) {
-        double end = timestamp();
-        std::cout << "reduction_time: " << end - start << " s\n";
-      }
     } else {
-      double start = 0;
       if(print_times) {
         start = timestamp();
       }
       std::vector<size_t> perm_values(role == 0 ? k_A : k_B);
       prot.run_client(inner_indices, perm_values);
-      boost::copy(combine_pair(inner_indices, perm_values), perm.begin());
-      if(print_times) {
-        double end = timestamp();
-        std::cout << "reduction_time: " << end - start << " s\n";
+      for(size_t i = 0; i < perm_values.size(); i++) {
+        perm.push_back(std::make_pair(inner_indices[i], perm_values[i]));
       }
+    }
+    if(print_times) {
+      double end = timestamp();
+      std::cout << "room_time: " << end - start << " s\n";
+      start = end;
     }
     // apply permutation and multiply
     if(role == 0) {
-      Eigen::SparseMatrix<T, Eigen::ColMajor> perm_A(A.cols(), k);
-      // generate local permutation matrix
-      std::vector<size_t> sizes(k, 1);
-      perm_A.reserve(sizes);
+      Eigen::Matrix<T, Derived_A::RowsAtCompileTime, Derived_A::ColsAtCompileTime>
+        A_permuted(A.rows(), k);
+      Eigen::SparseMatrix<T, Eigen::ColMajor> A_cols = A;
       for(auto pair : perm) {
-        perm_A.insert(pair.first, pair.second) = 1;
+        A_permuted.col(pair.second) = A_cols.col(pair.first);
+      }
+
+      if(print_times) {
+        double end = timestamp();
+        std::cout << "permutation_time: " << end - start << " s\n";
+        start = end;
       }
       B.resize(k, B_in.cols());
-      double start = 0;
-      if(print_times) {
-        start = timestamp();
-      }
-      ret = matrix_multiplication(A * perm_A, B, channel, role, triples, chunk_size_in);
+      ret = matrix_multiplication(A_permuted, B, channel, role, triples, chunk_size_in);
       if(print_times) {
         double end = timestamp();
         std::cout << "dense_time: " << end - start << " s\n";
       }
     } else {
-      Eigen::SparseMatrix<T, Eigen::RowMajor> perm_B(k, B.rows());
-      // generate local permutation matrix
-      std::vector<size_t> sizes(k, 1);
-      perm_B.reserve(sizes);
-      for(auto pair: perm) {
-        perm_B.insert(pair.second, pair.first) = 1;
+      Eigen::Matrix<T, Derived_B::RowsAtCompileTime, Derived_B::ColsAtCompileTime>
+        B_permuted(k, B.cols());
+      // copy into row major for faster row access
+      Eigen::SparseMatrix<T, Eigen::RowMajor> B_rows = B;
+      for(auto pair : perm) {
+        B_permuted.row(pair.second) = B_rows.row(pair.first);
+      }
+
+      if(print_times) {
+        double end = timestamp();
+        std::cout << "permutation_time: " << end - start << " s\n";
+        start = end;
       }
       A.resize(A_in.rows(), k);
-      double start = 0;
-      if(print_times) {
-        start = timestamp();
-      }
-      ret = matrix_multiplication(A, perm_B * B, channel, role, triples, chunk_size_in);
+      ret = matrix_multiplication(A, B_permuted, channel, role, triples, chunk_size_in);
       if(print_times) {
         double end = timestamp();
         std::cout << "dense_time: " << end - start << " s\n";
