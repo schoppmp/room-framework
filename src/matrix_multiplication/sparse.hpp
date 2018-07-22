@@ -107,7 +107,7 @@ matrix_multiplication( // TODO: somehow derive row-/column sparsity
       std::vector<size_t> perm_values(role == 0 ? k_A : k_B);
       prot.run_client(inner_indices, perm_values);
       for(size_t i = 0; i < perm_values.size(); i++) {
-        perm.push_back(std::make_pair(inner_indices[i], perm_values[i]));
+        perm[i] = std::make_pair(inner_indices[i], perm_values[i]);
       }
     }
     if(print_times) {
@@ -119,6 +119,7 @@ matrix_multiplication( // TODO: somehow derive row-/column sparsity
     if(role == 0) {
       Eigen::Matrix<T, Derived_A::RowsAtCompileTime, Derived_A::ColsAtCompileTime>
         A_permuted(A.rows(), k);
+      A_permuted.setZero();
       Eigen::SparseMatrix<T, Eigen::ColMajor> A_cols = A;
       for(auto pair : perm) {
         A_permuted.col(pair.second) = A_cols.col(pair.first);
@@ -138,6 +139,7 @@ matrix_multiplication( // TODO: somehow derive row-/column sparsity
     } else {
       Eigen::Matrix<T, Derived_B::RowsAtCompileTime, Derived_B::ColsAtCompileTime>
         B_permuted(k, B.cols());
+      B_permuted.setZero();
       // copy into row major for faster row access
       Eigen::SparseMatrix<T, Eigen::RowMajor> B_rows = B;
       for(auto pair : perm) {
