@@ -2,9 +2,9 @@
 
 config=$(mktemp)
 
-for l in 1 10 100 1000 10000; do
-  for k_A in 1 10 100 1000 10000 100000; do
-    for k_B in 1 10 100 1000 10000 100000; do
+for l in 1 5 10 50 100 500 1000 5000; do
+  for k_A in 1 5 10 50 100 500 1000 5000 10000 50000; do
+    for k_B in 1 5 10 50 100 500 1000 5000 10000 50000; do
       for pir_type in scs poly; do
         echo "rows_server = $l" >> $config
         echo "nonzero_cols_server = $k_A" >> $config
