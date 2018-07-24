@@ -81,6 +81,7 @@ public:
   std::vector<ssize_t> nonzero_rows_client;
   std::vector<std::string> pir_types;
   int16_t statistical_security;
+  bool skip_verification;
 
   matrix_multiplication_config() : mpc_config() {
     namespace po = boost::program_options;
@@ -91,7 +92,8 @@ public:
       ("nonzero_cols_server,a", po::value(&nonzero_cols_server)->composing(), "Number of non-zero columns in the server's matrix A; can be passed multiple times")
       ("nonzero_rows_client,b", po::value(&nonzero_rows_client)->composing(), "Number of non-zero rows in the client's B; can be passed multiple times")
       ("pir_type", po::value(&pir_types)->composing(), "PIR type: dense | poly | fss | scs; can be passed multiple times")
-      ("statistical_security,s", po::value(&statistical_security)->default_value(40), "Statistical security parameter; used only for pir_type=poly");
+      ("statistical_security,s", po::value(&statistical_security)->default_value(40), "Statistical security parameter; used only for pir_type=poly")
+      ("skip_verification", po::bool_switch(&skip_verification)->default_value(false), "Skip verification");
     set_default_filename("config/benchmark/matrix_multiplication.ini");
   }
 };
@@ -200,26 +202,30 @@ int main(int argc, const char *argv[]) {
         }
 
         // exchange shares for checking result
-        std::cout << "Verifying\n";
-        channel.send_recv(C, C2);
-        if(p.get_id() == 0) {
-            channel.send_recv(A, B);
-        } else {
-            channel.send_recv(B, A);
-        }
+        if(!conf.skip_verification) {
+          std::cout << "Verifying\n";
+          channel.send_recv(C, C2);
+          if(p.get_id() == 0) {
+              channel.send_recv(A, B);
+          } else {
+              channel.send_recv(B, A);
+          }
 
-        // verify result
-        C += C2;
-        C2 = A * B;
-        for(size_t i = 0; i < C.rows(); i++) {
-          for(size_t j = 0; j < C.cols(); j++) {
-            if(C(i, j) != C2(i, j)) {
-              std::cerr << "Verification failed at index (" << i << ", " << j
-                        << "). Expected " << C2(i, j) << ", got " << C(i, j) <<"\n";
+          // verify result
+          C += C2;
+          C2 = A * B;
+          for(size_t i = 0; i < C.rows(); i++) {
+            for(size_t j = 0; j < C.cols(); j++) {
+              if(C(i, j) != C2(i, j)) {
+                std::cerr << "Verification failed at index (" << i << ", " << j
+                          << "). Expected " << C2(i, j) << ", got " << C(i, j) <<"\n";
+              }
             }
           }
+          std::cout << "Verification finished\n";
+        } else {
+          std::cout << "Skipping verification\n";
         }
-        std::cout << "Verification finished\n";
       } catch(boost::exception &ex) {
         std::cerr << boost::diagnostic_information(ex);
         return 1;
