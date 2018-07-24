@@ -37,7 +37,7 @@ public:
 };
 
 int main(int argc, const char *argv[]) {
-  using T = uint32_t;
+  using T = uint64_t;
   // parse config
   zero_sharing_config conf;
   try {
@@ -71,7 +71,7 @@ int main(int argc, const char *argv[]) {
   channel.send_recv(result, result2);
   std::vector<T> wanted(n, 0);
   for(size_t i = 0; i < k; i++) {
-    wanted[I[i]] = v[i];
+    wanted[I[i]] = v[i] + v2[i];
   }
   for(size_t i = 0; i < n; i++) {
     T got = result[i] + result2[i];

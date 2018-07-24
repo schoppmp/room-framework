@@ -10,6 +10,7 @@ extern "C" {
 #include <random>
 #include <gcrypt.h>
 #include <boost/exception/all.hpp>
+#include <boost/range/algorithm/sort.hpp>
 #include <boost/serialization/vector.hpp>
 #include <NTL/vector.h>
 #include <NTL/ZZ.h>
@@ -35,6 +36,13 @@ std::vector<T> zero_sharing_server(
   if(I.size() != v.size()) {
     BOOST_THROW_EXCEPTION(std::runtime_error("v and I need to have the same length"));
   }
+  // sort I but remember original positions
+  std::vector<std::pair<size_t, size_t>> I_order(l);
+  for(size_t i = 0; i < l; i++) {
+    I_order[i] = std::make_pair(I[i], i);
+  }
+  boost::sort(I_order);
+  // set up NTL and gcrypt
   NTL::ZZ modulus((NTL::ZZ(1) << 128) - 159);
   NTL::ZZ_pPush push(modulus);
   gcryDefaultLibInit();
@@ -69,7 +77,7 @@ std::vector<T> zero_sharing_server(
   size_t num_shares = 0;
   for(size_t i = 0; i < n; i++) {
     if(choices[i]) {
-      deserialize_le(&t[num_shares], &ot_result[i * element_size], 1);
+      deserialize_le(&t[I_order[num_shares].second], &ot_result[i * element_size], 1);
       NTL::conv(share_K[num_shares], NTL::ZZFromBytes(
         &ot_result[i * element_size + sizeof(T)], block_size));
       NTL::conv(interpolate_pos[num_shares], i+1);
@@ -101,18 +109,37 @@ std::vector<T> zero_sharing_server(
     gcry_cipher_encrypt(handle, buf, block_size, nullptr, 0);
     T r;
     deserialize_le(&r, buf, 1);
-    s[i] ^= r;
+    s[i] = -(s[i] ^ r);
   }
   gcry_cipher_close(handle);
 
-  // TODO: decrypt shares in yao protocol
-  zero_sharing_oblivc_args args;
+  // compute shares of nonzero values in yao protocol
+  std::vector<uint8_t> indexes_server_bytes(sizeof(size_t) * l);
+  std::vector<uint8_t> ciphertexts_server_bytes(sizeof(T) * l);
+  std::vector<uint8_t> values_server_bytes(sizeof(T) * l);
+  std::vector<uint8_t> result_server_bytes(sizeof(T) * l);
+  serialize_le(indexes_server_bytes.begin(), I.begin(), l);
+  serialize_le(ciphertexts_server_bytes.begin(), t.begin(), l);
+  serialize_le(values_server_bytes.begin(), v.begin(), l);
+  zero_sharing_oblivc_args args = {
+    .element_size = sizeof(T),
+    .num_ciphertexts = l,
+    .indexes_server = indexes_server_bytes.data(),
+    .values = values_server_bytes.data(),
+    .ciphertexts_server = ciphertexts_server_bytes.data(),
+    .key_client = nullptr,
+    .result_server = result_server_bytes.data(),
+  };
   execYaoProtocol(&pd, zero_sharing_oblivc, &args);
-  auto& ret = s;
+
+  // copy computed shares to their indexes
+  for(size_t i = 0; i < l; i++) {
+    deserialize_le(&s[I[i]], &result_server_bytes[i * sizeof(T)], 1);
+  }
 
   free(choices);
   cleanupProtocol(&pd);
-  return ret;
+  return s;
 }
 
 template<typename T>
@@ -201,8 +228,18 @@ std::vector<T> zero_sharing_client(
   honestOTExtSend1Of2(ot, reinterpret_cast<char*>(opt0.data()),
     reinterpret_cast<char*>(opt1.data()), n, element_size);
   honestOTExtSenderRelease(ot);
-  // TODO: run yao protocol to generate server's shares
-  zero_sharing_oblivc_args args;
+  // run yao protocol to generate server's shares
+  std::vector<uint8_t> values_client_bytes(sizeof(T) * l);
+  serialize_le(values_client_bytes.begin(), v.begin(), l);
+  zero_sharing_oblivc_args args = {
+    .element_size = sizeof(T),
+    .num_ciphertexts = l,
+    .indexes_server = nullptr,
+    .values = values_client_bytes.data(),
+    .ciphertexts_server = nullptr,
+    .key_client = K2.data(),
+    .result_server = nullptr,
+  };
   execYaoProtocol(&pd, zero_sharing_oblivc, &args);
 
   cleanupProtocol(&pd);
