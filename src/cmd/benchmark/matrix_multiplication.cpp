@@ -139,6 +139,17 @@ int main(int argc, const char *argv[]) {
       std::cout << "l = " << l << "\nm = " << m << "\nn = " << n << "\nk_A = "
         << k_A << "\nk_B = " << k_B << "\npir_type = " << type << "\n";
       ssize_t chunk_size = l;
+      if(l > 4096) {
+        // avoid memory errors
+        chunk_size = 2048;
+        // this will affect running times a little
+        // TODO: make triplegenerator more general to support
+        // triples for different chunk sizes
+        if(l % chunk_size) {
+          l = l + chunk_size - (l % chunk_size);
+          std::cout << "Adjusting l to " << l << "\n";
+        }
+      }
       Eigen::SparseMatrix<T, Eigen::RowMajor> A(l, m);
       Eigen::SparseMatrix<T, Eigen::ColMajor> B(m, n);
       std::cout << "Generating random data\n";
