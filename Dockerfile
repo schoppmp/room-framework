@@ -14,7 +14,7 @@ WORKDIR /app
 COPY lib /app/lib
 COPY Makefile /app/Makefile
 RUN eval `opam config env`; \
-  make -C lib clean; \
+  make cleanall; \
   make libs
 
 # build binaries
