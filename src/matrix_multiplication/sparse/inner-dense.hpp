@@ -2,7 +2,7 @@
 #include <unordered_set>
 #include <boost/range/algorithm.hpp>
 #include <Eigen/Sparse>
-#include "dense.hpp"
+#include "../dense.hpp"
 #include "pir_protocol.hpp"
 #include "util/time.h"
 extern "C" {

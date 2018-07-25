@@ -1,5 +1,5 @@
 #include "matrix_multiplication/dense.hpp"
-#include "matrix_multiplication/sparse.hpp"
+#include "matrix_multiplication/sparse/inner-inner.hpp"
 #include "mpc-utils/mpc_config.hpp"
 #include "mpc-utils/party.hpp"
 #include "util/randomize_matrix.hpp"
@@ -10,6 +10,7 @@
 #include "pir_protocol_scs.hpp"
 #include "pir_protocol_fss.hpp"
 #include "pir_protocol_poly.hpp"
+#include "pir_protocol_basic.hpp"
 #include <Eigen/Dense>
 #include <Eigen/Sparse>
 
@@ -122,6 +123,7 @@ int main(int argc, const char *argv[]) {
   auto channel = p.connect_to(1 - p.get_id());
 
   std::map<std::string, std::shared_ptr<pir_protocol<size_t, size_t>>> protos {
+    {"basic", std::make_shared<pir_protocol_basic<size_t, size_t>>(channel, true)},
     {"poly", std::make_shared<pir_protocol_poly<size_t, size_t>>(channel, conf.statistical_security, true)},
     {"scs", std::make_shared<pir_protocol_scs<size_t, size_t>>(channel, true)},
     {"fss_cprg", std::make_shared<pir_protocol_fss<size_t, size_t>>(channel, true)},

@@ -1,5 +1,5 @@
 #include "matrix_multiplication/dense.hpp"
-#include "matrix_multiplication/sparse.hpp"
+#include "matrix_multiplication/sparse/inner-inner.hpp"
 #include "mpc-utils/mpc_config.hpp"
 #include "mpc-utils/party.hpp"
 #include "util/randomize_matrix.hpp"

@@ -11,6 +11,7 @@
 #include "pir_protocol_poly.hpp"
 #include "pir_protocol_fss.hpp"
 #include "pir_protocol_scs.hpp"
+#include "pir_protocol_basic.hpp"
 #include "util/time.h"
 #include "util/get_ceil.hpp"
 
@@ -96,7 +97,10 @@ int main(int argc, const char **argv) {
       size_t num_elements_client = get_ceil(conf.num_elements_client, experiment);
       auto& pir_type = get_ceil(conf.pir_types, experiment);
       try {
-        if(pir_type == "poly") {
+        if(pir_type == "basic") {
+          proto = std::unique_ptr<pir_protocol<key_type, value_type>>(
+            new pir_protocol_basic<key_type, value_type>(chan, true));
+        } else if(pir_type == "poly") {
           proto = std::unique_ptr<pir_protocol<key_type, value_type>>(
             new pir_protocol_poly<key_type, value_type>(chan, conf.statistical_security, true));
         } else if(pir_type == "fss") {
