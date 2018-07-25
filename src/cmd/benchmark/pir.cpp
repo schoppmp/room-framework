@@ -41,8 +41,14 @@ protected:
       }
     }
     for(auto& pir_type : pir_types) {
-      if(pir_type != "poly" && pir_type != "fss" && pir_type != "fss_cprg" && pir_type != "scs") {
-        BOOST_THROW_EXCEPTION(po::error("'pir_type' must be either `poly`, `scs`, `fss` or `fss_cprg`"));
+      if(
+        pir_type != "basic" &&
+        pir_type != "poly" &&
+        pir_type != "fss" &&
+        pir_type != "fss_cprg" &&
+        pir_type != "scs") {
+        BOOST_THROW_EXCEPTION(po::error("'pir_type' must be either `basic`, "
+          "`poly`, `scs`, `fss` or `fss_cprg`"));
       }
     }
     mpc_config::validate();
@@ -58,7 +64,7 @@ public:
     add_options()
       ("num_elements_server,N", po::value(&num_elements_server)->composing(), "Number of non-zero elements in the server's database; can be passed multiple times")
       ("num_elements_client,n", po::value(&num_elements_client)->composing(), "Number of non-zero elements in the client's database; can be passed multiple times")
-      ("pir_type", po::value(&pir_types)->composing(), "PIR type: poly | fss | fss_cprg | scs; can be passed multiple times")
+      ("pir_type", po::value(&pir_types)->composing(), "PIR type: basic | poly | fss | fss_cprg | scs; can be passed multiple times")
       ("statistical_security,s", po::value(&statistical_security)->default_value(40), "Statistical security parameter");
     set_default_filename("config/benchmark/pir.ini");
   }

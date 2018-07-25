@@ -8,6 +8,7 @@
 #include "pir_protocol.hpp"
 #include "pir_protocol_scs.hpp"
 #include "pir_protocol_fss.hpp"
+#include "pir_protocol_basic.hpp"
 #include "pir_protocol_poly.hpp"
 #include <Eigen/Dense>
 #include <Eigen/Sparse>
@@ -38,8 +39,15 @@ protected:
       BOOST_THROW_EXCEPTION(po::error("'statistical_security' must be positive"));
     }
     for(auto& pir_type : pir_types) {
-      if(pir_type != "dense" && pir_type != "poly" && pir_type != "fss" && pir_type != "fss_cprg" && pir_type != "scs") {
-      BOOST_THROW_EXCEPTION(po::error("'pir_type' must be either `dense`, `poly`, `scs`, `fss` or `fss_cprg`"));
+      if(
+        pir_type != "dense" &&
+        pir_type != "basic" &&
+        pir_type != "poly" &&
+        pir_type != "fss" &&
+        pir_type != "fss_cprg" &&
+        pir_type != "scs") {
+      BOOST_THROW_EXCEPTION(po::error("'pir_type' must be either `dense`, "
+        "`baic`, `poly`, `scs`, `fss` or `fss_cprg`"));
       }
     }
     mpc_config::validate();
@@ -62,7 +70,7 @@ public:
       ("nonzero_cols_server,a", po::value(&nonzero_cols_server)->required(), "Number of non-zero columns in the server's matrix A")
       ("nonzero_rows_client,b", po::value(&nonzero_rows_client)->required(), "Number of non-zero rows in the client's B")
       ("statistical_security,s", po::value(&statistical_security)->default_value(40), "Statistical security parameter; used only for pir_type=poly")
-      ("pir_type", po::value(&pir_types)->composing(), "PIR type: dense | poly | fss | scs; can be passed multiple times");
+      ("pir_type", po::value(&pir_types)->composing(), "PIR type: dense | basic | poly | fss | fss_cprg | scs; can be passed multiple times");
     set_default_filename("config/test/matrix_multiplication.ini");
   }
 };
@@ -114,6 +122,7 @@ int main(int argc, const char *argv[]) {
     B.setFromTriplets(triplets_B.begin(), triplets_B.end());
 
     std::map<std::string, std::shared_ptr<pir_protocol<size_t, size_t>>> protos {
+      {"basic", std::make_shared<pir_protocol_basic<size_t, size_t>>(channel, true)},
       {"poly", std::make_shared<pir_protocol_poly<size_t, size_t>>(channel, conf.statistical_security, true)},
       {"scs", std::make_shared<pir_protocol_scs<size_t, size_t>>(channel, true)},
       {"fss_cprg", std::make_shared<pir_protocol_fss<size_t, size_t>>(channel, true)},

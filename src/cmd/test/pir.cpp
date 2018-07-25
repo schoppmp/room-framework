@@ -11,6 +11,7 @@
 #include "pir_protocol_poly.hpp"
 #include "pir_protocol_fss.hpp"
 #include "pir_protocol_scs.hpp"
+#include "pir_protocol_basic.hpp"
 #include "util/time.h"
 
 
@@ -30,8 +31,15 @@ protected:
     if(statistical_security <= 0) {
       BOOST_THROW_EXCEPTION(po::error("'statistical_security' must be positive"));
     }
-    if(pir_type != "poly" && pir_type != "fss" && pir_type != "fss_cprg" && pir_type != "scs") {
-      BOOST_THROW_EXCEPTION(po::error("'pir_type' must be either `poly`, `scs`, `fss` or `fss_cprg`"));
+    if(
+      pir_type != "basic" &&
+      pir_type != "poly" &&
+      pir_type != "fss" &&
+      pir_type != "fss_cprg" &&
+      pir_type != "scs"
+    ) {
+      BOOST_THROW_EXCEPTION(po::error("'pir_type' must be either `basic`, "
+        "`poly`, `scs`, `fss` or `fss_cprg`"));
     }
     mpc_config::validate();
   }
@@ -47,7 +55,7 @@ public:
       ("num_elements_server,N", po::value(&num_elements_server)->required(), "Number of non-zero elements in the server's database")
       ("num_elements_client,n", po::value(&num_elements_client)->required(), "Number of non-zero elements in the client's database")
       ("statistical_security,s", po::value(&statistical_security)->default_value(40), "Statistical security parameter")
-      ("pir_type", po::value(&pir_type)->required(), "PIR type: poly | fss | scs");
+      ("pir_type", po::value(&pir_type)->required(), "PIR type: basic | poly | fss | fss_cprg | scs");
     set_default_filename("config/test/pir.ini");
   }
 };
@@ -68,7 +76,10 @@ int main(int argc, const char **argv) {
   using value_type = uint32_t;
   try {
     std::unique_ptr<pir_protocol<key_type, value_type>> proto;
-    if(conf.pir_type == "poly") {
+    if(conf.pir_type == "basic") {
+      proto = std::unique_ptr<pir_protocol<key_type, value_type>>(
+        new pir_protocol_basic<key_type, value_type>(chan));
+    } else if(conf.pir_type == "poly") {
       proto = std::unique_ptr<pir_protocol<key_type, value_type>>(
         new pir_protocol_poly<key_type, value_type>(chan, conf.statistical_security));
     } else if(conf.pir_type == "fss") {

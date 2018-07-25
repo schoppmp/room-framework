@@ -67,8 +67,15 @@ protected:
       BOOST_THROW_EXCEPTION(po::error("'pir_type' must be passed at least once"));
     }
     for(auto& pir_type : pir_types) {
-      if(pir_type != "dense" && pir_type != "poly" && pir_type != "fss" && pir_type != "fss_cprg" && pir_type != "scs") {
-        BOOST_THROW_EXCEPTION(po::error("'pir_type' must be either `dense`, `poly`, `scs`, `fss` or `fss_cprg`"));
+      if(
+        pir_type != "dense" &&
+        pir_type != "basic" &&
+        pir_type != "poly" &&
+        pir_type != "fss" &&
+        pir_type != "fss_cprg" &&
+        pir_type != "scs") {
+        BOOST_THROW_EXCEPTION(po::error("'pir_type' must be either `dense`, "
+          "`basic`, `poly`, `scs`, `fss` or `fss_cprg`"));
       }
     }
     mpc_config::validate();
@@ -91,7 +98,7 @@ public:
       ("cols_client,n", po::value(&cols_client)->composing(), "Number of columns in the client's matrix; can be passed multiple times")
       ("nonzero_cols_server,a", po::value(&nonzero_cols_server)->composing(), "Number of non-zero columns in the server's matrix A; can be passed multiple times")
       ("nonzero_rows_client,b", po::value(&nonzero_rows_client)->composing(), "Number of non-zero rows in the client's B; can be passed multiple times")
-      ("pir_type", po::value(&pir_types)->composing(), "PIR type: dense | poly | fss | scs; can be passed multiple times")
+      ("pir_type", po::value(&pir_types)->composing(), "PIR type: dense | basic | poly | fss | fss_cprg | scs; can be passed multiple times")
       ("statistical_security,s", po::value(&statistical_security)->default_value(40), "Statistical security parameter; used only for pir_type=poly")
       ("skip_verification", po::bool_switch(&skip_verification)->default_value(false), "Skip verification");
     set_default_filename("config/benchmark/matrix_multiplication.ini");
