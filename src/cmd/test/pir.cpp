@@ -72,7 +72,7 @@ int main(int argc, const char **argv) {
   party party(conf);
   auto chan = party.connect_to(1 - party.get_id());
 
-  using key_type = uint32_t;
+  using key_type = size_t;
   using value_type = uint32_t;
   try {
     std::unique_ptr<pir_protocol<key_type, value_type>> proto;

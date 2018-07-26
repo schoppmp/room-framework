@@ -1,5 +1,5 @@
 #include "matrix_multiplication/dense.hpp"
-#include "matrix_multiplication/sparse/inner-inner.hpp"
+#include "matrix_multiplication/sparse/cols-rows.hpp"
 #include "mpc-utils/mpc_config.hpp"
 #include "mpc-utils/party.hpp"
 #include "util/randomize_matrix.hpp"
@@ -153,7 +153,7 @@ int main(int argc, const char *argv[]) {
 
               channel.sync();
               benchmark([&]{
-                C = matrix_multiplication(A, B, *protos[type],
+                C = matrix_multiplication_cols_rows(A, B, *protos[type],
                   channel, p.get_id(), triples, chunk_size, k_A, k_B);
               }, "Sparse matrix multiplication");
           }

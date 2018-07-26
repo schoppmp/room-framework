@@ -1,5 +1,6 @@
 #include "matrix_multiplication/dense.hpp"
-#include "matrix_multiplication/sparse/inner-inner.hpp"
+#include "matrix_multiplication/sparse/cols-rows.hpp"
+#include "matrix_multiplication/sparse/cols-dense.hpp"
 #include "mpc-utils/mpc_config.hpp"
 #include "mpc-utils/party.hpp"
 #include "util/randomize_matrix.hpp"
@@ -64,18 +65,35 @@ protected:
         BOOST_THROW_EXCEPTION(po::error("'nonzero_rows_client' must be positive"));
       }
     }
+    if(multiplication_types.size() == 0) {
+      BOOST_THROW_EXCEPTION(po::error("'multiplication_type' must be passed at least once"));
+    }
     if(pir_types.size() == 0) {
-      BOOST_THROW_EXCEPTION(po::error("'pir_type' must be passed at least once"));
+      for(auto& mult_type : multiplication_types) {
+        if(mult_type != "dense") {
+          BOOST_THROW_EXCEPTION(po::error("'pir_type' must be passed at least once if 'multiplication_type'' is not \"dense\""));
+        }
+      }
+    }
+    for(auto& mult_type : multiplication_types) {
+      if(
+        mult_type != "dense" &&
+        mult_type != "cols_rows" &&
+        mult_type != "cols_dense"
+      ) {
+        BOOST_THROW_EXCEPTION(po::error("'multiplication_type' must be either "
+          "`cols_dense`, `cols_rows`, or `dense`"));
+      }
     }
     for(auto& pir_type : pir_types) {
       if(
-        pir_type != "dense" &&
         pir_type != "basic" &&
         pir_type != "poly" &&
         pir_type != "fss" &&
         pir_type != "fss_cprg" &&
-        pir_type != "scs") {
-        BOOST_THROW_EXCEPTION(po::error("'pir_type' must be either `dense`, "
+        pir_type != "scs"
+      ) {
+        BOOST_THROW_EXCEPTION(po::error("'pir_type' must be either "
           "`basic`, `poly`, `scs`, `fss` or `fss_cprg`"));
       }
     }
@@ -87,6 +105,7 @@ public:
   std::vector<ssize_t> cols_client;
   std::vector<ssize_t> nonzero_cols_server;
   std::vector<ssize_t> nonzero_rows_client;
+  std::vector<std::string> multiplication_types;
   std::vector<std::string> pir_types;
   int16_t statistical_security;
   bool skip_verification;
@@ -99,13 +118,13 @@ public:
       ("cols_client,n", po::value(&cols_client)->composing(), "Number of columns in the client's matrix; can be passed multiple times")
       ("nonzero_cols_server,a", po::value(&nonzero_cols_server)->composing(), "Number of non-zero columns in the server's matrix A; can be passed multiple times")
       ("nonzero_rows_client,b", po::value(&nonzero_rows_client)->composing(), "Number of non-zero rows in the client's B; can be passed multiple times")
-      ("pir_type", po::value(&pir_types)->composing(), "PIR type: dense | basic | poly | fss | fss_cprg | scs; can be passed multiple times")
+      ("multiplication_type", po::value(&multiplication_types)->composing(), "Multiplication type: dense | cols_rows | cols_dense; can be passed multiple times")
+      ("pir_type", po::value(&pir_types)->composing(), "PIR type: basic | poly | fss | fss_cprg | scs; can be passed multiple times")
       ("statistical_security,s", po::value(&statistical_security)->default_value(40), "Statistical security parameter; used only for pir_type=poly")
       ("skip_verification", po::bool_switch(&skip_verification)->default_value(false), "Skip verification");
     set_default_filename("config/benchmark/matrix_multiplication.ini");
   }
 };
-
 
 // generates random matrices and multiplies them using multiplication triples
 int main(int argc, const char *argv[]) {
@@ -122,12 +141,19 @@ int main(int argc, const char *argv[]) {
   party p(conf);
   auto channel = p.connect_to(1 - p.get_id());
 
-  std::map<std::string, std::shared_ptr<pir_protocol<size_t, size_t>>> protos {
+  std::map<std::string, std::shared_ptr<pir_protocol<size_t, size_t>>> protos_perm {
     {"basic", std::make_shared<pir_protocol_basic<size_t, size_t>>(channel, true)},
     {"poly", std::make_shared<pir_protocol_poly<size_t, size_t>>(channel, conf.statistical_security, true)},
     {"scs", std::make_shared<pir_protocol_scs<size_t, size_t>>(channel, true)},
     {"fss_cprg", std::make_shared<pir_protocol_fss<size_t, size_t>>(channel, true)},
     {"fss", std::make_shared<pir_protocol_fss<size_t, size_t>>(channel)},
+  };
+  std::map<std::string, std::shared_ptr<pir_protocol<size_t, T>>> protos_val {
+    {"basic", std::make_shared<pir_protocol_basic<size_t, T>>(channel, true)},
+    {"poly", std::make_shared<pir_protocol_poly<size_t, T>>(channel, conf.statistical_security, true)},
+    {"scs", std::make_shared<pir_protocol_scs<size_t, T>>(channel, true)},
+    {"fss_cprg", std::make_shared<pir_protocol_fss<size_t, T>>(channel, true)},
+    {"fss", std::make_shared<pir_protocol_fss<size_t, T>>(channel)},
   };
   using dense_matrix = Eigen::Matrix<T, Eigen::Dynamic, Eigen::Dynamic>;
   int seed = 12345; // seed random number generator deterministically
@@ -137,7 +163,8 @@ int main(int argc, const char *argv[]) {
   // generate test data
   size_t num_experiments = std::max({conf.rows_server.size(),
     conf.inner_dim.size(), conf.cols_client.size(), conf.nonzero_cols_server.size(),
-    conf.nonzero_rows_client.size(), conf.pir_types.size()});
+    conf.nonzero_rows_client.size(), conf.pir_types.size(),
+    conf.multiplication_types.size()});
   for(size_t num_runs = 0; ; num_runs++) {
     for(size_t experiment = 0; experiment < num_experiments; experiment++) {
       std::cout << "Run " << num_runs << "\n";
@@ -147,6 +174,7 @@ int main(int argc, const char *argv[]) {
       size_t k_A = get_ceil(conf.nonzero_cols_server, experiment);
       size_t k_B = get_ceil(conf.nonzero_rows_client, experiment);
       auto& type = get_ceil(conf.pir_types, experiment);
+      auto& mult_type = get_ceil(conf.multiplication_types, experiment);
       std::cout << "l = " << l << "\nm = " << m << "\nn = " << n << "\nk_A = "
         << k_A << "\nk_B = " << k_B << "\npir_type = " << type << "\n";
       ssize_t chunk_size = l;
@@ -184,7 +212,7 @@ int main(int argc, const char *argv[]) {
 
       try {
         dense_matrix C, C2;
-        if(type == "dense") {
+        if(mult_type == "dense") {
           fake_triple_provider<T> triples(chunk_size, m, n, p.get_id());
           channel.sync();
           benchmark([&]{
@@ -196,7 +224,7 @@ int main(int argc, const char *argv[]) {
             C = matrix_multiplication(dense_matrix(A), dense_matrix(B), channel,
               p.get_id(), triples, chunk_size);
           }, "Total");
-        } else {
+        } else if(mult_type == "cols_rows") {
           fake_triple_provider<T> triples(chunk_size, k_A + k_B, n, p.get_id());
           channel.sync();
           benchmark([&]{
@@ -205,9 +233,23 @@ int main(int argc, const char *argv[]) {
 
           channel.sync();
           benchmark([&]{
-            C = matrix_multiplication(A, B, *protos[type],
+            C = matrix_multiplication_cols_rows(A, B, *protos_perm[type],
               channel, p.get_id(), triples, chunk_size, k_A, k_B, true);
           }, "Total");
+        } else if(mult_type == "cols_dense") {
+          fake_triple_provider<T, true> triples(chunk_size, k_A, n, p.get_id());
+          channel.sync();
+          benchmark([&]{
+            triples.precompute(l / chunk_size);
+          }, "Fake Triple Generation");
+
+          channel.sync();
+          benchmark([&]{
+            C = matrix_multiplication_cols_dense(A, dense_matrix(B), *protos_val[type],
+              channel, p.get_id(), triples, chunk_size, k_A, true);
+          }, "Total");
+        } else {
+          BOOST_THROW_EXCEPTION(std::runtime_error("Unknown multiplication_type"));
         }
 
         // exchange shares for checking result

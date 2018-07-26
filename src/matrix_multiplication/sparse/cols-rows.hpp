@@ -3,19 +3,13 @@
 #include <boost/range/algorithm.hpp>
 #include <Eigen/Sparse>
 #include "../dense.hpp"
+#include "sparse_common.hpp"
 #include "pir_protocol.hpp"
 #include "util/time.h"
 extern "C" {
   #include <bcrandom.h>
 }
 
-// computes all distinct inner indexes of m
-template<typename T, int Opts, typename Index>
-std::vector<size_t> compute_inner_indices(Eigen::SparseMatrix<T, Opts, Index>& m) {
-  m.makeCompressed();
-  std::unordered_set<size_t> indices(m.innerIndexPtr(), m.innerIndexPtr() + m.nonZeros());
-  return std::vector<size_t>(indices.begin(), indices.end());
-}
 
 // generates a partial permutation from `g` that maps `all_inner_indices`
 // to random positions in [k], and also returns the array of unmapped positions
@@ -40,14 +34,14 @@ permute_inner_indices(Generator&& g,
   );
 }
 
-template<typename Derived_A, typename Derived_B, typename K, typename V,
+template<typename Derived_A, typename Derived_B,
   typename T = typename Derived_A::Scalar,
   typename std::enable_if<std::is_same<T, typename Derived_B::Scalar>::value, int>::type = 0>
 Eigen::Matrix<T, Derived_A::RowsAtCompileTime, Derived_B::ColsAtCompileTime>
-matrix_multiplication( // TODO: somehow derive row-/column sparsity
+matrix_multiplication_cols_rows( // TODO: somehow derive row-/column sparsity
     const Eigen::SparseMatrixBase<Derived_A>& A_in,
     const Eigen::SparseMatrixBase<Derived_B>& B_in,
-    pir_protocol<K, V>& prot,
+    pir_protocol<size_t, size_t>& prot,
     comm_channel& channel, int role,
     triple_provider<T, false>& triples, // TODO: implement shared variant by pseudorandomly permuting indexes in another garbled circuit
     ssize_t chunk_size_in = -1,
