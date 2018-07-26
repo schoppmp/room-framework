@@ -176,7 +176,8 @@ int main(int argc, const char *argv[]) {
       auto& type = get_ceil(conf.pir_types, experiment);
       auto& mult_type = get_ceil(conf.multiplication_types, experiment);
       std::cout << "l = " << l << "\nm = " << m << "\nn = " << n << "\nk_A = "
-        << k_A << "\nk_B = " << k_B << "\npir_type = " << type << "\n";
+        << k_A << "\nk_B = " << k_B << "\npir_type = " << type
+        << "\nmultiplication_type = " << mult_type << "\n";
       ssize_t chunk_size = l;
       if(l > 4096) {
         // avoid memory errors

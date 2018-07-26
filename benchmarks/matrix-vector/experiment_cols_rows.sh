@@ -19,6 +19,7 @@ cat >> $config << EOF
 cols_client = 1
 inner_dim = 150000
 statistical_security = 40
+multiplication_type = cols_rows
 
 # for local testing only
 [server]
