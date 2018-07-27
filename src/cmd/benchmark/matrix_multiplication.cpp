@@ -1,6 +1,7 @@
 #include "matrix_multiplication/dense.hpp"
 #include "matrix_multiplication/sparse/cols-rows.hpp"
 #include "matrix_multiplication/sparse/cols-dense.hpp"
+#include "matrix_multiplication/sparse/rows-dense.hpp"
 #include "mpc-utils/mpc_config.hpp"
 #include "mpc-utils/party.hpp"
 #include "util/randomize_matrix.hpp"
@@ -124,7 +125,7 @@ public:
       ("statistical_security,s", po::value(&statistical_security)->default_value(40), "Statistical security parameter; used only for pir_type=poly")
       ("skip_verification", po::bool_switch(&skip_verification)->default_value(false), "Skip verification");
     set_default_filename("config/benchmark/matrix_multiplication.ini");
-  } 
+  }
 };
 
 // generates random matrices and multiplies them using multiplication triples
@@ -179,27 +180,38 @@ int main(int argc, const char *argv[]) {
       std::cout << "l = " << l << "\nm = " << m << "\nn = " << n << "\nk_A = "
         << k_A << "\nk_B = " << k_B << "\npir_type = " << type
         << "\nmultiplication_type = " << mult_type << "\n";
-      ssize_t chunk_size = l;
-      if(l > 4096) {
+      size_t& dense_rows = (mult_type == "rows_dense" ? k_A : l);
+      ssize_t chunk_size = dense_rows;
+      if(chunk_size > 4096) {
         // avoid memory errors
         chunk_size = 2048;
         // this will affect running times a little
         // TODO: make triplegenerator more general to support
         // triples for different chunk sizes
-        if(l % chunk_size) {
-          l = l + chunk_size - (l % chunk_size);
-          std::cout << "Adjusting l to " << l << "\n";
+        if(dense_rows % chunk_size) {
+          dense_rows = dense_rows + chunk_size - (dense_rows % chunk_size);
+          std::cout << "Adjusting " << (mult_type == "rows_dense" ? "k_A" : "l")
+            << " to " << dense_rows << "\n";
         }
       }
       Eigen::SparseMatrix<T, Eigen::RowMajor> A(l, m);
       Eigen::SparseMatrix<T, Eigen::ColMajor> B(m, n);
       std::cout << "Generating random data\n";
 
-      auto indices_A = reservoir_sampling(prg, k_A, m);
       std::vector<Eigen::Triplet<T>> triplets_A;
-      for(size_t j = 0; j < indices_A.size(); j++) {
-        for(size_t i = 0; i < A.rows(); i++) {
-          triplets_A.push_back(Eigen::Triplet<T>(i, indices_A[j], dist(prg)));
+      if(mult_type == "rows_dense") {
+        auto indices_A = reservoir_sampling(prg, k_A, l);
+        for(size_t i = 0; i < indices_A.size(); i++) {
+          for(size_t j = 0; j < A.cols(); j++) {
+            triplets_A.push_back(Eigen::Triplet<T>(indices_A[i], j, dist(prg)));
+          }
+        }
+      } else {
+        auto indices_A = reservoir_sampling(prg, k_A, m);
+        for(size_t j = 0; j < indices_A.size(); j++) {
+          for(size_t i = 0; i < A.rows(); i++) {
+            triplets_A.push_back(Eigen::Triplet<T>(i, indices_A[j], dist(prg)));
+          }
         }
       }
       A.setFromTriplets(triplets_A.begin(), triplets_A.end());
@@ -248,6 +260,18 @@ int main(int argc, const char *argv[]) {
           channel.sync();
           benchmark([&]{
             C = matrix_multiplication_cols_dense(A, dense_matrix(B), *protos_val[type],
+              channel, p.get_id(), triples, chunk_size, k_A, true);
+          }, "Total");
+        } else if(mult_type == "rows_dense") {
+          fake_triple_provider<T, false> triples(chunk_size, m, n, p.get_id());
+          channel.sync();
+          benchmark([&]{
+            triples.precompute(k_A / chunk_size);
+          }, "Fake Triple Generation");
+
+          channel.sync();
+          benchmark([&]{
+            C = matrix_multiplication_rows_dense(A, dense_matrix(B),
               channel, p.get_id(), triples, chunk_size, k_A, true);
           }, "Total");
         } else {
