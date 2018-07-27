@@ -7,8 +7,8 @@ for l in 1 5 10 50 100 500 1000 5000; do
     for k_B in 1 5 10 50 100 500 1000 5000 10000 50000; do
       for pir_type in scs poly; do
         echo "rows_server = $l" >> $config
-        echo "nonzero_cols_server = $k_A" >> $config
-        echo "nonzero_rows_client = $k_B" >> $config
+        echo "nonzeros_server = $k_A" >> $config
+        echo "nonzeros_client = $k_B" >> $config
         echo "pir_type = $pir_type" >> $config
       done
     done
