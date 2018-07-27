@@ -49,20 +49,20 @@ protected:
         BOOST_THROW_EXCEPTION(po::error("'cols_client' must be positive"));
       }
     }
-    if(nonzero_cols_server.size() == 0) {
-      BOOST_THROW_EXCEPTION(po::error("'nonzero_cols_server' must be passed at least once"));
+    if(nonzeros_server.size() == 0) {
+      BOOST_THROW_EXCEPTION(po::error("'nonzeros_server' must be passed at least once"));
     }
-    for(auto k_A : nonzero_cols_server) {
+    for(auto k_A : nonzeros_server) {
       if(k_A <= 0) {
-        BOOST_THROW_EXCEPTION(po::error("'nonzero_cols_server' must be positive"));
+        BOOST_THROW_EXCEPTION(po::error("'nonzeros_server' must be positive"));
       }
     }
-    if(nonzero_rows_client.size() == 0) {
-      BOOST_THROW_EXCEPTION(po::error("'nonzero_rows_client' must be passed at least once"));
+    if(nonzeros_client.size() == 0) {
+      BOOST_THROW_EXCEPTION(po::error("'nonzeros_client' must be passed at least once"));
     }
-    for(auto k_B : nonzero_rows_client) {
+    for(auto k_B : nonzeros_client) {
       if(k_B <= 0) {
-        BOOST_THROW_EXCEPTION(po::error("'nonzero_rows_client' must be positive"));
+        BOOST_THROW_EXCEPTION(po::error("'nonzeros_client' must be positive"));
       }
     }
     if(multiplication_types.size() == 0) {
@@ -79,10 +79,11 @@ protected:
       if(
         mult_type != "dense" &&
         mult_type != "cols_rows" &&
+        mult_type != "rows_dense" &&
         mult_type != "cols_dense"
       ) {
         BOOST_THROW_EXCEPTION(po::error("'multiplication_type' must be either "
-          "`cols_dense`, `cols_rows`, or `dense`"));
+          "`cols_dense`, `rows_dense`, `cols_rows`, or `dense`"));
       }
     }
     for(auto& pir_type : pir_types) {
@@ -103,8 +104,8 @@ public:
   std::vector<ssize_t> rows_server;
   std::vector<ssize_t> inner_dim;
   std::vector<ssize_t> cols_client;
-  std::vector<ssize_t> nonzero_cols_server;
-  std::vector<ssize_t> nonzero_rows_client;
+  std::vector<ssize_t> nonzeros_server;
+  std::vector<ssize_t> nonzeros_client;
   std::vector<std::string> multiplication_types;
   std::vector<std::string> pir_types;
   int16_t statistical_security;
@@ -116,14 +117,14 @@ public:
       ("rows_server,l", po::value(&rows_server)->composing(), "Number of rows in the server's matrix; can be passed multiple times")
       ("inner_dim,m", po::value(&inner_dim)->composing(), "Number of columns in A and number of rows in B; can be passed multiple times")
       ("cols_client,n", po::value(&cols_client)->composing(), "Number of columns in the client's matrix; can be passed multiple times")
-      ("nonzero_cols_server,a", po::value(&nonzero_cols_server)->composing(), "Number of non-zero columns in the server's matrix A; can be passed multiple times")
-      ("nonzero_rows_client,b", po::value(&nonzero_rows_client)->composing(), "Number of non-zero rows in the client's B; can be passed multiple times")
-      ("multiplication_type", po::value(&multiplication_types)->composing(), "Multiplication type: dense | cols_rows | cols_dense; can be passed multiple times")
+      ("nonzeros_server,a", po::value(&nonzeros_server)->composing(), "Number of non-zero columns/rows in the server's matrix A; can be passed multiple times")
+      ("nonzeros_client,b", po::value(&nonzeros_client)->composing(), "Number of non-zero rows/columns in the client's matrix B; can be passed multiple times")
+      ("multiplication_type", po::value(&multiplication_types)->composing(), "Multiplication type: dense | cols_rows | cols_dense | rows_dense; can be passed multiple times")
       ("pir_type", po::value(&pir_types)->composing(), "PIR type: basic | poly | fss | fss_cprg | scs; can be passed multiple times")
       ("statistical_security,s", po::value(&statistical_security)->default_value(40), "Statistical security parameter; used only for pir_type=poly")
       ("skip_verification", po::bool_switch(&skip_verification)->default_value(false), "Skip verification");
     set_default_filename("config/benchmark/matrix_multiplication.ini");
-  }
+  } 
 };
 
 // generates random matrices and multiplies them using multiplication triples
@@ -162,8 +163,8 @@ int main(int argc, const char *argv[]) {
 
   // generate test data
   size_t num_experiments = std::max({conf.rows_server.size(),
-    conf.inner_dim.size(), conf.cols_client.size(), conf.nonzero_cols_server.size(),
-    conf.nonzero_rows_client.size(), conf.pir_types.size(),
+    conf.inner_dim.size(), conf.cols_client.size(), conf.nonzeros_server.size(),
+    conf.nonzeros_client.size(), conf.pir_types.size(),
     conf.multiplication_types.size()});
   for(size_t num_runs = 0; ; num_runs++) {
     for(size_t experiment = 0; experiment < num_experiments; experiment++) {
@@ -171,8 +172,8 @@ int main(int argc, const char *argv[]) {
       size_t l = get_ceil(conf.rows_server, experiment);
       size_t m = get_ceil(conf.inner_dim, experiment);
       size_t n = get_ceil(conf.cols_client, experiment);
-      size_t k_A = get_ceil(conf.nonzero_cols_server, experiment);
-      size_t k_B = get_ceil(conf.nonzero_rows_client, experiment);
+      size_t k_A = get_ceil(conf.nonzeros_server, experiment);
+      size_t k_B = get_ceil(conf.nonzeros_client, experiment);
       auto& type = get_ceil(conf.pir_types, experiment);
       auto& mult_type = get_ceil(conf.multiplication_types, experiment);
       std::cout << "l = " << l << "\nm = " << m << "\nn = " << n << "\nk_A = "
