@@ -59,14 +59,19 @@ matrix_multiplication_cols_dense(
     for(size_t col = 0; col < num_cols_B; col++) {
       std::vector<T> result(k_A);
       if(role == 0) {
-        prot.run_client(inner_indices, result);
+        prot.run_client(inner_indices, result, true);
       } else {
-        std::vector<T> values(B.rows()), result(k_A);
+        // set our share
+        auto rng = newBCipherRandomGen();
+        randomizeBuffer(rng, (char*) result.data(), result.size() * sizeof(T));
+        releaseBCipherRandomGen(rng);
+        // get current column
+        std::vector<T> values(B.rows());
         for(size_t row = 0; row < B.rows(); row++) {
           values[row] = B(row, col);
         }
         prot.run_server(boost::counting_range(size_t(0), size_t(B.rows())),
-          values, result);
+          values, result, true);
       }
       for(size_t row = 0; row < k_A; row++) {
         B_shared(row, col) = result[row];
