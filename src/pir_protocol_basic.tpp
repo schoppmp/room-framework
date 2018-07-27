@@ -107,8 +107,8 @@ void pir_protocol_basic<K,V>::run_client(
   std::vector<uint8_t> all_ciphertexts;
   chan.recv(all_ciphertexts);
   size_t num_all_ciphertexts = all_ciphertexts.size() / (sizeof(V) + 1);
-  std::vector<uint8_t> selected_ciphertexts(length * (sizeof(V) + 1));
-  std::vector<uint8_t> indexes_bytes(length * (sizeof(K) + 1));
+  std::vector<uint8_t> selected_ciphertexts(length * (sizeof(V) + 1), 0);
+  std::vector<uint8_t> indexes_bytes(length * (sizeof(K) + 1), 0);
   auto it = boost::begin(input);
   for(size_t i = 0; i < length; i++, it++) {
     K cur_index = *it;
