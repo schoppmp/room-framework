@@ -55,13 +55,11 @@ matrix_multiplication_cols_dense(
     size_t num_cols_B = B_in.derived().cols();
     Eigen::Matrix<T, Derived_B::RowsAtCompileTime, Derived_B::ColsAtCompileTime>
       B_shared(k_A, num_cols_B);
+    B_shared.setZero();
     for(size_t col = 0; col < num_cols_B; col++) {
+      std::vector<T> result(k_A);
       if(role == 0) {
-        std::vector<T> result(k_A);
         prot.run_client(inner_indices, result);
-        for(size_t row = 0; row < k_A; row++) {
-          B_shared(row, col) = result[row];
-        }
       } else {
         std::vector<T> values(B.rows()), result(k_A);
         for(size_t row = 0; row < B.rows(); row++) {
@@ -69,9 +67,9 @@ matrix_multiplication_cols_dense(
         }
         prot.run_server(boost::counting_range(size_t(0), size_t(B.rows())),
           values, result);
-        for(size_t row = 0; row < k_A; row++) {
-          B_shared(row, col) = result[row];
-        }
+      }
+      for(size_t row = 0; row < k_A; row++) {
+        B_shared(row, col) = result[row];
       }
     }
     if(print_times) {
