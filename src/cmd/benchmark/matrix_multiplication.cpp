@@ -110,7 +110,9 @@ public:
   std::vector<std::string> multiplication_types;
   std::vector<std::string> pir_types;
   int16_t statistical_security;
+  ssize_t max_runs;
   bool skip_verification;
+  bool measure_communication;
 
   matrix_multiplication_config() : mpc_config() {
     namespace po = boost::program_options;
@@ -123,7 +125,10 @@ public:
       ("multiplication_type", po::value(&multiplication_types)->composing(), "Multiplication type: dense | cols_rows | cols_dense | rows_dense; can be passed multiple times")
       ("pir_type", po::value(&pir_types)->composing(), "PIR type: basic | poly | fss | fss_cprg | scs; can be passed multiple times")
       ("statistical_security,s", po::value(&statistical_security)->default_value(40), "Statistical security parameter; used only for pir_type=poly")
+      ("max_runs", po::value(&max_runs)->default_value(-1), "Maximum number of runs. Default is unlimited")
       ("skip_verification", po::bool_switch(&skip_verification)->default_value(false), "Skip verification");
+      // TODO:
+      // ("measure_communication", po::bool_switch(&measure_communication)->default_value(false), "Measure communication");
     set_default_filename("config/benchmark/matrix_multiplication.ini");
   }
 };
@@ -167,7 +172,7 @@ int main(int argc, const char *argv[]) {
     conf.inner_dim.size(), conf.cols_client.size(), conf.nonzeros_server.size(),
     conf.nonzeros_client.size(), conf.pir_types.size(),
     conf.multiplication_types.size()});
-  for(size_t num_runs = 0; ; num_runs++) {
+  for(size_t num_runs = 0; conf.max_runs < 0 || num_runs < conf.max_runs; num_runs++) {
     for(size_t experiment = 0; experiment < num_experiments; experiment++) {
       std::cout << "Run " << num_runs << "\n";
       size_t l = get_ceil(conf.rows_server, experiment);
