@@ -24,10 +24,12 @@ feedOblivCharArray(norm_b, args->serialized_norms, args->value_size, 2);
     __obliv_c__setPlainAdd(&inputs[i * args->value_size],
       &inputs[i * args->value_size], &inputs_b[i * args->value_size],
       8 * args->value_size);
-    // // Divide by norm of A's document i.
-    // __obliv_c__setDivUnsigned(&inputs[i * args->value_size],
-    //   &inputs[i * args->value_size], &norms_a[i * args->value_size],
-    //   8 * args->value_size);
+    // TODO: We can replace these division with multiplications and use additive
+    // sharing which is faster.
+    // Divide by norm of A's document i.
+    __obliv_c__setDivUnsigned(&inputs[i * args->value_size],
+      &inputs[i * args->value_size], &norms_a[i * args->value_size],
+      8 * args->value_size);
     // Divide by norm of B's document.
     __obliv_c__setDivUnsigned(&inputs[i * args->value_size],
       &inputs[i * args->value_size], norm_b, 8 * args->value_size);

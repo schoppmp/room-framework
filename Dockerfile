@@ -15,13 +15,13 @@ COPY lib /app/lib
 COPY Makefile /app/Makefile
 RUN eval `opam config env`; \
   make cleanall; \
-  make libs
+  make libs NDEBUG=1
 
 # build binaries
 COPY src /app/src
 RUN eval `opam config env`; \
   make clean; \
-  make
+  make NDEBUG=1
 
 # copy dependencies
 RUN mkdir /deps; \

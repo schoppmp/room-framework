@@ -2,6 +2,12 @@ SRCDIR=$(PWD)/src
 LIBDIR=$(PWD)/lib
 BINDIR=$(PWD)/bin
 
+ifdef NDEBUG
+	DEBUG_FLAGS=-DNDEBUG
+else
+	DEBUG_FLAGS=-g
+endif
+
 SOURCES := $(shell find -L $(SRCDIR) -type f -name '*.cpp' -not -path '*/cmd/*')
 OBJECTS := $(patsubst %.cpp, %.o, $(SOURCES))
 SOURCES_OBLIVC := $(shell find -L $(SRCDIR) -type f -name '*.oc')
@@ -15,7 +21,7 @@ BINARIES = $(patsubst $(SRCDIR)/cmd/%.cpp, $(BINDIR)/%, $(SOURCES_BIN))
 
 export OBLIVC_PATH = $(LIBDIR)/obliv-c
 OBLIVCC = $(OBLIVC_PATH)/bin/oblivcc
-OBLIVCCFLAGS = -g -D_Float128=double
+OBLIVCCFLAGS = $(DEBUG_FLAGS) -D_Float128=double
 
 LDFLAGS = $(STATIC_FILES) -lntl -lboost_program_options -lboost_serialization \
 	-lboost_system -lboost_thread -lboost_iostreams -lboost_chrono -lgcrypt \
@@ -25,7 +31,7 @@ INCLUDES = -I$(SRCDIR) -I$(LIBDIR) -I$(LIBDIR)/obliv-c/src/ext/oblivc \
 	-I$(LIBDIR)/IteratorTypeErasure/any_iterator \
 	-I/usr/include/eigen3
 # export flags for sub-makes (obliv-C, liback)
-export CFLAGS = -O3 -pthread -g
+export CFLAGS = -O3 -pthread $(DEBUG_FLAGS)
 export CXXFLAGS = $(CFLAGS) -std=gnu++11 $(INCLUDES) \
 	-DMPC_UTILS_USE_OBLIVC
 
