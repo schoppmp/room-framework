@@ -132,7 +132,7 @@ int main(int argc, const char *argv[]) {
   party p(conf);
   auto channel = p.connect_to(1 - p.get_id());
 
-  pir_protocol_basic<int, T> proto(channel, true);
+  pir_protocol_basic<int, T> proto(channel, false);
   using dense_matrix = Eigen::Matrix<T, Eigen::Dynamic, Eigen::Dynamic>;
   int seed = 123456; // seed random number generator deterministically
   std::mt19937 prg(seed);
@@ -255,10 +255,7 @@ int main(int argc, const char *argv[]) {
           }
 
           // Rescale.
-          for (int i = 0; i < this_batch_size; ++i) {
-            activations[i] = activations[i] /
-              (static_cast<T>(1) << precision);
-          }
+          activations /= (static_cast<T>(1) << precision);
 
           // Sigmoid.
           ProtocolDesc pd;
@@ -333,6 +330,17 @@ int main(int argc, const char *argv[]) {
             std::cerr << boost::diagnostic_information(ex);
             return 1;
           }
+          if(p.get_id() == active_party) {
+            gradient += input[active_party]->middleRows(row_index[active_party],
+              this_batch_size).transpose() * activations;
+          }
+
+          // Rescale and divide by batch size.
+          gradient /= this_batch_size;
+          gradient /= (static_cast<T>(1) << precision);
+
+          // Update model. TODO: learning rate.
+          model += gradient;
 
           row_index[active_party] += this_batch_size;
           if(row_index[active_party] == input[active_party]->rows()) {
