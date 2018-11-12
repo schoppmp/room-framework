@@ -1,0 +1,74 @@
+#include "sigmoid.h"
+#include "copy.oh"
+#include "obliv.oh"
+#include "bcrandom.h"
+
+void sigmoid_oblivc(void *vargs) {
+    sigmoid_oblivc_args *args = vargs;
+
+    obliv uint8_t* input = calloc(args->num_elements * args->element_size,
+      sizeof(obliv uint8_t));
+    obliv uint8_t* input_b = calloc(args->num_elements * args->element_size,
+      sizeof(obliv uint8_t));
+    obliv uint8_t* output = calloc(args->num_elements * args->element_size,
+      sizeof(obliv uint8_t));
+    obliv uint8_t* output_b = calloc(args->num_elements * args->element_size,
+      sizeof(obliv uint8_t));
+
+    // Client chooses their share of the result randomly.
+    if (ocCurrentParty() == 2) {
+      BCipherRandomGen* rng = newBCipherRandomGen();
+      randomizeBuffer(rng, args->output,
+        args->num_elements * args->element_size);
+      releaseBCipherRandomGen(rng);
+    }
+
+    feedOblivCharArray(input, args->input,
+      args->num_elements * args->element_size, 1);
+    feedOblivCharArray(input_b, args->input,
+      args->num_elements * args->element_size, 2);
+    feedOblivCharArray(output_b, args->output,
+      args->num_elements * args->element_size, 2);
+
+    //TODO: this is just messy. Hard-code uint64_t instead!
+    OcCopy cpy = ocCopyCharN(args->element_size);
+    obliv uint8_t* half = calloc(args->element_size, sizeof(obliv uint8_t));
+    half[(args->precision - 1) / 8] |= (1 << ((args->precision - 1) % 8));
+    obliv uint8_t* v_plus_half = calloc(args->element_size,
+      sizeof(obliv uint8_t));
+    for (int i = 0; i < args->num_elements; i++) {
+      __obliv_c__setPlainAdd(&input[i * args->element_size],
+        &input[i * args->element_size], &input_b[i * args->element_size],
+        8 * args->element_size);
+      __obliv_c__setPlainAdd(v_plus_half, &input[i * args->element_size], half,
+        8 * args->element_size);
+      obliv bool is_less_than_half;
+      __obliv_c__setLessThanSigned(&is_less_than_half,
+        &input[i * args->element_size], half, args->element_size * 8);
+
+      obliv if((v_plus_half[args->element_size - 1] >> 7) & 0x1) {
+        // x < -0.5 --> y = 0.
+        // Do nothing, output is initialized to zero.
+      } else obliv if(is_less_than_half) {
+        // -0.5 <= v <= 0.5 --> y = x + 0.5.
+        ocCopy(&cpy, &output[i * args->element_size], v_plus_half);
+      } else {
+        // v > 0.5 --> y = 1.
+        output[i * args->element_size + args->precision / 8] |=
+          (1 << (args->precision % 8));
+      }
+      // Share result between client and server.
+      __obliv_c__setPlainSub(&output[i * args->element_size],
+        &output[i * args->element_size], &output_b[i * args->element_size],
+        args->element_size * 8);
+    }
+    revealOblivCharArray(args->output, output,
+      args->num_elements * args->element_size, 1);
+
+    free(input);
+    free(input_b);
+    free(output);
+    free(output_b);
+    free(half);
+    free(v_plus_half);
+  }
