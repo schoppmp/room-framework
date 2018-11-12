@@ -25,3 +25,4 @@ CMAKE_FILES = CMakeFiles Makefile CMakeCache.txt cmake_install.cmake
 clean:
 	$(foreach dir, $(SUBDIRS), make -C $(dir) clean || true;)
 	$(foreach file, $(CMAKE_FILES), $(RM) -r fastpoly/$(file);)
+	$(RM) obliv-c/Makefile

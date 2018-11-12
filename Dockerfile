@@ -4,8 +4,8 @@ FROM base/devel as build
 RUN pacman --noconfirm -Syu \
   ocaml ocaml-findlib opam \
   ntl boost boost-libs cmake eigen
-RUN opam init -y; \
-  opam switch -y 4.06.0; \
+RUN opam init --disable-sandboxing -y; \
+  opam switch create -y 4.06.0; \
   eval `opam config env`; \
   opam install -y camlp4 ocamlfind ocamlbuild batteries;
 
