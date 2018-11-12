@@ -152,7 +152,7 @@ int main(int argc, const char *argv[]) {
       size_t m = get_ceil(conf.vocabulary_size, experiment);
       size_t k_A = get_ceil(conf.nonzeros_a, experiment);
       size_t k_B = get_ceil(conf.nonzeros_b, experiment);
-      size_t e = get_ceil(conf.num_epochs, experiment);
+      size_t num_epochs = get_ceil(conf.num_epochs, experiment);
       std::string& mult_type = get_ceil(conf.multiplication_types, experiment);
       std::cout << "l = " << l << "\nm = " << m << "\nn = " << n << "\nk_A = "
         << k_A << "\nk_B = " << k_B << "\nbatch_size = " << batch_size
@@ -165,33 +165,33 @@ int main(int argc, const char *argv[]) {
       std::cout << "Generating random data\n";
 
       std::vector<Eigen::Triplet<T>> triplets_A;
-      std::vector<Eigen::Triplet<T>> triplets_B;
       auto indices_A = reservoir_sampling(prg, k_A, m);
-      for(size_t j = 0; j < indices_A.size(); j++) {
-        for(size_t i = 0; i < A.rows(); i++) {
+      for(size_t i = 0; i < A.rows(); i++) {
+        for(size_t j = 0; j < indices_A.size(); j++) {
           Eigen::Triplet<T> triplet(i, indices_A[j],
             dist(prg) * (static_cast<T>(1) << precision));
           triplets_A.push_back(triplet);
         }
       }
       A.setFromTriplets(triplets_A.begin(), triplets_A.end());
+      std::vector<Eigen::Triplet<T>> triplets_B;
       auto indices_B =  reservoir_sampling(prg, k_B, m);
-      for(size_t i = 0; i < indices_B.size(); i++) {
-        for(size_t j = 0; j < B.rows(); j++) {
+      for(size_t i = 0; i < B.rows(); i++) {
+        for(size_t j = 0; j < indices_B.size(); j++) {
           Eigen::Triplet<T> triplet(i, indices_B[j],
             dist(prg) * (static_cast<T>(1) << precision));
-          triplets_A.push_back(triplet);
+          triplets_B.push_back(triplet);
         }
       }
       B.setFromTriplets(triplets_B.begin(), triplets_B.end());
 
-      for (int epoch = 0; epoch < e; epoch++) {
+      for (int epoch = 0; epoch < num_epochs; epoch++) {
         int active_party = 0; // Alternates between batches.
         const Eigen::SparseMatrix<T, Eigen::RowMajor>* input[2] = {&A, &B};
         const size_t sparsity[2] = {k_A, k_B};
         int row_index[2] = {0, 0};
         bool done[2] = {false, false};
-        while(!done[0] && !done[1]) {
+        while (!done[0] && !done[1]) {
           // Compute batch size (last batch might differ).
           int this_batch_size = batch_size;
           if (row_index[active_party] + this_batch_size >
@@ -201,9 +201,11 @@ int main(int argc, const char *argv[]) {
           }
 
           // Forward pass.
+          Eigen::Matrix<T, Eigen::Dynamic, 1> activations(this_batch_size);
           try {
-            if(mult_type == "dense") {
-              fake_triple_provider<T> triples(this_batch_size, m, n, p.get_id());
+            if (mult_type == "dense") {
+              fake_triple_provider<T> triples(this_batch_size, m, n,
+                active_party == p.get_id());
               channel.sync();
               // TODO: aggregate fake triple computation times
               benchmark([&]{
@@ -212,15 +214,15 @@ int main(int argc, const char *argv[]) {
 
               channel.sync();
               benchmark([&]{
-                model += matrix_multiplication(
+                activations = matrix_multiplication(
                   input[active_party]->middleRows(
                     row_index[active_party], this_batch_size),
                   model, channel,
-                  p.get_id(), triples, this_batch_size);
-              }, "Total");
-            } else if(mult_type == "sparse") {
+                  active_party == p.get_id(), triples, this_batch_size);
+              }, "Forward Pass");
+            } else if (mult_type == "sparse") {
               fake_triple_provider<T, true> triples(this_batch_size,
-                sparsity[active_party], n, p.get_id());
+                sparsity[active_party], n, active_party == p.get_id());
               channel.sync();
               benchmark([&]{
                 triples.precompute(1);
@@ -228,21 +230,49 @@ int main(int argc, const char *argv[]) {
 
               channel.sync();
               benchmark([&]{
-                model += matrix_multiplication_cols_dense(
+                activations = matrix_multiplication_cols_dense(
                   input[active_party]->middleRows(
                     row_index[active_party], this_batch_size),
                   model, proto, channel,
-                  p.get_id(), triples, this_batch_size, sparsity[active_party]);
-              }, "Total");
+                  active_party == p.get_id(), triples, this_batch_size, sparsity[active_party]);
+              }, "Forward Pass");
             } else {
               BOOST_THROW_EXCEPTION(std::runtime_error("Unknown multiplication_type"));
             }
-          } catch(boost::exception &ex) {
+          } catch (boost::exception &ex) {
             std::cerr << boost::diagnostic_information(ex);
             return 1;
           }
 
-          // TODO: Sigmoid
+          // Rescale.
+          for (int i = 0; i < this_batch_size; ++i) {
+            activations[i] = activations[i] /
+              (static_cast<T>(1) << precision);
+          }
+
+          // Sigmoid.
+          ProtocolDesc pd;
+          if (channel.connect_to_oblivc(pd) == -1) {
+            BOOST_THROW_EXCEPTION(std::runtime_error("run_server: connection failed"));
+          }
+          setCurrentParty(&pd, 1 + p.get_id());
+          std::vector<uint8_t> serialized_activations(
+            sizeof(T) * this_batch_size);
+          serialize_le(serialized_activations.begin(), activations.data(),
+            this_batch_size);
+          sigmoid_oblivc_args args = {
+            .num_elements = this_batch_size,
+            .element_size = sizeof(T),
+            .precision = precision,
+            .input = serialized_activations.data(),
+            .output = serialized_activations.data(),
+          };
+          benchmark([&]{
+            execYaoProtocol(&pd, sigmoid_oblivc, &args);
+          }, "Sigmoid");
+          deserialize_le(activations.data(), serialized_activations.begin(),
+            this_batch_size);
+          cleanupProtocol(&pd);
 
           // TODO: Backward pass
 

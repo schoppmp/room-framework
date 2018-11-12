@@ -124,16 +124,12 @@ matrix_multiplication(
             << error_triple_l(triples.get_l()) << error_triple_m(triples.get_m())
             << error_triple_n(triples.get_n()));
     }
-    // if(l % chunk_size) { //TODO: allow for different chunk sizes
-    //     BOOST_THROW_EXCEPTION(boost::enable_error_info(std::invalid_argument(
-    //         "`A_in.rows()` must be divisible by `chunk_size`")));
-    // }
 
     using matrix_triple = typename std::remove_reference<decltype(triples)>::type::matrix;
     std::vector<std::function<matrix_triple()>> compute_chunks;
     for(size_t i = 0; i*chunk_size < l; i++) {
       compute_chunks.push_back([&triples, &channel, &B, &A, chunk_size, l, m, n, role, i]() -> matrix_triple {
-        Eigen::Matrix<T, Eigen::Dynamic, Derived_B::ColsAtCompileTime> chunk_A(chunk_size, m);
+        Eigen::Matrix<T, Eigen::Dynamic, Derived_A::ColsAtCompileTime> chunk_A(chunk_size, m);
         chunk_A.setZero();
         if((i + 1) * chunk_size > l) {
           chunk_A += A.bottomRows(l - i * chunk_size);
