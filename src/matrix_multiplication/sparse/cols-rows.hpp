@@ -13,35 +13,35 @@ extern "C" {
 
 // generates a partial permutation from `g` that maps `all_inner_indices`
 // to random positions in [k], and also returns the array of unmapped positions
-template<typename Generator>
-std::pair<std::unordered_map<size_t, size_t>, std::vector<size_t>>
+template<typename K, typename Generator>
+std::pair<std::unordered_map<K, K>, std::vector<K>>
 permute_inner_indices(Generator&& g,
-  const std::vector<size_t>& all_inner_indices, size_t k
+  const std::vector<K>& all_inner_indices, size_t k
 ) {
   if(all_inner_indices.size() > k) {
     BOOST_THROW_EXCEPTION(std::invalid_argument("k needs to be at least all_inner_indices.size()"));
   }
-  std::vector<size_t> dense_indices(k);
+  std::vector<K> dense_indices(k);
   std::iota(dense_indices.begin(), dense_indices.end(), 0);
   std::shuffle(dense_indices.begin(), dense_indices.end(), g);
-  std::unordered_map<size_t, size_t> perm;
+  std::unordered_map<K, K> perm;
   auto inner_it = all_inner_indices.begin();
   for(size_t i = 0; i < all_inner_indices.size(); i++, inner_it++) {
     perm.emplace(*inner_it, dense_indices[i]);
   }
-  return std::make_pair(std::move(perm), std::vector<size_t>(
+  return std::make_pair(std::move(perm), std::vector<K>(
     dense_indices.begin() + all_inner_indices.size(), dense_indices.end())
   );
 }
 
 template<typename Derived_A, typename Derived_B,
-  typename T = typename Derived_A::Scalar,
+  typename K, typename T = typename Derived_A::Scalar,
   typename std::enable_if<std::is_same<T, typename Derived_B::Scalar>::value, int>::type = 0>
 Eigen::Matrix<T, Derived_A::RowsAtCompileTime, Derived_B::ColsAtCompileTime>
 matrix_multiplication_cols_rows( // TODO: somehow derive row-/column sparsity
     const Eigen::SparseMatrixBase<Derived_A>& A_in,
     const Eigen::SparseMatrixBase<Derived_B>& B_in,
-    pir_protocol<size_t, size_t>& prot,
+    pir_protocol<K, K>& prot,
     comm_channel& channel, int role,
     triple_provider<T, false>& triples, // TODO: implement shared variant by pseudorandomly permuting indexes in another garbled circuit
     ssize_t chunk_size_in = -1,
@@ -50,14 +50,16 @@ matrix_multiplication_cols_rows( // TODO: somehow derive row-/column sparsity
 ) {
   try {
     size_t k;
-    std::vector<size_t> inner_indices;
+    std::vector<K> inner_indices;
     Eigen::SparseMatrix<T, Eigen::RowMajor> A;
     Eigen::SparseMatrix<T, Eigen::ColMajor> B;
     Eigen::Matrix<T, Derived_A::RowsAtCompileTime, Derived_B::ColsAtCompileTime> ret;
     // compute own indices and exchange k values if not given as arguments
     if(role == 0) {
       A = A_in.derived();
-      inner_indices = compute_inner_indices(A);
+      auto inner_indices_copy = compute_inner_indices(A);
+      inner_indices = std::vector<K>(inner_indices_copy.begin(),
+        inner_indices_copy.end());
       if(k_A == -1) {
         k_A = inner_indices.size();
         channel.send(k_A);
@@ -67,7 +69,9 @@ matrix_multiplication_cols_rows( // TODO: somehow derive row-/column sparsity
       }
     } else {
       B = B_in.derived();
-      inner_indices = compute_inner_indices(B);
+      auto inner_indices_copy = compute_inner_indices(B);
+      inner_indices = std::vector<K>(inner_indices_copy.begin(),
+        inner_indices_copy.end());
       if(k_A == -1) {
         channel.recv(k_A);
       }
@@ -78,7 +82,7 @@ matrix_multiplication_cols_rows( // TODO: somehow derive row-/column sparsity
     }
     k = k_A + k_B;
     double start = 0;
-    std::vector<std::pair<size_t, size_t>> perm(inner_indices.size());
+    std::vector<std::pair<K, K>> perm(inner_indices.size());
     // generate correlated permutations; party with the higher number of indices
     // acts as the server of the ROOM protocol
     if((k_A > k_B) == (role == 0)) {
@@ -98,7 +102,7 @@ matrix_multiplication_cols_rows( // TODO: somehow derive row-/column sparsity
       if(print_times) {
         start = timestamp();
       }
-      std::vector<size_t> perm_values(role == 0 ? k_A : k_B);
+      std::vector<K> perm_values(role == 0 ? k_A : k_B);
       prot.run_client(inner_indices, perm_values);
       for(size_t i = 0; i < perm_values.size(); i++) {
         perm[i] = std::make_pair(inner_indices[i], perm_values[i]);

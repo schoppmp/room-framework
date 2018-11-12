@@ -13,13 +13,13 @@ extern "C" {
 
 
 template<typename Derived_A, typename Derived_B,
-  typename T = typename Derived_A::Scalar,
+  typename K, typename T = typename Derived_A::Scalar,
   typename std::enable_if<std::is_same<T, typename Derived_B::Scalar>::value, int>::type = 0>
 Eigen::Matrix<T, Derived_A::RowsAtCompileTime, Derived_B::ColsAtCompileTime>
 matrix_multiplication_cols_dense(
     const Eigen::SparseMatrixBase<Derived_A>& A_in,
     const Eigen::MatrixBase<Derived_B>& B_in,
-    pir_protocol<size_t, T>& prot,
+    pir_protocol<K, T>& prot,
     comm_channel& channel, int role,
     triple_provider<T, true>& triples,
     ssize_t chunk_size_in = -1,
@@ -27,14 +27,16 @@ matrix_multiplication_cols_dense(
     bool print_times = false
 ) {
   try {
-    std::vector<size_t> inner_indices;
+    std::vector<K> inner_indices;
     Eigen::SparseMatrix<T, Eigen::RowMajor> A;
     Eigen::Matrix<T, Derived_B::RowsAtCompileTime, Derived_B::ColsAtCompileTime> B;
     Eigen::Matrix<T, Derived_A::RowsAtCompileTime, Derived_B::ColsAtCompileTime> ret;
     // compute own indices and exchange k values if not given as arguments
     if(role == 0) {
       A = A_in.derived();
-      inner_indices = compute_inner_indices(A);
+      auto inner_indices_copy = compute_inner_indices(A);
+      inner_indices = std::vector<K>(inner_indices_copy.begin(),
+        inner_indices_copy.end());
       if(k_A == -1) {
         k_A = inner_indices.size();
         channel.send(k_A);
@@ -70,7 +72,7 @@ matrix_multiplication_cols_dense(
         for(size_t row = 0; row < B.rows(); row++) {
           values[row] = B(row, col);
         }
-        prot.run_server(boost::counting_range(size_t(0), size_t(B.rows())),
+        prot.run_server(boost::counting_range(K(0), K(B.rows())),
           values, result, true);
       }
       for(size_t row = 0; row < k_A; row++) {

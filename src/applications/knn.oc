@@ -34,7 +34,6 @@ feedOblivCharArray(norm_b, args->serialized_norms, args->value_size, 2);
     __obliv_c__setDivUnsigned(&inputs[i * args->value_size],
       &inputs[i * args->value_size], norm_b, 8 * args->value_size);
   }
-  free(inputs_b);
 
   obliv int* topk_indices = calloc(args->num_selected, sizeof(obliv int));
   obliv uint8_t* topk_values = calloc(args->num_selected * args->value_size,
@@ -62,6 +61,7 @@ feedOblivCharArray(norm_b, args->serialized_norms, args->value_size, 2);
   free(topk_indices);
   free(topk_values);
   free(inputs);
+  free(inputs_b);
   free(norms_a);
   free(norm_b);
 }

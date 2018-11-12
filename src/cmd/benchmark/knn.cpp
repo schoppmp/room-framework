@@ -128,7 +128,7 @@ public:
       ("num_selected,k", po::value(&num_selected)->composing(), "Number of documents to be returned; i.e, the k in k-NN. Can be passed multiple times")
       ("chunk_size", po::value(&chunk_size)->composing(), "Number of documents to process at once; can be passed multiple times")
       ("vocabulary_size,m", po::value(&vocabulary_size)->composing(), "Number of columns in A and number of rows in B; can be passed multiple times")
-      ("nonzeros_server,a", po::value(&nonzeros_server)->composing(), "Number of non-zero columns in the server's matrix A; can be passed multiple times")
+      ("nonzeros_server,a", po::value(&nonzeros_server)->composing(), "Maximum number of non-zero columns in each chunk of the server's matrix A; can be passed multiple times")
       ("nonzeros_client,b", po::value(&nonzeros_client)->composing(), "Number of non-zero elements in the client's vector b; can be passed multiple times")
       ("multiplication_type", po::value(&multiplication_types)->composing(), "Multiplication type: dense | sparse; can be passed multiple times")
       ("pir_type", po::value(&pir_types)->composing(), "PIR type: basic | poly | scs; can be passed multiple times")
@@ -156,10 +156,10 @@ int main(int argc, const char *argv[]) {
   party p(conf);
   auto channel = p.connect_to(1 - p.get_id());
 
-  std::map<std::string, std::shared_ptr<pir_protocol<size_t, size_t>>> protos {
-    {"basic", std::make_shared<pir_protocol_basic<size_t, size_t>>(channel, true)},
-    {"poly", std::make_shared<pir_protocol_poly<size_t, size_t>>(channel, conf.statistical_security, true)},
-    {"scs", std::make_shared<pir_protocol_scs<size_t, size_t>>(channel, true)},
+  std::map<std::string, std::shared_ptr<pir_protocol<int, int>>> protos {
+    {"basic", std::make_shared<pir_protocol_basic<int, int>>(channel, true)},
+    {"poly", std::make_shared<pir_protocol_poly<int, int>>(channel, conf.statistical_security, true)},
+    {"scs", std::make_shared<pir_protocol_scs<int, int>>(channel, true)},
   };
   using dense_matrix = Eigen::Matrix<T, Eigen::Dynamic, Eigen::Dynamic>;
   int seed = 123456; // seed random number generator deterministically
@@ -316,7 +316,6 @@ int main(int argc, const char *argv[]) {
         outputs.data()
       };
       execYaoProtocol(&pd, knn_oblivc, &args);
-      cleanupProtocol(&pd);
 
       // check result
       std::cout << "Top k documents: ";
@@ -324,7 +323,8 @@ int main(int argc, const char *argv[]) {
         std::cout << outputs[i] << " ";
       }
       std::cout << "\n";
-
+      std::cout << "Bytes sent: " << tcp2PBytesSent(&pd) << "\n";
+      cleanupProtocol(&pd);
     }
   }
 }
