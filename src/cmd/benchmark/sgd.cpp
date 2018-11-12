@@ -161,6 +161,8 @@ int main(int argc, const char *argv[]) {
       // Each party holds half of the data.
       Eigen::SparseMatrix<T, Eigen::RowMajor> A(l / 2, m);
       Eigen::SparseMatrix<T, Eigen::RowMajor> B(l / 2, m);
+      Eigen::Matrix<T, Eigen::Dynamic, 1> A_labels(A.rows());
+      Eigen::Matrix<T, Eigen::Dynamic, 1> B_labels(B.rows());
       Eigen::Matrix<T, Eigen::Dynamic, 1> model(m);
       std::cout << "Generating random data\n";
 
@@ -172,6 +174,7 @@ int main(int argc, const char *argv[]) {
             dist(prg) * (static_cast<T>(1) << precision));
           triplets_A.push_back(triplet);
         }
+        A_labels[i] = 0;
       }
       A.setFromTriplets(triplets_A.begin(), triplets_A.end());
       std::vector<Eigen::Triplet<T>> triplets_B;
@@ -182,12 +185,15 @@ int main(int argc, const char *argv[]) {
             dist(prg) * (static_cast<T>(1) << precision));
           triplets_B.push_back(triplet);
         }
+        B_labels[i] = 1;
       }
       B.setFromTriplets(triplets_B.begin(), triplets_B.end());
 
       for (int epoch = 0; epoch < num_epochs; epoch++) {
         int active_party = 0; // Alternates between batches.
         const Eigen::SparseMatrix<T, Eigen::RowMajor>* input[2] = {&A, &B};
+        const Eigen::Matrix<T, Eigen::Dynamic, 1>* labels[2] = {&A_labels,
+          &B_labels};
         const size_t sparsity[2] = {k_A, k_B};
         int row_index[2] = {0, 0};
         bool done[2] = {false, false};
@@ -243,6 +249,10 @@ int main(int argc, const char *argv[]) {
             std::cerr << boost::diagnostic_information(ex);
             return 1;
           }
+          if(p.get_id() == active_party) {
+            activations += input[active_party]->middleRows(
+              row_index[active_party], this_batch_size) * model;
+          }
 
           // Rescale.
           for (int i = 0; i < this_batch_size; ++i) {
@@ -274,7 +284,55 @@ int main(int argc, const char *argv[]) {
             this_batch_size);
           cleanupProtocol(&pd);
 
-          // TODO: Backward pass
+          // Compute difference to labels.
+          if(p.get_id() == active_party) {
+            activations -= labels[active_party]->middleRows(
+              row_index[active_party], this_batch_size);
+          }
+
+          // Backward pass.
+          Eigen::Matrix<T, Eigen::Dynamic, 1> gradient(m);
+          try {
+            if (mult_type == "dense") {
+              fake_triple_provider<T> triples(m, this_batch_size, n,
+                active_party == p.get_id());
+              channel.sync();
+              // TODO: aggregate fake triple computation times
+              benchmark([&]{
+                triples.precompute(1);
+              }, "Fake Triple Generation");
+
+              channel.sync();
+              benchmark([&]{
+                gradient = matrix_multiplication(
+                  input[active_party]->middleRows(
+                    row_index[active_party], this_batch_size).transpose(),
+                  activations, channel,
+                  active_party == p.get_id(), triples, this_batch_size);
+              }, "Backward Pass");
+            } else if (mult_type == "sparse") {
+              fake_triple_provider<T> triples(sparsity[active_party],
+                this_batch_size, n, active_party == p.get_id());
+              channel.sync();
+              benchmark([&]{
+                triples.precompute(1);
+              }, "Fake Triple Generation");
+
+              channel.sync();
+              benchmark([&]{
+                gradient = matrix_multiplication_rows_dense(
+                  input[active_party]->middleRows(
+                    row_index[active_party], this_batch_size).transpose(),
+                  activations, channel,
+                  active_party == p.get_id(), triples, -1, sparsity[active_party]);
+              }, "Backward Pass");
+            } else {
+              BOOST_THROW_EXCEPTION(std::runtime_error("Unknown multiplication_type"));
+            }
+          } catch (boost::exception &ex) {
+            std::cerr << boost::diagnostic_information(ex);
+            return 1;
+          }
 
           row_index[active_party] += this_batch_size;
           if(row_index[active_party] == input[active_party]->rows()) {
