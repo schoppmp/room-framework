@@ -305,7 +305,7 @@ int main(int argc, const char *argv[]) {
                   input[active_party]->middleRows(
                     row_index[active_party], this_batch_size).transpose(),
                   activations, channel,
-                  active_party == p.get_id(), triples, this_batch_size);
+                  active_party == p.get_id(), triples, -1);
               }, "Backward Pass");
             } else if (mult_type == "sparse") {
               fake_triple_provider<T> triples(sparsity[active_party],
