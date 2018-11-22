@@ -1,12 +1,12 @@
 [submodule "lib/mpc-utils"]
 	path = lib/mpc-utils
-	url = git@github.com:schoppmp/mpc-utils.git
+	url = https://github.com/schoppmp/mpc-utils
 [submodule "lib/fastpoly"]
 	path = lib/fastpoly
-	url = git@github.com:schoppmp/FastPolynomial.git
+	url = https://github.com/schoppmp/FastPolynomial
 [submodule "lib/obliv-c"]
 	path = lib/obliv-c
-	url = git@github.com:schoppmp/obliv-c.git
+	url = https://github.com/schoppmp/obliv-c
 [submodule "lib/absentminded-crypto-kit"]
 	path = lib/absentminded-crypto-kit
 	url = https://bitbucket.org/schoppmp/absentminded-crypto-kit
