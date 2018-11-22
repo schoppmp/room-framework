@@ -1,4 +1,4 @@
-FROM base/devel as build
+FROM base/devel
 
 # install dependencies in build container
 RUN pacman --noconfirm -Syu \
