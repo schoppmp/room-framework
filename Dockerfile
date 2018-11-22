@@ -23,25 +23,9 @@ RUN eval `opam config env`; \
   make clean; \
   make NDEBUG=1
 
-# copy dependencies
-RUN mkdir /deps; \
-  find bin -type f | while read bin; do \
-    ldd $bin | cut -d' ' -f 3 | grep /usr/lib | while read lib; do \
-      cp $lib /deps; \
-    done; \
-  done
-
-# copy everything into minimal image
-FROM base/archlinux
-# debug
-#FROM base/devel
-COPY --from=build /app/bin /bin
-COPY --from=build /deps /deps
-
 COPY config config
-COPY benchmarks /benchmarks
+COPY benchmarks benchmarks
 
-# let the minimal image find libraries in the correct order
-ENV LD_LIBRARY_PATH=/lib/x86_64-linux-gnu/:/deps
 # expose default ports
 EXPOSE 12347
+EXPOSE 12357
