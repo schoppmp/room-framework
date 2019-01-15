@@ -19,7 +19,7 @@ void pir_protocol_poly<K,V>::run_server(
 ) {
   try {
     double local_time = 0, mpc_time = 0;
-    double start = timestamp(), end;
+    double start =TIMESTAMP(), end;
     NTL::ZZ_pPush push(modulus);
     nonce++;
     NTL::ZZ_pX poly_server;
@@ -84,7 +84,7 @@ void pir_protocol_poly<K,V>::run_server(
       .result = nullptr,
       .shared_output = shared_output
     };
-    end = timestamp();
+    end =TIMESTAMP();
     local_time += end - start;
     start = end;
 
@@ -96,7 +96,7 @@ void pir_protocol_poly<K,V>::run_server(
     setCurrentParty(&pd, 1);
     execYaoProtocol(&pd, pir_poly_oblivc, &args);
     cleanupProtocol(&pd);
-    end = timestamp();
+    end =TIMESTAMP();
     mpc_time += end - start;
     if(print_times) {
       std::cout << "local_time: " << local_time << " s\n";
@@ -115,7 +115,7 @@ void pir_protocol_poly<K,V>::run_client(
 ) {
   try {
     double local_time = 0, mpc_time = 0;
-    double start = timestamp(), end;
+    double start =TIMESTAMP(), end;
     NTL::ZZ_pPush push(modulus);
     nonce++;
     size_t length = boost::size(input);
@@ -154,7 +154,7 @@ void pir_protocol_poly<K,V>::run_client(
         (NTL::conv<NTL::ZZ>(elements_client[i]) << 8 * (sizeof(nonce))) + nonce, block_size);
     }
     chan.flush();
-    end = timestamp();
+    end =TIMESTAMP();
     local_time += end - start;
     start = end;
 
@@ -167,13 +167,13 @@ void pir_protocol_poly<K,V>::run_client(
     execYaoProtocol(&pd, pir_poly_oblivc, &args);
     cleanupProtocol(&pd);
 
-    end = timestamp();
+    end =TIMESTAMP();
     mpc_time += end - start;
     start = end;
 
     deserialize_le(boost::begin(output), result.data(), length);
 
-    end = timestamp();
+    end =TIMESTAMP();
     local_time += end - start;
     if(print_times) {
       std::cout << "local_time: " << local_time << " s\n";
