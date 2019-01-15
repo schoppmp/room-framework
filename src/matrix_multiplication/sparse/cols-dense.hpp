@@ -50,7 +50,7 @@ matrix_multiplication_cols_dense(
       A.resize(A_in.rows(), k_A);
       A.setZero();
     }
-    double start = timestamp();
+    double start =TIMESTAMP();
 
     // get additive shares of B at inner_indices
     // TODO: extend ROOM to multiple values, do whole matrix B at once
@@ -80,7 +80,7 @@ matrix_multiplication_cols_dense(
       }
     }
     if(print_times) {
-      double end = timestamp();
+      double end =TIMESTAMP();
       std::cout << "room_time: " << end - start << " s\n";
       start = end;
     }
@@ -97,7 +97,7 @@ matrix_multiplication_cols_dense(
       }
     }
     if(print_times) {
-      double end = timestamp();
+      double end =TIMESTAMP();
       std::cout << "reordering_time: " << end - start << " s\n";
       start = end;
     }
@@ -109,7 +109,7 @@ matrix_multiplication_cols_dense(
       ret = matrix_multiplication(A, B_shared, channel, role, triples, chunk_size_in);
     }
     if(print_times) {
-      double end = timestamp();
+      double end =TIMESTAMP();
       std::cout << "dense_time: " << end - start << " s\n";
       start = end;
     }

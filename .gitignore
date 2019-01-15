@@ -35,3 +35,9 @@ bin/*
 # Obliv-C
 *.oo
 *.od
+
+# Editors
+.vscode
+
+# OS
+.DS_Store
