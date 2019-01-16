@@ -2,7 +2,7 @@ load("@com_github_schoppmp_rules_oblivc//oblivc:oblivc.bzl", "oblivc_library")
 
 licenses(["notice"])  # BSD
 
-oblivc_library(
+cc_library(
     name = "ack_native",
     srcs = glob([
         "src/**/*.c",
@@ -10,6 +10,12 @@ oblivc_library(
     hdrs = glob([
         "src/**/*.h",
     ]),
+    includes = [
+        "src",
+    ],
+    deps = [
+        "@oblivc//:runtime",
+    ],
 )
 
 oblivc_library(
