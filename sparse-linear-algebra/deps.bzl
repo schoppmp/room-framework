@@ -29,6 +29,6 @@ def sparse_linear_algebra_deps():
             name = "org_bitbucket_jackdoerner_ack",
             url = "https://bitbucket.org/jackdoerner/absentminded-crypto-kit/get/5230cef0887e.zip",
             sha256 = "133bfb1d5fdc2def0c32047e9f9288f71354ec56e003199b8bc516fb7a927fca",
-            strip_prefix = "jackdoerner-absentminded-crypto-kit-5230cef0887e",
+            strip_prefix = "jackdoerner-absentminded-crypto-kit-5230cef0887e/src",
             build_file = "//third_party:ack.BUILD",
         )
