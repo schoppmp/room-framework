@@ -1,69 +1,24 @@
+package(default_visibility = ["//visibility:public"])
+
 load("@com_github_schoppmp_rules_oblivc//oblivc:oblivc.bzl", "oblivc_library")
 
 licenses(["notice"])  # BSD
 
 oblivc_library(
-    name = "oram_ckt_block",
+    name = "oram_ckt",
     srcs = [
         "oram_ckt/block.oc",
-    ],
-    hdrs = [
-        "oram_ckt/block.oh",
-    ],
-    deps = [
-        ":oram_ckt_utils",
-    ],
-)
-
-oblivc_library(
-    name = "oram_ckt_linear_scan_oram",
-    srcs = [
+        "oram_ckt/circuit_oram.oc",
         "oram_ckt/linear_scan_oram.oc",
-    ],
-    hdrs = [
-        "oram_ckt/linear_scan_oram.oh",
-    ],
-    deps = [
-        ":oram_ckt_utils",
-    ],
-)
-
-oblivc_library(
-    name = "oram_ckt_nonrecursive_oram",
-    srcs = [
         "oram_ckt/nonrecursive_oram.oc",
-    ],
-    hdrs = [
-        "oram_ckt/nonrecursive_oram.oh",
-    ],
-    deps = [
-        ":oram_ckt_block",
-    ],
-)
-
-oblivc_library(
-    name = "oram_ckt_utils",
-    srcs = [
         "oram_ckt/utils.oc",
     ],
     hdrs = [
-        "oram_ckt/utils.oh",
-    ],
-)
-
-oblivc_library(
-    name = "oram_ckt",
-    srcs = [
-        "oram_ckt/circuit_oram.oc",
-    ],
-    hdrs = [
+        "oram_ckt/block.oh",
         "oram_ckt/circuit_oram.oh",
-    ],
-    deps = [
-        ":oram_ckt_block",
-        ":oram_ckt_linear_scan_oram",
-        ":oram_ckt_nonrecursive_oram",
-        ":oram_ckt_utils",
+        "oram_ckt/linear_scan_oram.oh",
+        "oram_ckt/nonrecursive_oram.oh",
+        "oram_ckt/utils.oh",
     ],
 )
 
@@ -83,8 +38,6 @@ cc_library(
     ],
 )
 
-# Lots of circular includes in this one, which is why we have to compile
-# everything at once.
 cc_library(
     name = "oram_fssl_native",
     srcs = [
