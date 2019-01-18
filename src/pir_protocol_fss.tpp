@@ -12,7 +12,7 @@ void pir_protocol_fss<K,V>::run_server(
   bool shared_output
 ) {
   double local_time = 0, mpc_time = 0;
-  double start =TIMESTAMP(), end;
+  double start = timestamp(), end;
   size_t input_length = boost::size(input);
   size_t default_length = boost::size(defaults);
   // set up obliv-c inputs
@@ -47,7 +47,7 @@ void pir_protocol_fss<K,V>::run_server(
     .cprg = cprg,
     .shared_output = shared_output
   };
-  end =TIMESTAMP();
+  end = timestamp();
   local_time += end - start;
   start = end;
 
@@ -59,7 +59,7 @@ void pir_protocol_fss<K,V>::run_server(
   setCurrentParty(&pd, 1);
   execYaoProtocol(&pd, pir_fss_oblivc, &args);
   cleanupProtocol(&pd);
-  end =TIMESTAMP();
+  end = timestamp();
   mpc_time += end - start - args.local_time;
   local_time += args.local_time;
   if(print_times) {
@@ -75,7 +75,7 @@ void pir_protocol_fss<K,V>::run_client(
   bool shared_output
 ) {
   double local_time = 0, mpc_time = 0;
-  double start =TIMESTAMP(), end;
+  double start = timestamp(), end;
   size_t length = boost::size(input);
   // set up obliv-c inputs
   std::vector<size_t> input_size_t(length); // FLORAM assumes size_t as indexes
@@ -93,7 +93,7 @@ void pir_protocol_fss<K,V>::run_client(
     .cprg = cprg,
     .shared_output = shared_output
   };
-  end =TIMESTAMP();
+  end = timestamp();
   local_time += end - start;
   start = end;
 
@@ -106,12 +106,12 @@ void pir_protocol_fss<K,V>::run_client(
   execYaoProtocol(&pd, pir_fss_oblivc, &args);
   cleanupProtocol(&pd);
 
-  end =TIMESTAMP();
+  end = timestamp();
   mpc_time += end - start - args.local_time;
   local_time += args.local_time;
   start = end;
   deserialize_le(output.begin(), output_bytes.data(), length);
-  end =TIMESTAMP();
+  end = timestamp();
   local_time += end - start;
   if(print_times) {
     std::cout << "local_time: " << local_time << " s\n";
