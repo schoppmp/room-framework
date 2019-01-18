@@ -15,7 +15,7 @@ void pir_protocol_scs<K,V>::run_server(
   bool shared_output
 ) {
   double local_time = 0, mpc_time = 0;
-  double start =TIMESTAMP(), end;
+  double start = timestamp(), end;
   size_t input_size = boost::size(input);
   // sort inputs
   std::vector<std::pair<K,V>> input_vec;
@@ -44,7 +44,7 @@ void pir_protocol_scs<K,V>::run_server(
     .result_values = nullptr,
     .shared_output = shared_output
   };
-  end =TIMESTAMP();
+  end = timestamp();
   local_time += end - start;
   start = end;
 
@@ -57,7 +57,7 @@ void pir_protocol_scs<K,V>::run_server(
   execYaoProtocol(&pd, pir_scs_oblivc, &args);
   cleanupProtocol(&pd);
 
-  end =TIMESTAMP();
+  end = timestamp();
   mpc_time += end - start;
   if(print_times) {
     std::cout << "local_time: " << local_time << " s\n";
@@ -73,7 +73,7 @@ void pir_protocol_scs<K,V>::run_client(
   bool shared_output
 ) {
   double local_time = 0, mpc_time = 0;
-  double start =TIMESTAMP(), end;
+  double start = timestamp(), end;
   size_t input_size = boost::size(input);
   std::map<K, size_t> input_map;
   std::vector<uint8_t> input_bytes(input_size * sizeof(K));
@@ -102,7 +102,7 @@ void pir_protocol_scs<K,V>::run_client(
     .shared_output = shared_output
   };
 
-  end =TIMESTAMP();
+  end = timestamp();
   local_time += end - start;
   start = end;
 
@@ -117,7 +117,7 @@ void pir_protocol_scs<K,V>::run_client(
   cleanupProtocol(&pd);
   // }, "SCS Yao protocol (Client)");
 
-  end =TIMESTAMP();
+  end = timestamp();
   mpc_time += end - start;
   start = end;
 
@@ -132,7 +132,7 @@ void pir_protocol_scs<K,V>::run_client(
   }
   boost::copy(output_values, boost::begin(output));
 
-  end =TIMESTAMP();
+  end = timestamp();
   local_time += end - start;
   if(print_times) {
     std::cout << "local_time: " << local_time << " s\n";

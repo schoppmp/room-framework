@@ -10,6 +10,8 @@ endif
 
 SOURCES := $(shell find -L $(SRCDIR) -type f -name '*.cpp' -not -path '*/cmd/*')
 OBJECTS := $(patsubst %.cpp, %.o, $(SOURCES))
+SOURCES_C := $(shell find -L $(SRCDIR) -type f -name '*.c' -not -path '*/cmd/*')
+OBJECTS_C := $(patsubst %.c, %.o, $(SOURCES_C))
 SOURCES_OBLIVC := $(shell find -L $(SRCDIR) -type f -name '*.oc')
 OBJECTS_OBLIVC := $(patsubst %.oc, %.oo, $(SOURCES_OBLIVC))
 SOURCES_BIN := $(shell find -L $(SRCDIR)/cmd -type f -name '*.cpp')
@@ -48,15 +50,20 @@ $(STATIC_FILES):
 	@set -e; rm -f $@; \
 	$(CXX) -MM $(CXXFLAGS) -MT "$*.o $@" $< > $@;
 
+%.d: %.c
+	@set -e; rm -f $@; \
+	$(CXX) -MM $(CFLAGS) -MT "$*.o $@" $< > $@;
+
 %.od: %.oc
 	@set -e; rm -f $@; \
 	$(CXX) -MM $(CXXFLAGS) -MT "$*.oo $@" $< > $@;
 
 -include $(SOURCES:.cpp=.d)
+-include $(SOURCES_C:.c=.d)
 -include $(SOURCES_BIN:.cpp=.d)
 -include $(SOURCES_OBLIVC:.oc=.od)
 
-$(BINDIR)/%: $(OBJECTS) $(OBJECTS_OBLIVC) $(SRCDIR)/cmd/%.o | $(STATIC_FILES)
+$(BINDIR)/%: $(OBJECTS) $(OBJECTS_C) $(OBJECTS_OBLIVC) $(SRCDIR)/cmd/%.o | $(STATIC_FILES)
 	@mkdir -p $(@D)
 	$(CXX) $(CXXFLAGS) -o $@ $^ $(LDFLAGS)
 

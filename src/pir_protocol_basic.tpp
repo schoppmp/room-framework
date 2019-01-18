@@ -16,7 +16,7 @@ void pir_protocol_basic<K,V>::run_server(
   bool shared_output
 ) {
   double local_time = 0, mpc_time = 0;
-  double start =TIMESTAMP(), end;
+  double start = timestamp(), end;
   size_t input_length = boost::size(input);
   size_t default_length = boost::size(defaults);
     // write values into a dense vector
@@ -63,7 +63,7 @@ void pir_protocol_basic<K,V>::run_server(
 
   // send encrypted vector to client for selection
   chan.send(input_bytes);
-  end =TIMESTAMP();
+  end = timestamp();
   local_time += end - start;
   start = end;
 
@@ -87,7 +87,7 @@ void pir_protocol_basic<K,V>::run_server(
   setCurrentParty(&pd, 1);
   execYaoProtocol(&pd, pir_basic_oblivc, &args);
   cleanupProtocol(&pd);
-  end =TIMESTAMP();
+  end = timestamp();
   mpc_time += end - start;
   if(print_times) {
     std::cout << "local_time: " << local_time << " s\n";
@@ -102,7 +102,7 @@ void pir_protocol_basic<K,V>::run_client(
   bool shared_output
 ) {
   double local_time = 0, mpc_time = 0;
-  double start =TIMESTAMP(), end;
+  double start = timestamp(), end;
   size_t length = boost::size(input);
   std::vector<uint8_t> all_ciphertexts;
   chan.recv(all_ciphertexts);
@@ -121,7 +121,7 @@ void pir_protocol_basic<K,V>::run_client(
       indexes_bytes[i * (sizeof(K) + 1) + sizeof(K)] = 0;
     }
   }
-  end =TIMESTAMP();
+  end = timestamp();
   local_time += end - start;
   start = end;
 
@@ -146,12 +146,12 @@ void pir_protocol_basic<K,V>::run_client(
   setCurrentParty(&pd, 2);
   execYaoProtocol(&pd, pir_basic_oblivc, &args);
   cleanupProtocol(&pd);
-  end =TIMESTAMP();
+  end = timestamp();
   mpc_time += end - start;
 
   start = end;
   deserialize_le(output.begin(), result_bytes.data(), length);
-  end =TIMESTAMP();
+  end = timestamp();
   local_time += end - start;
   if(print_times) {
     std::cout << "local_time: " << local_time << " s\n";
