@@ -2,7 +2,7 @@
 
 #include <type_traits>
 #include "pir_protocol.hpp"
-#include "mpc-utils/comm_channel.hpp"
+#include "mpc_utils/comm_channel.hpp"
 
 template<typename K, typename V>
 class pir_protocol_fss : public virtual pir_protocol<K,V> {

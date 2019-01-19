@@ -1,6 +1,6 @@
 load(
-  "@bazel_tools//tools/build_defs/repo:http.bzl",
-  "http_archive",
+    "@bazel_tools//tools/build_defs/repo:http.bzl",
+    "http_archive",
 )
 
 # Dependencies that need to be defined before :deps.bzl can be loaded.
@@ -19,9 +19,9 @@ def sparse_linear_algebra_deps_preload():
     if "com_github_schoppmp_rules_oblivc" not in native.existing_rules():
         http_archive(
             name = "com_github_schoppmp_rules_oblivc",
-            sha256 = "e985073252c21df2b890741c5ad402c6fc6965852336e7f2a07042f3d2797c48",
-            url = "https://github.com/schoppmp/rules_oblivc/archive/8067bf3d918d25b001a853d6a1085cc21be6d6de.zip",
-            strip_prefix = "rules_oblivc-8067bf3d918d25b001a853d6a1085cc21be6d6de",
+            sha256 = "188d699de79119d5b187c2f0be5316e036b26076fdbfa5d97d5ca11854a03c0a",
+            url = "https://github.com/schoppmp/rules_oblivc/archive/67ff1f66696f1e4f59681128a5dfe7eec112ec36.zip",
+            strip_prefix = "rules_oblivc-67ff1f66696f1e4f59681128a5dfe7eec112ec36",
         )
 
     if "rules_foreign_cc" not in native.existing_rules():
@@ -33,10 +33,10 @@ def sparse_linear_algebra_deps_preload():
         )
 
     # New dependencies.
-    if "mpc-utils" not in native.existing_rules():
+    if "mpc_utils" not in native.existing_rules():
         http_archive(
-            name = "com_github_schoppmp_mpc_utils",
-            url = "https://github.com/schoppmp/mpc-utils/archive/49534f7136426ac96d3282372b2d6b12a4ce46e5.zip",
-            sha256 = "b41db661c99289c102c4633956fb720ee3bd366bba6ea6a252adc9e50ab68b84",
-            strip_prefix = "mpc-utils-49534f7136426ac96d3282372b2d6b12a4ce46e5",
+            name = "mpc_utils",
+            url = "https://github.com/schoppmp/mpc-utils/archive/defefb21bd4aa95a261ed6fc8fcf54c375b33012.zip",
+            sha256 = "f7eca0fa10c4433f523872e4088f8a909246f8c7d661c41b81615179c5a8da48",
+            strip_prefix = "mpc-utils-defefb21bd4aa95a261ed6fc8fcf54c375b33012",
         )

@@ -57,6 +57,9 @@ cc_library(
     copts = [
         "-fopenmp",
     ],
+    linkopts = [
+        "-lgomp",
+    ],
     deps = [
         ":ackutil",
         ":aes_gladman",
@@ -71,14 +74,13 @@ oblivc_library(
         "oram_fssl/fss.oc",
         "oram_fssl/fss_cprg.oc",
         "oram_fssl/scanrom.oc",
-        # Internal headers.
-        "oram_fssl/floram_util.oh",
-        "oram_fssl/scanrom.oh",
     ],
     hdrs = [
         "oram_fssl/floram.oh",
         "oram_fssl/fss.oh",
         "oram_fssl/fss_cprg.oh",
+        "oram_fssl/floram_util.oh",
+        "oram_fssl/scanrom.oh",
     ],
     deps = [
         ":ackutil",
@@ -94,12 +96,11 @@ oblivc_library(
         "oram_sqrt/decoder.oc",
         "oram_sqrt/shuffle.oc",
         "oram_sqrt/sqrtoram.oc",
-        # Internal headers.
-        "oram_sqrt/decoder.oh",
-        "oram_sqrt/shuffle.oh",
     ],
     hdrs = [
         "oram_sqrt/sqrtoram.oh",
+        "oram_sqrt/decoder.oh",
+        "oram_sqrt/shuffle.oh",
     ],
     deps = [
         ":shuffle",

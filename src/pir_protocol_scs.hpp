@@ -1,7 +1,7 @@
 #pragma once
 
 #include "pir_protocol.hpp"
-#include "mpc-utils/comm_channel.hpp"
+#include "mpc_utils/comm_channel.hpp"
 
 template<typename K, typename V>
 class pir_protocol_scs : public virtual pir_protocol<K,V> {

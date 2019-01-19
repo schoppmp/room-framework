@@ -5,14 +5,15 @@
 #include <NTL/vector.h>
 
 #include "fastpoly/recursive.h"
-#include "mpc-utils/boost_serialization/ntl.hpp"
-#include "mpc-utils/mpc_config.hpp"
-#include "mpc-utils/party.hpp"
-#include "pir_protocol_poly.hpp"
-#include "pir_protocol_fss.hpp"
-#include "pir_protocol_scs.hpp"
-#include "pir_protocol_basic.hpp"
-#include "util/time.h"
+#include "mpc_utils/boost_serialization/ntl.hpp"
+#include "mpc_utils/mpc_config.hpp"
+#include "mpc_utils/party.hpp"
+
+#include "src/pir_protocol_poly.hpp"
+#include "src/pir_protocol_fss.hpp"
+#include "src/pir_protocol_scs.hpp"
+#include "src/pir_protocol_basic.hpp"
+#include "src/util/time.h"
 
 
 class test_pir_config : public virtual mpc_config {

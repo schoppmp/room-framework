@@ -2,7 +2,7 @@
 #include <boost/range.hpp>
 #include <boost/range/algorithm.hpp>
 
-#include "mpc-utils/boost_serialization/ntl.hpp"
+#include "mpc_utils/boost_serialization/ntl.hpp"
 #include "fastpoly/recursive.h"
 #include "util/serialize_le.hpp"
 #include "util/time.h"
