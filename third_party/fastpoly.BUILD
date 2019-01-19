@@ -17,5 +17,8 @@ cc_library(
         "recursive.h",
         "utils.h",
     ],
+    deps = [
+        "@mpc_utils//third_party/ntl",
+    ],
     visibility = ["//visibility:public"],
 )
