@@ -1,17 +1,5 @@
-image: docker:stable
-services:
-  - docker:dind
-
-variables:
-  CONTAINER_IMAGE: gitlab.informatik.hu-berlin.de:4567/$CI_PROJECT_PATH
-
-before_script:
-  - docker login -u gitlab-ci-token -p $CI_BUILD_TOKEN gitlab.informatik.hu-berlin.de:4567
-
-build:
+build_all:
+  image: gitlab.informatik.hu-berlin.de:4567/ti/software/bazel-builder:latest
   stage: build
   script:
-    - docker pull $CONTAINER_IMAGE:latest || true
-    - docker build --cache-from $CONTAINER_IMAGE:latest,base/devel --tag $CONTAINER_IMAGE:$CI_COMMIT_SHA --tag $CONTAINER_IMAGE:latest .
-    - docker push $CONTAINER_IMAGE:$CI_COMMIT_SHA
-    - docker push $CONTAINER_IMAGE:latest
+    - bazel build ...:all
