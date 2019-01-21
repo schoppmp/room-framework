@@ -10,4 +10,10 @@ cc_library(
     ],
     strip_include_prefix = "any_iterator",
     visibility = ["//visibility:public"],
+    deps = [
+        "@boost//:conversion",
+        "@boost//:iterator",
+        "@boost//:type_traits",
+        "@boost//:mpl",
+    ],
 )
