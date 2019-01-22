@@ -15,5 +15,13 @@ cc_library(
     visibility = ["//visibility:public"],
     deps = [
         ":zero_sharing_oblivc",
+        "@mpc_utils//third_party/ntl",
+        "@mpc_utils//third_party/eigen",
+        "@mpc_utils//mpc_utils:comm_channel_oblivc",
+        "@boost//:serialization",
+        "@boost//:range",
+        "@boost//:exception",
+        "@fastpoly",
+        "@oblivc//:runtime",
     ],
 )

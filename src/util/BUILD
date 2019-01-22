@@ -8,6 +8,7 @@ cc_library(
         "get_ceil.hpp",
         "randomize_matrix.hpp",
         "serialize_le.hpp",
+        "reservoir_sampling.hpp",
     ],
     deps = [
         ":time",

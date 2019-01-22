@@ -93,6 +93,8 @@ cc_library(
         ":pir_protocol",
         ":pir_protocol_poly_oblivc",
         "@mpc_utils//mpc_utils:comm_channel_oblivc",
+        "@mpc_utils//mpc_utils/boost_serialization:ntl",
+        "@fastpoly",
     ],
 )
 

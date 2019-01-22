@@ -1,6 +1,15 @@
 package(default_visibility = ["//visibility:public"])
 
 cc_library(
+    name = "sparse",
+    deps = [
+        ":cols-dense",
+        ":cols-rows",
+        ":rows-dense",
+    ],
+)
+
+cc_library(
     name = "common",
     hdrs = ["sparse_common.hpp"],
     visibility = ["//visibility:private"],

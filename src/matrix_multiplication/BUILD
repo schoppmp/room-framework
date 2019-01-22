@@ -10,3 +10,8 @@ cc_library(
         "@mpc_utils//mpc_utils/boost_serialization:eigen",
     ],
 )
+
+alias(
+    name = "sparse",
+    actual = "//src/matrix_multiplication/sparse:sparse",
+)
