@@ -11,9 +11,9 @@ def sparse_linear_algebra_deps_preload():
     if "com_github_nelhage_rules_boost" not in native.existing_rules():
         http_archive(
             name = "com_github_nelhage_rules_boost",
-            url = "https://github.com/nelhage/rules_boost/archive/6d6fd834281cb8f8e758dd9ad76df86304bf1869.zip",
-            sha256 = "b4d498a21e9d90ec65720ee3ae4dcbc2f1ce245b2866242514cebbc189d2fc14",
-            strip_prefix = "rules_boost-6d6fd834281cb8f8e758dd9ad76df86304bf1869",
+            url = "https://github.com/nelhage/rules_boost/archive/691a53dd7dc4fb8ab70f61acad9b750a1bf10dc6.zip",
+            sha256 = "5837d6bcf96c60dc1407126e828287098f91a8c69d8c2ccf8ebb0282ed35b401",
+            strip_prefix = "rules_boost-691a53dd7dc4fb8ab70f61acad9b750a1bf10dc6",
         )
 
     if "com_github_schoppmp_rules_oblivc" not in native.existing_rules():
@@ -27,16 +27,16 @@ def sparse_linear_algebra_deps_preload():
     if "rules_foreign_cc" not in native.existing_rules():
         http_archive(
             name = "rules_foreign_cc",
-            url = "https://github.com/bazelbuild/rules_foreign_cc/archive/99ea1b09fc3fe9a1fbb32d965324d9dc34c31cde.zip",
-            strip_prefix = "rules_foreign_cc-99ea1b09fc3fe9a1fbb32d965324d9dc34c31cde",
-            sha256 = "5ffb7001ae6fe455a1b7baceb0944112183d3523efcdc0a674a964837d4e7312",
+            url = "https://github.com/bazelbuild/rules_foreign_cc/archive/216ded8acb95d81e312b228dce3c39872c7a7c34.zip",
+            strip_prefix = "rules_foreign_cc-216ded8acb95d81e312b228dce3c39872c7a7c34",
+            sha256 = "bb38d30c5d06cc1aedc9db7d2274d2323419a60200ac8e5fdbdc100e37740975",
         )
 
     # New dependencies.
     if "mpc_utils" not in native.existing_rules():
         http_archive(
             name = "mpc_utils",
-            url = "https://github.com/schoppmp/mpc-utils/archive/defefb21bd4aa95a261ed6fc8fcf54c375b33012.zip",
-            sha256 = "f7eca0fa10c4433f523872e4088f8a909246f8c7d661c41b81615179c5a8da48",
-            strip_prefix = "mpc-utils-defefb21bd4aa95a261ed6fc8fcf54c375b33012",
+            url = "https://github.com/schoppmp/mpc-utils/archive/40d6c04c84c47951096e06b4d8b8cd0872f21985.zip",
+            sha256 = "2a7464dd3366217cc38f169d9102fabddbc1a8231f4213fcc03eb8e80bd601a1",
+            strip_prefix = "mpc-utils-40d6c04c84c47951096e06b4d8b8cd0872f21985",
         )
