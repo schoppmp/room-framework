@@ -1,4 +1,4 @@
-#include "util/knn.hpp"
+#include "src/util/knn.hpp"
 
 // generates random matrices and multiplies them using multiplication triples
 int main(int argc, const char *argv[]) {

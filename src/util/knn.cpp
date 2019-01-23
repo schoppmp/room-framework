@@ -1,8 +1,8 @@
 #include "knn.hpp"
-#include "util/get_ceil.hpp"
-#include "util/randomize_matrix.hpp"
-#include "util/reservoir_sampling.hpp"
-#include "util/time.h"
+#include "src/util/get_ceil.hpp"
+#include "src/util/randomize_matrix.hpp"
+#include "src/util/reservoir_sampling.hpp"
+#include "src/util/time.h"
 
 namespace sparse_linear_algebra::util::knn {
   void KNNConfig::validate() {
