@@ -1,0 +1,152 @@
+#include "pir_protocol_scs.h"
+#include <obliv.oh>
+#include "obig.oh"
+#include <copy.oh>
+#include "osort.oh"
+#include <obliv_bits.h>
+#include "shuffle.oh"
+
+// this is somewhat hacky, but it allows us to implement this protocol once for
+// arbitrary key and value sizes known only at runtime
+static __thread size_t key_size;
+static __thread size_t value_size;
+
+obliv int8_t cmp_pair_by_key(OcCopy *cpy, void *el1, void *el2) {
+  obliv bool el1_is_less;
+  // using obliv-c internals here, but everything else wastes AND gates
+  // since arguments are encoded little-endian, this should simply work
+  // TODO: why doesn't liback's obig library use these?
+  __obliv_c__setLessThanUnsigned(&el1_is_less, el1, el2, 8 * key_size);
+  obliv char ret = 1;
+  obliv if(el1_is_less) { ret = -1; }
+  return ret;
+}
+
+void pir_scs_oblivc(void *vargs) {
+  pir_scs_oblivc_args *args = vargs;
+  key_size = args->key_type_size;
+  value_size = args->value_type_size;
+  size_t pair_size = key_size + value_size;
+  size_t opair_size_bits = 8 * pair_size + 1; // last bit is set when element is client's
+  OcCopy cpy_opair = ocCopyBoolN(opair_size_bits);
+  OcCopy cpy_value = ocCopyCharN(value_size);
+  OcCopy cpy_key = ocCopyCharN(key_size);
+  size_t len1 = ocBroadcastLLong(args->num_elements, 1);
+  size_t len2 = ocBroadcastLLong(args->num_elements, 2);
+
+  // feed inputs
+  obliv char *input_keys1 = calloc(len1, sizeof(obliv uint8_t) * key_size);
+  obliv char *input_values1 = calloc(len1, sizeof(obliv uint8_t) * value_size);
+  obliv char *input_defaults1 = calloc(len2, sizeof(obliv uint8_t) * value_size);
+  obliv char *input_keys2 = calloc(len2, sizeof(obliv uint8_t) * key_size);
+  feedOblivCharArray(input_keys1, args->input_keys, len1 * key_size, 1);
+  feedOblivCharArray(input_values1, args->input_values, len1 * value_size, 1);
+  feedOblivCharArray(input_defaults1, args->input_defaults, len2 * value_size, 1);
+  feedOblivCharArray(input_keys2, args->input_keys, len2 * key_size, 2);
+
+  // copy into data structure suitable for merging
+  // format is (key, value, owned_by_party_2)
+  obliv bool *opairs = calloc(len1 + len2, opair_size_bits * sizeof(obliv bool));
+  for(size_t i = 0; i < len1; i++) {
+    // party 1 has key-value pairs
+    ocCopy(&cpy_key, &opairs[i * opair_size_bits], &input_keys1[i * key_size]);
+    ocCopy(&cpy_value, &opairs[i * opair_size_bits + 8 * key_size],
+      &input_values1[i * value_size]);
+  }
+
+  // initialize public parts of party 2 shares
+  for(size_t i = 0; i < len2; i++) {
+    // set up keys
+    ocCopy(&cpy_key, &opairs[(len1+i) * opair_size_bits],
+      &input_keys2[i * key_size]);
+    // set up default values
+    obliv bool* dest = &opairs[(len1+i) * opair_size_bits + 8 * key_size];
+    ocCopy(&cpy_value, dest, &input_defaults1[i*value_size]);
+    if(args->shared_output) {
+      // negate client value so shares add up to zero
+      __obliv_c__setNeg(dest, dest, 8 * value_size);
+    }
+    // mark pair as owned by party 2 -> set last bit to 1
+    opairs[(len1+i+1) * opair_size_bits - 1] = 1;
+  }
+
+  free(input_keys1);
+  free(input_values1);
+  free(input_defaults1);
+  free(input_keys2);
+
+  // merge
+  omerge_batcher(&cpy_opair, opairs, len1, len1+len2, cmp_pair_by_key);
+
+  // compare
+  obliv char *values_sum = calloc(value_size, sizeof(obliv char));
+  obliv bool temp;
+  for(size_t i = 1; i < len1+len2; i++) {
+    obliv bool equal = 0;
+    // compare current key to last
+    __obliv_c__setEqualTo(&equal, &opairs[(i-1)*opair_size_bits],
+      &opairs[i*opair_size_bits], 8 * key_size);
+    obliv bool *el1, *el2;
+    if(args->shared_output) {
+      // add up client and server values
+      el1 = &opairs[(i-1) * opair_size_bits + 8 * key_size];
+      el2 = &opairs[i * opair_size_bits + 8 * key_size];
+      __obliv_c__setPlainAdd(values_sum, el1, el2, 8 * value_size);
+    }
+    obliv if(equal) {
+      if(args->shared_output) {
+        ocCopy(&cpy_value, el1, values_sum);
+        ocCopy(&cpy_value, el2, values_sum);
+      } else {
+         // swap client and server pair by swapping flags
+        ocSwap(&ocCopyBool, &opairs[i*opair_size_bits - 1],
+          &opairs[(i+1)*opair_size_bits - 1], &temp);
+      }
+    }
+  }
+  free(values_sum);
+
+  // shuffle
+  // there is a bug in the implementation of ocShuffleData: an empty perm_out
+  // argument is ignored; so here, we just reimplement ocShuffleData;
+  OcPermNetwork w = ocPermNetworkRandom(len1+len2);
+  ocPermNetworkApply(&w,&cpy_opair,opairs);
+  ocPermNetworkCleanup(&w);
+
+  // get indexes of valid pairs; this doesn't reveal anything, since they're random
+  bool *valid = calloc(len1 + len2, sizeof(bool));
+  size_t num_valid = 0;
+  // do two loops, one for each party, since otherwise obliv-c introduces
+  // one communication round per iteration
+  for(size_t i = 0; i < len1 + len2; i++) {
+    revealOblivBool(&valid[i], opairs[(i+1)*opair_size_bits - 1], 1);
+    if(ocCurrentParty() == 1 && valid[i]) {
+      num_valid++;
+    }
+  }
+  for(size_t i = 0; i < len1 + len2; i++) {
+    revealOblivBool(&valid[i], opairs[(i+1)*opair_size_bits - 1], 2);
+    if(ocCurrentParty() == 2 && valid[i]) {
+      num_valid++;
+    }
+  }
+  if(num_valid != len2) {
+    fprintf(stderr, "IMPLEMENTATION ERROR: there must be %zd valid elements "
+      "after shuffling, but we have %zd", len2, num_valid);
+  }
+
+  // reveal valid pairs to client
+  num_valid = 0;
+  for(size_t i = 0; i < len1 + len2; i++) {
+    if(valid[i]) {
+      revealOblivCharArray(&args->result_keys[num_valid * key_size],
+        &opairs[i * opair_size_bits], key_size, 2);
+      revealOblivCharArray(&args->result_values[num_valid * value_size],
+        &opairs[i * opair_size_bits + 8 * key_size], value_size, 2);
+      num_valid++;
+    }
+  }
+
+  free(opairs);
+  free(valid);
+}

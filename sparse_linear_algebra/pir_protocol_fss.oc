@@ -1,0 +1,79 @@
+#include "pir_protocol_fss.h"
+#include <obliv.oh>
+#include <copy.oh>
+#include "oram_fssl/floram.oh"
+#include <bcrandom.h>
+#include "util/time.h"
+
+
+void pir_fss_oblivc(void *vargs) {
+  pir_fss_oblivc_args *args = vargs;
+  args->num_server_values = ocBroadcastLLong(args->num_server_values, 1);
+
+  // set up oram; this is mostly local time, so count it as such
+  double start = timestamp(), end;
+  if(ocCurrentParty() == 2) {
+    // allocate zero array for client's shares for faster floram construction
+    args->server_values = calloc(args->num_server_values,
+      (args->value_type_size + 1));
+  }
+  // CPRG floram crashes when the ORAM is too small -> minimum size 8 (why?)
+  OcCopy cpy = ocCopyCharN(args->value_type_size + 1); // one extra byte for valid flag
+  size_t floram_size = args->num_server_values < 8 ? 8 : args->num_server_values;
+  floram *ram = floram_new(&cpy, args->server_values, floram_size, args->cprg, 1);
+  end = timestamp();
+  args->local_time = end - start;
+
+  // read inputs from parties
+  obliv size_t *client_keys = calloc(args->num_client_keys,
+    sizeof(obliv size_t));
+  obliv uint8_t *client_values1 = calloc(
+    args->num_client_keys * args->value_type_size, sizeof(obliv uint8_t));
+  obliv uint8_t *client_values2 = calloc(
+    args->num_client_keys * args->value_type_size, sizeof(obliv uint8_t));
+  feedOblivCharArray(client_values1, args->server_defaults,
+    args->num_client_keys * args->value_type_size, 1);
+  feedOblivLLongArray(client_keys, args->client_keys, args->num_client_keys, 2);
+
+  // select client's values
+  OcCopy cpy2 = ocCopyCharN(args->value_type_size);
+  obliv uint8_t *current_value = calloc(args->value_type_size + 1, sizeof(obliv uint8_t));
+  obliv uint8_t *zero_value = calloc(args->value_type_size, sizeof(obliv uint8_t));
+  for(size_t i = 0; i < args->num_client_keys; i++) {
+    obliv if(client_keys[i] < args->num_server_values) {
+      floram_read(current_value, ram, client_keys[i]);
+    }
+    obliv uint8_t *current_value_client = &client_values2[i * args->value_type_size];
+    obliv uint8_t *current_value_server = &client_values1[i * args->value_type_size];
+    obliv if(current_value[args->value_type_size]&1 == 1) {
+      ocCopy(&cpy2, current_value_client, current_value);
+    } else {
+      if(args->shared_output) {
+        ocCopy(&cpy2, current_value_client, zero_value);
+      } else {
+        ocCopy(&cpy2, current_value_client, current_value_server);
+      }
+    }
+    if(args->shared_output) {
+      // subtract server's share from client's share (which is either zero or
+      // the value found in the ORAM)
+      __obliv_c__setPlainSub(current_value_client, current_value_client,
+        current_value_server, 8 * args->value_type_size);
+    }
+    current_value[args->value_type_size] = 0;
+  }
+
+  // reveal result to client
+  revealOblivCharArray(args->result, client_values2,
+    args->value_type_size * args->num_client_keys, 2);
+
+  free(client_keys);
+  free(client_values1);
+  free(client_values2);
+  free(current_value);
+  free(zero_value);
+  if(ocCurrentParty() == 2) {
+    free(args->server_values);
+  }
+  floram_free(ram);
+}
