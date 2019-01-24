@@ -11,11 +11,11 @@ extern "C" {
 #include "sparse_linear_algebra/util/reservoir_sampling.hpp"
 #include "sparse_linear_algebra/util/get_ceil.hpp"
 #include "sparse_linear_algebra/util/time.h"
-#include "sparse_linear_algebra/pir_protocol.hpp"
-#include "sparse_linear_algebra/pir_protocol_scs.hpp"
-#include "sparse_linear_algebra/pir_protocol_fss.hpp"
-#include "sparse_linear_algebra/pir_protocol_poly.hpp"
-#include "sparse_linear_algebra/pir_protocol_basic.hpp"
+#include "sparse_linear_algebra/oblivious_map/oblivious_map.hpp"
+#include "sparse_linear_algebra/oblivious_map/sorting_oblivious_map.hpp"
+#include "sparse_linear_algebra/oblivious_map/fss_oblivious_map.hpp"
+#include "sparse_linear_algebra/oblivious_map/poly_oblivious_map.hpp"
+#include "sparse_linear_algebra/oblivious_map/basic_oblivious_map.hpp"
 #include <Eigen/Dense>
 #include <Eigen/Sparse>
 
@@ -132,7 +132,7 @@ int main(int argc, const char *argv[]) {
   party p(conf);
   auto channel = p.connect_to(1 - p.get_id());
 
-  pir_protocol_basic<int, T> proto(channel, false);
+  basic_oblivious_map<int, T> proto(channel, false);
   using dense_matrix = Eigen::Matrix<T, Eigen::Dynamic, Eigen::Dynamic>;
   int seed = 123456; // seed random number generator deterministically
   std::mt19937 prg(seed);

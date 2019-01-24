@@ -4,7 +4,7 @@
 #include <unordered_set>
 #include "sparse_linear_algebra/matrix_multiplication/dense.hpp"
 #include "sparse_common.hpp"
-#include "sparse_linear_algebra/pir_protocol.hpp"
+#include "sparse_linear_algebra/oblivious_map/oblivious_map.hpp"
 #include "sparse_linear_algebra/util/time.h"
 
 extern "C" {
@@ -42,7 +42,7 @@ template <
 Eigen::Matrix<T, Derived_A::RowsAtCompileTime, Derived_B::ColsAtCompileTime>
 matrix_multiplication_cols_rows(  // TODO: somehow derive row-/column sparsity
     const Eigen::SparseMatrixBase<Derived_A> &A_in,
-    const Eigen::SparseMatrixBase<Derived_B> &B_in, pir_protocol<K, K> &prot,
+    const Eigen::SparseMatrixBase<Derived_B> &B_in, oblivious_map<K, K> &prot,
     comm_channel &channel, int role,
     triple_provider<T, false>
         &triples,  // TODO: implement shared variant by pseudorandomly permuting

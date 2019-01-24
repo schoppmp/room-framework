@@ -1,6 +1,5 @@
 load("@com_github_schoppmp_rules_oblivc//oblivc:oblivc.bzl", "oblivc_library")
 
-
 oblivc_library(
     name = "knn",
     srcs = [
@@ -22,13 +21,13 @@ cc_library(
     visibility = ["//visibility:public"],
     deps = [
         ":knn",
-        "//sparse_linear_algebra:pir_protocol",
-        "//sparse_linear_algebra:pir_protocol_basic",
-        "//sparse_linear_algebra:pir_protocol_fss",
-        "//sparse_linear_algebra:pir_protocol_poly",
-        "//sparse_linear_algebra:pir_protocol_scs",
         "//sparse_linear_algebra/matrix_multiplication:dense",
         "//sparse_linear_algebra/matrix_multiplication:sparse",
+        "//sparse_linear_algebra/oblivious_map:pir_protocol",
+        "//sparse_linear_algebra/oblivious_map:pir_protocol_basic",
+        "//sparse_linear_algebra/oblivious_map:pir_protocol_fss",
+        "//sparse_linear_algebra/oblivious_map:pir_protocol_poly",
+        "//sparse_linear_algebra/oblivious_map:pir_protocol_scs",
         "//sparse_linear_algebra/util",
         "@mpc_utils//mpc_utils:comm_channel_oblivc",
         "@mpc_utils//mpc_utils:mpc_config",

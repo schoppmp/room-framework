@@ -3,13 +3,13 @@ package(default_visibility = ["//sparse_linear_algebra:__subpackages__"])
 cc_library(
     name = "util",
     deps = [
-        ":time",
         ":blocking_queue",
         ":combine_pair",
         ":get_ceil",
         ":randomize_matrix",
-        ":serialize_le",
         ":reservoir_sampling",
+        ":serialize_le",
+        ":time",
     ],
 )
 
@@ -68,14 +68,14 @@ cc_library(
 # TODO: This shouldn't be in util
 cc_library(
     name = "knn",
-    hdrs = [
-        "knn.hpp",
-    ],
     srcs = [
         "knn.cpp",
     ],
+    hdrs = [
+        "knn.hpp",
+    ],
     deps = [
-        "//sparse_linear_algebra/applications:knn_protocol",
         ":util",
-    ]
+        "//sparse_linear_algebra/applications:knn_protocol",
+    ],
 )

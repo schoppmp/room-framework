@@ -8,10 +8,10 @@
 #include "mpc_utils/boost_serialization/ntl.hpp"
 #include "mpc_utils/mpc_config.hpp"
 #include "mpc_utils/party.hpp"
-#include "sparse_linear_algebra/pir_protocol_poly.hpp"
-#include "sparse_linear_algebra/pir_protocol_fss.hpp"
-#include "sparse_linear_algebra/pir_protocol_scs.hpp"
-#include "sparse_linear_algebra/pir_protocol_basic.hpp"
+#include "sparse_linear_algebra/oblivious_map/poly_oblivious_map.hpp"
+#include "sparse_linear_algebra/oblivious_map/fss_oblivious_map.hpp"
+#include "sparse_linear_algebra/oblivious_map/sorting_oblivious_map.hpp"
+#include "sparse_linear_algebra/oblivious_map/basic_oblivious_map.hpp"
 #include "sparse_linear_algebra/util/time.h"
 #include "sparse_linear_algebra/util/get_ceil.hpp"
 
@@ -85,7 +85,7 @@ int main(int argc, const char **argv) {
 
   using key_type = uint32_t;
   using value_type = uint32_t;
-  std::unique_ptr<pir_protocol<key_type, value_type>> proto;
+  std::unique_ptr<oblivious_map<key_type, value_type>> proto;
   // number of experiments is determined by the parameter passed the most times
   size_t num_experiments = std::max({conf.pir_types.size(),
     conf.num_elements_client.size(), conf.num_elements_server.size()});
@@ -98,20 +98,20 @@ int main(int argc, const char **argv) {
       auto& pir_type = get_ceil(conf.pir_types, experiment);
       try {
         if(pir_type == "basic") {
-          proto = std::unique_ptr<pir_protocol<key_type, value_type>>(
-            new pir_protocol_basic<key_type, value_type>(chan, true));
+          proto = std::unique_ptr<oblivious_map<key_type, value_type>>(
+            new basic_oblivious_map<key_type, value_type>(chan, true));
         } else if(pir_type == "poly") {
-          proto = std::unique_ptr<pir_protocol<key_type, value_type>>(
-            new pir_protocol_poly<key_type, value_type>(chan, conf.statistical_security, true));
+          proto = std::unique_ptr<oblivious_map<key_type, value_type>>(
+            new poly_oblivious_map<key_type, value_type>(chan, conf.statistical_security, true));
         } else if(pir_type == "fss") {
-          proto = std::unique_ptr<pir_protocol<key_type, value_type>>(
-            new pir_protocol_fss<key_type, value_type>(chan, false, true));
+          proto = std::unique_ptr<oblivious_map<key_type, value_type>>(
+            new fss_oblivious_map<key_type, value_type>(chan, false, true));
         } else if(pir_type == "fss_cprg") {
-          proto = std::unique_ptr<pir_protocol<key_type, value_type>>(
-            new pir_protocol_fss<key_type, value_type>(chan, true, true));
+          proto = std::unique_ptr<oblivious_map<key_type, value_type>>(
+            new fss_oblivious_map<key_type, value_type>(chan, true, true));
         } else { // if(conf.pir_type == "scs") {
-          proto = std::unique_ptr<pir_protocol<key_type, value_type>>(
-            new pir_protocol_scs<key_type, value_type>(chan, true));
+          proto = std::unique_ptr<oblivious_map<key_type, value_type>>(
+            new sorting_oblivious_map<key_type, value_type>(chan, true));
         }
       } catch(boost::exception &ex) {
         std::cerr << boost::diagnostic_information(ex);

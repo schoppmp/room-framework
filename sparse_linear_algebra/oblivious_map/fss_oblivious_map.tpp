@@ -1,14 +1,14 @@
-#include "util/serialize_le.hpp"
-#include "util/time.h"
+#include "sparse_linear_algebra/util/serialize_le.hpp"
+#include "sparse_linear_algebra/util/time.h"
 extern "C" {
   #include <obliv.h>
-  #include "pir_protocol_fss.h"
+  #include "fss_oblivious_map.h"
 }
 
 template<typename K, typename V>
-void pir_protocol_fss<K,V>::run_server(
-  const pir_protocol_fss<K,V>::pair_range input,
-  const pir_protocol_fss<K,V>::value_range defaults,
+void fss_oblivious_map<K,V>::run_server(
+  const fss_oblivious_map<K,V>::pair_range input,
+  const fss_oblivious_map<K,V>::value_range defaults,
   bool shared_output
 ) {
   double local_time = 0, mpc_time = 0;
@@ -69,9 +69,9 @@ void pir_protocol_fss<K,V>::run_server(
 }
 
 template<typename K, typename V>
-void pir_protocol_fss<K,V>::run_client(
-  const pir_protocol_fss<K,V>::key_range input,
-  const pir_protocol_fss<K,V>::value_range output,
+void fss_oblivious_map<K,V>::run_client(
+  const fss_oblivious_map<K,V>::key_range input,
+  const fss_oblivious_map<K,V>::value_range output,
   bool shared_output
 ) {
   double local_time = 0, mpc_time = 0;

@@ -1,4 +1,4 @@
-#include "pir_protocol_scs.h"
+#include "sorting_oblivious_map.h"
 #include <obliv.oh>
 #include "obig.oh"
 #include <copy.oh>

@@ -1,9 +1,9 @@
-#include "pir_protocol_fss.h"
+#include "fss_oblivious_map.h"
 #include <obliv.oh>
 #include <copy.oh>
 #include "oram_fssl/floram.oh"
 #include <bcrandom.h>
-#include "util/time.h"
+#include "sparse_linear_algebra/util/time.h"
 
 
 void pir_fss_oblivc(void *vargs) {

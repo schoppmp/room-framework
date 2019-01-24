@@ -2,17 +2,17 @@
 #include <boost/range.hpp>
 #include <boost/range/algorithm.hpp>
 
-#include "util/serialize_le.hpp"
-#include "util/time.h"
+#include "sparse_linear_algebra/util/serialize_le.hpp"
+#include "sparse_linear_algebra/util/time.h"
 extern "C" {
   #include <obliv.h>
-  #include "pir_protocol_basic.h"
+  #include "basic_oblivious_map.h"
 }
 
 template<typename K, typename V>
-void pir_protocol_basic<K,V>::run_server(
-  const pir_protocol_basic<K,V>::pair_range input,
-  const pir_protocol_basic<K,V>::value_range defaults,
+void basic_oblivious_map<K,V>::run_server(
+  const basic_oblivious_map<K,V>::pair_range input,
+  const basic_oblivious_map<K,V>::value_range defaults,
   bool shared_output
 ) {
   double local_time = 0, mpc_time = 0;
@@ -96,9 +96,9 @@ void pir_protocol_basic<K,V>::run_server(
 }
 
 template<typename K, typename V>
-void pir_protocol_basic<K,V>::run_client(
-  const pir_protocol_basic<K,V>::key_range input,
-  const pir_protocol_basic<K,V>::value_range output,
+void basic_oblivious_map<K,V>::run_client(
+  const basic_oblivious_map<K,V>::key_range input,
+  const basic_oblivious_map<K,V>::value_range output,
   bool shared_output
 ) {
   double local_time = 0, mpc_time = 0;

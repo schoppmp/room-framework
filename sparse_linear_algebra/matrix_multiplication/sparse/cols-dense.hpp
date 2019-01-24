@@ -5,7 +5,7 @@
 #include "external/mpc_utils/third_party/eigen/eigen/include/eigen3/Eigen/Sparse"
 #include "sparse_linear_algebra/matrix_multiplication/dense.hpp"
 #include "sparse_common.hpp"
-#include "sparse_linear_algebra/pir_protocol.hpp"
+#include "sparse_linear_algebra/oblivious_map/oblivious_map.hpp"
 #include "sparse_linear_algebra/util/time.h"
 extern "C" {
   #include "external/oblivc/_virtual_includes/runtime/bcrandom.h"
@@ -19,7 +19,7 @@ Eigen::Matrix<T, Derived_A::RowsAtCompileTime, Derived_B::ColsAtCompileTime>
 matrix_multiplication_cols_dense(
     const Eigen::SparseMatrixBase<Derived_A>& A_in,
     const Eigen::MatrixBase<Derived_B>& B_in,
-    pir_protocol<K, T>& prot,
+    oblivious_map<K, T>& prot,
     comm_channel& channel, int role,
     triple_provider<T, true>& triples,
     ssize_t chunk_size_in = -1,

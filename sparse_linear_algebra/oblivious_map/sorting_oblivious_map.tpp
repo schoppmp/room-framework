@@ -1,17 +1,17 @@
-#include "util/serialize_le.hpp"
-#include "util/time.h"
+#include "sparse_linear_algebra/util/serialize_le.hpp"
+#include "sparse_linear_algebra/util/time.h"
 extern "C" {
   #include <obliv.h>
-  #include "pir_protocol_scs.h"
+  #include "sorting_oblivious_map.h"
 }
 #include <boost/range/adaptor/map.hpp>
 #include <boost/range/combine.hpp>
 #include <boost/range/irange.hpp>
 
 template<typename K, typename V>
-void pir_protocol_scs<K,V>::run_server(
-  const pir_protocol_scs<K,V>::pair_range input,
-  const pir_protocol_scs<K,V>::value_range defaults,
+void sorting_oblivious_map<K,V>::run_server(
+  const sorting_oblivious_map<K,V>::pair_range input,
+  const sorting_oblivious_map<K,V>::value_range defaults,
   bool shared_output
 ) {
   double local_time = 0, mpc_time = 0;
@@ -67,9 +67,9 @@ void pir_protocol_scs<K,V>::run_server(
 }
 
 template<typename K, typename V>
-void pir_protocol_scs<K,V>::run_client(
-  const pir_protocol_scs<K,V>::key_range input,
-  pir_protocol_scs<K,V>::value_range output,
+void sorting_oblivious_map<K,V>::run_client(
+  const sorting_oblivious_map<K,V>::key_range input,
+  sorting_oblivious_map<K,V>::value_range output,
   bool shared_output
 ) {
   double local_time = 0, mpc_time = 0;

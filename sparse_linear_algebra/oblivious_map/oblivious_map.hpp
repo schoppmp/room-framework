@@ -3,7 +3,7 @@
 #include <vector>
 #include <map>
 #include "boost/range/any_range.hpp"
-#include "any_iterator.hpp"
+#include "external/iterator_type_erasure/_virtual_includes/any_iterator/any_iterator.hpp"
 
 // A (sparse) PIR protocol is executed between two parties, called Server and
 // Client. The server inputs an iterator over key-value pairs, and an iterator
@@ -11,11 +11,11 @@
 // is a vector of values, where client_out[i] = server_in[client_in[i]] if
 // client_in[i] exists in server_in, and client_out[i] = defaults[i] otherwise
 template<typename K, typename V>
-class pir_protocol {
+class oblivious_map {
 public:
   using key_type = K;
   using value_type = V;
-  virtual ~pir_protocol() {};
+  virtual ~oblivious_map() {};
 
   // Range types for container-agnostic protocols
   using key_range = boost::any_range<K, boost::single_pass_traversal_tag,
@@ -48,4 +48,4 @@ public:
     bool shared_output = false);
 };
 
-#include "pir_protocol.tpp"
+#include "oblivious_map.tpp"

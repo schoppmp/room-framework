@@ -5,7 +5,7 @@
 #include "external/mpc_utils/third_party/eigen/eigen/include/eigen3/Eigen/Sparse"
 #include "sparse_linear_algebra/matrix_multiplication/dense.hpp"
 #include "sparse_common.hpp"
-#include "sparse_linear_algebra/pir_protocol.hpp"
+#include "sparse_linear_algebra/oblivious_map/oblivious_map.hpp"
 #include "sparse_linear_algebra/util/time.h"
 #include "sparse_linear_algebra/zero_sharing/zero_sharing.hpp"
 extern "C" {

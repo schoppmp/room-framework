@@ -7,10 +7,10 @@ extern "C" {
 #include "sparse_linear_algebra/matrix_multiplication/sparse/cols-dense.hpp"
 #include "sparse_linear_algebra/matrix_multiplication/sparse/cols-rows.hpp"
 #include "sparse_linear_algebra/matrix_multiplication/sparse/rows-dense.hpp"
-#include "sparse_linear_algebra/pir_protocol_basic.hpp"
-#include "sparse_linear_algebra/pir_protocol_fss.hpp"
-#include "sparse_linear_algebra/pir_protocol_poly.hpp"
-#include "sparse_linear_algebra/pir_protocol_scs.hpp"
+#include "sparse_linear_algebra/oblivious_map/basic_oblivious_map.hpp"
+#include "sparse_linear_algebra/oblivious_map/fss_oblivious_map.hpp"
+#include "sparse_linear_algebra/oblivious_map/poly_oblivious_map.hpp"
+#include "sparse_linear_algebra/oblivious_map/sorting_oblivious_map.hpp"
 #include "sparse_linear_algebra/util/get_ceil.hpp"
 #include "sparse_linear_algebra/util/randomize_matrix.hpp"
 #include "sparse_linear_algebra/util/reservoir_sampling.hpp"
@@ -52,10 +52,10 @@ KNNProtocol::KNNProtocol(comm_channel* channel, int party_id,
       party_id(party_id),
       pir_protocols({
           {basic,
-           std::make_shared<pir_protocol_basic<int, int>>(*channel, true)},
-          {poly, std::make_shared<pir_protocol_poly<int, int>>(
+           std::make_shared<basic_oblivious_map<int, int>>(*channel, true)},
+          {poly, std::make_shared<poly_oblivious_map<int, int>>(
                      *channel, statistical_security, true)},
-          {scs, std::make_shared<pir_protocol_scs<int, int>>(*channel, true)},
+          {scs, std::make_shared<sorting_oblivious_map<int, int>>(*channel, true)},
       }),
       precision(precision),
       mt(mt),

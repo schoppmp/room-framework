@@ -8,11 +8,11 @@
 #include "sparse_linear_algebra/util/reservoir_sampling.hpp"
 #include "sparse_linear_algebra/util/get_ceil.hpp"
 #include "sparse_linear_algebra/util/time.h"
-#include "sparse_linear_algebra/pir_protocol.hpp"
-#include "sparse_linear_algebra/pir_protocol_scs.hpp"
-#include "sparse_linear_algebra/pir_protocol_fss.hpp"
-#include "sparse_linear_algebra/pir_protocol_poly.hpp"
-#include "sparse_linear_algebra/pir_protocol_basic.hpp"
+#include "sparse_linear_algebra/oblivious_map/oblivious_map.hpp"
+#include "sparse_linear_algebra/oblivious_map/sorting_oblivious_map.hpp"
+#include "sparse_linear_algebra/oblivious_map/fss_oblivious_map.hpp"
+#include "sparse_linear_algebra/oblivious_map/poly_oblivious_map.hpp"
+#include "sparse_linear_algebra/oblivious_map/basic_oblivious_map.hpp"
 #include <Eigen/Dense>
 #include <Eigen/Sparse>
 
@@ -148,19 +148,19 @@ int main(int argc, const char *argv[]) {
   party p(conf);
   auto channel = p.connect_to(1 - p.get_id());
 
-  std::map<std::string, std::shared_ptr<pir_protocol<size_t, size_t>>> protos_perm {
-    {"basic", std::make_shared<pir_protocol_basic<size_t, size_t>>(channel, true)},
-    {"poly", std::make_shared<pir_protocol_poly<size_t, size_t>>(channel, conf.statistical_security, true)},
-    {"scs", std::make_shared<pir_protocol_scs<size_t, size_t>>(channel, true)},
-    {"fss_cprg", std::make_shared<pir_protocol_fss<size_t, size_t>>(channel, true)},
-    {"fss", std::make_shared<pir_protocol_fss<size_t, size_t>>(channel)},
+  std::map<std::string, std::shared_ptr<oblivious_map<size_t, size_t>>> protos_perm {
+    {"basic", std::make_shared<basic_oblivious_map<size_t, size_t>>(channel, true)},
+    {"poly", std::make_shared<poly_oblivious_map<size_t, size_t>>(channel, conf.statistical_security, true)},
+    {"scs", std::make_shared<sorting_oblivious_map<size_t, size_t>>(channel, true)},
+    {"fss_cprg", std::make_shared<fss_oblivious_map<size_t, size_t>>(channel, true)},
+    {"fss", std::make_shared<fss_oblivious_map<size_t, size_t>>(channel)},
   };
-  std::map<std::string, std::shared_ptr<pir_protocol<size_t, T>>> protos_val {
-    {"basic", std::make_shared<pir_protocol_basic<size_t, T>>(channel, true)},
-    {"poly", std::make_shared<pir_protocol_poly<size_t, T>>(channel, conf.statistical_security, true)},
-    {"scs", std::make_shared<pir_protocol_scs<size_t, T>>(channel, true)},
-    {"fss_cprg", std::make_shared<pir_protocol_fss<size_t, T>>(channel, true)},
-    {"fss", std::make_shared<pir_protocol_fss<size_t, T>>(channel)},
+  std::map<std::string, std::shared_ptr<oblivious_map<size_t, T>>> protos_val {
+    {"basic", std::make_shared<basic_oblivious_map<size_t, T>>(channel, true)},
+    {"poly", std::make_shared<poly_oblivious_map<size_t, T>>(channel, conf.statistical_security, true)},
+    {"scs", std::make_shared<sorting_oblivious_map<size_t, T>>(channel, true)},
+    {"fss_cprg", std::make_shared<fss_oblivious_map<size_t, T>>(channel, true)},
+    {"fss", std::make_shared<fss_oblivious_map<size_t, T>>(channel)},
   };
   using dense_matrix = Eigen::Matrix<T, Eigen::Dynamic, Eigen::Dynamic>;
   int seed = 12345; // seed random number generator deterministically

@@ -19,9 +19,9 @@ def sparse_linear_algebra_deps_preload():
     if "com_github_schoppmp_rules_oblivc" not in native.existing_rules():
         http_archive(
             name = "com_github_schoppmp_rules_oblivc",
-            sha256 = "5a9fd34b0402851cabc6459cebaecfe00887030025c60f416032fbb4073be97f",
-            url = "https://github.com/schoppmp/rules_oblivc/archive/bb5afcac02fbdb79c52b2e963ebff4843fdabf79.zip",
-            strip_prefix = "rules_oblivc-bb5afcac02fbdb79c52b2e963ebff4843fdabf79",
+            sha256 = "34d82f263d49feb96563823fd8f2197a5184a583eb04c17d546cb622a22db080",
+            url = "https://github.com/schoppmp/rules_oblivc/archive/89629de9ac5936f4bca7d0959c2d1ed8a842f6f7.zip",
+            strip_prefix = "rules_oblivc-89629de9ac5936f4bca7d0959c2d1ed8a842f6f7",
         )
 
     if "rules_foreign_cc" not in native.existing_rules():

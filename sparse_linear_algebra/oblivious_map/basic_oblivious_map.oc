@@ -2,7 +2,7 @@
 #include "oaes.oh"
 #include <bcrandom.h>
 #include <copy.oh>
-#include "pir_protocol_basic.h"
+#include "basic_oblivious_map.h"
 
 void pir_basic_oblivc(void *vargs) {
   pir_basic_oblivc_args *args = vargs;

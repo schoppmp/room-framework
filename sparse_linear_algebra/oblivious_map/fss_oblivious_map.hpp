@@ -1,11 +1,11 @@
 #pragma once
 
 #include <type_traits>
-#include "pir_protocol.hpp"
+#include "oblivious_map.hpp"
 #include "mpc_utils/comm_channel.hpp"
 
 template<typename K, typename V>
-class pir_protocol_fss : public virtual pir_protocol<K,V> {
+class fss_oblivious_map : public virtual oblivious_map<K,V> {
 static_assert(std::is_integral<K>::value, "FSS-based PIR only works for integral key types");
 
 private:
@@ -14,13 +14,13 @@ private:
   bool cprg;
 
 public:
-  pir_protocol_fss(comm_channel& chan, bool cprg = false, bool print_times = false) :
+  fss_oblivious_map(comm_channel& chan, bool cprg = false, bool print_times = false) :
     chan(chan), cprg(cprg), print_times(print_times) { }
-  ~pir_protocol_fss() { }
+  ~fss_oblivious_map() { }
 
-  using pair_range = typename pir_protocol<K, V>::pair_range;
-  using key_range = typename pir_protocol<K, V>::key_range;
-  using value_range = typename pir_protocol<K, V>::value_range;
+  using pair_range = typename oblivious_map<K, V>::pair_range;
+  using key_range = typename oblivious_map<K, V>::key_range;
+  using value_range = typename oblivious_map<K, V>::value_range;
 
   void run_server(const pair_range input, const value_range defaults,
     bool shared_output);
@@ -28,4 +28,4 @@ public:
     bool shared_output);
 };
 
-#include "pir_protocol_fss.tpp"
+#include "fss_oblivious_map.tpp"

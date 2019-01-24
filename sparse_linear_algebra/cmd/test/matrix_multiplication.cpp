@@ -6,10 +6,10 @@
 
 #include "sparse_linear_algebra/matrix_multiplication/dense.hpp"
 #include "sparse_linear_algebra/matrix_multiplication/sparse/cols-rows.hpp"
-#include "sparse_linear_algebra/pir_protocol_basic.hpp"
-#include "sparse_linear_algebra/pir_protocol_fss.hpp"
-#include "sparse_linear_algebra/pir_protocol_poly.hpp"
-#include "sparse_linear_algebra/pir_protocol_scs.hpp"
+#include "sparse_linear_algebra/oblivious_map/basic_oblivious_map.hpp"
+#include "sparse_linear_algebra/oblivious_map/fss_oblivious_map.hpp"
+#include "sparse_linear_algebra/oblivious_map/poly_oblivious_map.hpp"
+#include "sparse_linear_algebra/oblivious_map/sorting_oblivious_map.hpp"
 #include "sparse_linear_algebra/util/randomize_matrix.hpp"
 #include "sparse_linear_algebra/util/reservoir_sampling.hpp"
 #include "sparse_linear_algebra/util/time.h"
@@ -130,16 +130,16 @@ int main(int argc, const char *argv[]) {
   }
   B.setFromTriplets(triplets_B.begin(), triplets_B.end());
 
-  std::map<std::string, std::shared_ptr<pir_protocol<size_t, size_t>>> protos{
+  std::map<std::string, std::shared_ptr<oblivious_map<size_t, size_t>>> protos{
       {"basic",
-       std::make_shared<pir_protocol_basic<size_t, size_t>>(channel, true)},
-      {"poly", std::make_shared<pir_protocol_poly<size_t, size_t>>(
+       std::make_shared<basic_oblivious_map<size_t, size_t>>(channel, true)},
+      {"poly", std::make_shared<poly_oblivious_map<size_t, size_t>>(
                    channel, conf.statistical_security, true)},
       {"scs",
-       std::make_shared<pir_protocol_scs<size_t, size_t>>(channel, true)},
+       std::make_shared<sorting_oblivious_map<size_t, size_t>>(channel, true)},
       {"fss_cprg",
-       std::make_shared<pir_protocol_fss<size_t, size_t>>(channel, true)},
-      {"fss", std::make_shared<pir_protocol_fss<size_t, size_t>>(channel)},
+       std::make_shared<fss_oblivious_map<size_t, size_t>>(channel, true)},
+      {"fss", std::make_shared<fss_oblivious_map<size_t, size_t>>(channel)},
   };
   for (auto type : conf.pir_types) {
     std::cout << "Running matrix multiplication (" << type << ")\n";

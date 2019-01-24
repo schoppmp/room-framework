@@ -4,7 +4,7 @@
 #include <Eigen/Sparse>
 #include <random>
 #include "mpc_utils/comm_channel.hpp"
-#include "sparse_linear_algebra/pir_protocol.hpp"
+#include "sparse_linear_algebra/oblivious_map/oblivious_map.hpp"
 
 namespace sparse_linear_algebra::applications::knn {
   using T = uint64_t;
@@ -41,7 +41,7 @@ namespace sparse_linear_algebra::applications::knn {
 
     comm_channel* channel;
     const int party_id;
-    std::map<PirType, std::shared_ptr<pir_protocol<int, int>>> pir_protocols;
+    std::map<PirType, std::shared_ptr<oblivious_map<int, int>>> pir_protocols;
     const MulType mt;
     const PirType pt;
     const int precision;

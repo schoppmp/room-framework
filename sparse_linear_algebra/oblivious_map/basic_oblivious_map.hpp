@@ -1,12 +1,12 @@
 #pragma once
 
 #include <numeric>
-#include "NTL/vector.h"
-#include "NTL/ZZ.h"
-#include "NTL/ZZ_pX.h"
+#include "external/mpc_utils/third_party/ntl/ntl/include/NTL/vector.h"
+#include "external/mpc_utils/third_party/ntl/ntl/include/NTL/ZZ.h"
+#include "external/mpc_utils/third_party/ntl/ntl/include/NTL/ZZ_pX.h"
 #include <gcrypt.h>
 
-#include "pir_protocol.hpp"
+#include "oblivious_map.hpp"
 #include "mpc_utils/comm_channel.hpp"
 
 extern "C" {
@@ -14,7 +14,7 @@ extern "C" {
 }
 
 template<typename K, typename V>
-class pir_protocol_basic : public virtual pir_protocol<K,V> {
+class basic_oblivious_map : public virtual oblivious_map<K,V> {
 private:
   const int cipher;
   const size_t block_size;
@@ -23,11 +23,11 @@ private:
   bool print_times;
 
 public:
-  pir_protocol_basic(
+  basic_oblivious_map(
     comm_channel& chan,
     bool print_times = false
   ) :
-    pir_protocol<K,V>(),
+    oblivious_map<K,V>(),
     cipher(GCRY_CIPHER_AES128), block_size(16),
     chan(chan), print_times(print_times)
   {
@@ -42,11 +42,11 @@ public:
         "Block size too small for given types"));
     }
   }
-  ~pir_protocol_basic() { }
+  ~basic_oblivious_map() { }
 
-  using pair_range = typename pir_protocol<K, V>::pair_range;
-  using key_range = typename pir_protocol<K, V>::key_range;
-  using value_range = typename pir_protocol<K, V>::value_range;
+  using pair_range = typename oblivious_map<K, V>::pair_range;
+  using key_range = typename oblivious_map<K, V>::key_range;
+  using value_range = typename oblivious_map<K, V>::value_range;
 
   void run_server(const pair_range input, const value_range defaults,
     bool shared_output);
@@ -54,4 +54,4 @@ public:
     bool shared_output);
 };
 
-#include "pir_protocol_basic.tpp"
+#include "basic_oblivious_map.tpp"

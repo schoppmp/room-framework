@@ -20,8 +20,8 @@ cc_library(
     hdrs = ["cols-dense.hpp"],
     deps = [
         ":common",
-        "//sparse_linear_algebra:pir_protocol",
         "//sparse_linear_algebra/matrix_multiplication:dense",
+        "//sparse_linear_algebra/oblivious_map:pir_protocol",
         "//sparse_linear_algebra/util:time",
         "@boost//:range",
         "@mpc_utils//third_party/eigen",
@@ -33,8 +33,8 @@ cc_library(
     hdrs = ["cols-rows.hpp"],
     deps = [
         ":common",
-        "//sparse_linear_algebra:pir_protocol",
         "//sparse_linear_algebra/matrix_multiplication:dense",
+        "//sparse_linear_algebra/oblivious_map:pir_protocol",
         "//sparse_linear_algebra/util:time",
         "@boost//:range",
         "@mpc_utils//third_party/eigen",
@@ -46,8 +46,8 @@ cc_library(
     hdrs = ["rows-dense.hpp"],
     deps = [
         ":common",
-        "//sparse_linear_algebra:pir_protocol",
         "//sparse_linear_algebra/matrix_multiplication:dense",
+        "//sparse_linear_algebra/oblivious_map:pir_protocol",
         "//sparse_linear_algebra/util:time",
         "//sparse_linear_algebra/zero_sharing",
         "@boost//:range",

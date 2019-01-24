@@ -7,10 +7,10 @@
 #include "mpc_utils/mpc_config.hpp"
 #include "mpc_utils/party.hpp"
 
-#include "sparse_linear_algebra/pir_protocol_basic.hpp"
-#include "sparse_linear_algebra/pir_protocol_fss.hpp"
-#include "sparse_linear_algebra/pir_protocol_poly.hpp"
-#include "sparse_linear_algebra/pir_protocol_scs.hpp"
+#include "sparse_linear_algebra/oblivious_map/basic_oblivious_map.hpp"
+#include "sparse_linear_algebra/oblivious_map/fss_oblivious_map.hpp"
+#include "sparse_linear_algebra/oblivious_map/poly_oblivious_map.hpp"
+#include "sparse_linear_algebra/oblivious_map/sorting_oblivious_map.hpp"
 #include "sparse_linear_algebra/util/time.h"
 
 class test_pir_config : public virtual mpc_config {
@@ -78,23 +78,23 @@ int main(int argc, const char **argv) {
   using key_type = size_t;
   using value_type = uint32_t;
   try {
-    std::unique_ptr<pir_protocol<key_type, value_type>> proto;
+    std::unique_ptr<oblivious_map<key_type, value_type>> proto;
     if (conf.pir_type == "basic") {
-      proto = std::unique_ptr<pir_protocol<key_type, value_type>>(
-          new pir_protocol_basic<key_type, value_type>(chan));
+      proto = std::unique_ptr<oblivious_map<key_type, value_type>>(
+          new basic_oblivious_map<key_type, value_type>(chan));
     } else if (conf.pir_type == "poly") {
-      proto = std::unique_ptr<pir_protocol<key_type, value_type>>(
-          new pir_protocol_poly<key_type, value_type>(
+      proto = std::unique_ptr<oblivious_map<key_type, value_type>>(
+          new poly_oblivious_map<key_type, value_type>(
               chan, conf.statistical_security));
     } else if (conf.pir_type == "fss") {
-      proto = std::unique_ptr<pir_protocol<key_type, value_type>>(
-          new pir_protocol_fss<key_type, value_type>(chan));
+      proto = std::unique_ptr<oblivious_map<key_type, value_type>>(
+          new fss_oblivious_map<key_type, value_type>(chan));
     } else if (conf.pir_type == "fss_cprg") {
-      proto = std::unique_ptr<pir_protocol<key_type, value_type>>(
-          new pir_protocol_fss<key_type, value_type>(chan, true));
+      proto = std::unique_ptr<oblivious_map<key_type, value_type>>(
+          new fss_oblivious_map<key_type, value_type>(chan, true));
     } else if (conf.pir_type == "scs") {
-      proto = std::unique_ptr<pir_protocol<key_type, value_type>>(
-          new pir_protocol_scs<key_type, value_type>(chan));
+      proto = std::unique_ptr<oblivious_map<key_type, value_type>>(
+          new sorting_oblivious_map<key_type, value_type>(chan));
     }
     if (party.get_id() == 0) {
       // use primes as inputs for easy recognition

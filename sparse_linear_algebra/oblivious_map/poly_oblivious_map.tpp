@@ -4,17 +4,17 @@
 
 #include "mpc_utils/boost_serialization/ntl.hpp"
 #include "fastpoly/recursive.h"
-#include "util/serialize_le.hpp"
-#include "util/time.h"
+#include "sparse_linear_algebra/util/serialize_le.hpp"
+#include "sparse_linear_algebra/util/time.h"
 extern "C" {
   #include <obliv.h>
-  #include "pir_protocol_poly.h"
+  #include "poly_oblivious_map.h"
 }
 
 template<typename K, typename V>
-void pir_protocol_poly<K,V>::run_server(
-  const pir_protocol_poly<K,V>::pair_range input,
-  const pir_protocol_poly<K,V>::value_range defaults,
+void poly_oblivious_map<K,V>::run_server(
+  const poly_oblivious_map<K,V>::pair_range input,
+  const poly_oblivious_map<K,V>::value_range defaults,
   bool shared_output
 ) {
   try {
@@ -108,9 +108,9 @@ void pir_protocol_poly<K,V>::run_server(
 }
 
 template<typename K, typename V>
-void pir_protocol_poly<K,V>::run_client(
-  const pir_protocol_poly<K,V>::key_range input,
-  const pir_protocol_poly<K,V>::value_range output,
+void poly_oblivious_map<K,V>::run_client(
+  const poly_oblivious_map<K,V>::key_range input,
+  const poly_oblivious_map<K,V>::value_range output,
   bool shared_output
 ) {
   try {
