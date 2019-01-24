@@ -153,7 +153,7 @@ int main(int argc, const char *argv[]) {
       size_t k_A = get_ceil(conf.nonzeros_a, experiment);
       size_t k_B = get_ceil(conf.nonzeros_b, experiment);
       size_t num_epochs = get_ceil(conf.num_epochs, experiment);
-      std::string& mult_type = get_ceil(conf.multiplication_types, experiment);
+      const std::string& mult_type = get_ceil(conf.multiplication_types, experiment);
       std::cout << "l = " << l << "\nm = " << m << "\nn = " << n << "\nk_A = "
         << k_A << "\nk_B = " << k_B << "\nbatch_size = " << batch_size
         << "\nmultiplication_type = " << mult_type << "\n";

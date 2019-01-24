@@ -16,13 +16,13 @@ class KNNConfig : public virtual mpc_config {
 
  public:
   std::map<std::string, PirType> pir_type_converison_table{
-      {"basic", basic},
-      {"poly", poly},
-      {"scs", scs},
+      {"basic", PirType::basic},
+      {"poly", PirType::poly},
+      {"scs", PirType::scs},
   };
   std::map<std::string, MulType> mul_type_converison_table{
-      {"dense", dense},
-      {"sparse", sparse},
+      {"dense", MulType::dense},
+      {"sparse", MulType::sparse},
   };
 
   std::vector<ssize_t> num_documents;
@@ -253,7 +253,6 @@ void runExperiments(comm_channel* channel, int party_id,
 
 // generates random matrices and multiplies them using multiplication triples
 int main(int argc, const char* argv[]) {
-  using namespace sparse_linear_algebra::util::knn;
   int precision = 10;
 
   KNNConfig conf;
