@@ -5,7 +5,7 @@
 #include "mpc_utils/party.hpp"
 
 #include "sparse_linear_algebra/matrix_multiplication/dense.hpp"
-#include "sparse_linear_algebra/matrix_multiplication/sparse/cols-rows.hpp"
+#include "sparse_linear_algebra/matrix_multiplication/cols-rows.hpp"
 #include "sparse_linear_algebra/oblivious_map/basic_oblivious_map.hpp"
 #include "sparse_linear_algebra/oblivious_map/fss_oblivious_map.hpp"
 #include "sparse_linear_algebra/oblivious_map/poly_oblivious_map.hpp"
