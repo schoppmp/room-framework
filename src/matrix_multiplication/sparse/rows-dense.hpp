@@ -48,7 +48,7 @@ matrix_multiplication_rows_dense(
       A.resize(k_A, A_in.cols());
       A.setZero();
     }
-    double start =TIMESTAMP();
+    double start = timestamp();
 
     // extract nonzero rows
     Eigen::Matrix<T, Derived_A::RowsAtCompileTime, Derived_A::ColsAtCompileTime>
@@ -62,7 +62,7 @@ matrix_multiplication_rows_dense(
       }
     }
     if(print_times) {
-      double end =TIMESTAMP();
+      double end = timestamp();
       std::cout << "reordering_time: " << end - start << " s\n";
       start = end;
     }
@@ -74,7 +74,7 @@ matrix_multiplication_rows_dense(
       ret_dense = matrix_multiplication(A, B, channel, role, triples, chunk_size_in);
     }
     if(print_times) {
-      double end =TIMESTAMP();
+      double end = timestamp();
       std::cout << "dense_time: " << end - start << " s\n";
       start = end;
     }
@@ -100,7 +100,7 @@ matrix_multiplication_rows_dense(
       }
     }
     if(print_times) {
-      double end =TIMESTAMP();
+      double end = timestamp();
       std::cout << "zero_sharing_time: " << end - start << " s\n";
       start = end;
     }

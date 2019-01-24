@@ -87,7 +87,7 @@ matrix_multiplication_cols_rows( // TODO: somehow derive row-/column sparsity
     // acts as the server of the ROOM protocol
     if((k_A > k_B) == (role == 0)) {
       if(print_times) {
-        start =TIMESTAMP();
+        start = timestamp();
       }
       int seed; // TODO: use wrapper around AES-based PRG from Obliv-C
       auto gen = newBCipherRandomGen();
@@ -100,7 +100,7 @@ matrix_multiplication_cols_rows( // TODO: somehow derive row-/column sparsity
       boost::copy(perm_result.first, perm.begin());
     } else {
       if(print_times) {
-        start =TIMESTAMP();
+        start = timestamp();
       }
       std::vector<K> perm_values(role == 0 ? k_A : k_B);
       prot.run_client(inner_indices, perm_values);
@@ -109,7 +109,7 @@ matrix_multiplication_cols_rows( // TODO: somehow derive row-/column sparsity
       }
     }
     if(print_times) {
-      double end =TIMESTAMP();
+      double end = timestamp();
       std::cout << "room_time: " << end - start << " s\n";
       start = end;
     }
@@ -124,14 +124,14 @@ matrix_multiplication_cols_rows( // TODO: somehow derive row-/column sparsity
       }
 
       if(print_times) {
-        double end =TIMESTAMP();
+        double end = timestamp();
         std::cout << "permutation_time: " << end - start << " s\n";
         start = end;
       }
       B.resize(k, B_in.cols());
       ret = matrix_multiplication(A_permuted, B, channel, role, triples, chunk_size_in);
       if(print_times) {
-        double end =TIMESTAMP();
+        double end = timestamp();
         std::cout << "dense_time: " << end - start << " s\n";
       }
     } else {
@@ -145,14 +145,14 @@ matrix_multiplication_cols_rows( // TODO: somehow derive row-/column sparsity
       }
 
       if(print_times) {
-        double end =TIMESTAMP();
+        double end = timestamp();
         std::cout << "permutation_time: " << end - start << " s\n";
         start = end;
       }
       A.resize(A_in.rows(), k);
       ret = matrix_multiplication(A, B_permuted, channel, role, triples, chunk_size_in);
       if(print_times) {
-        double end =TIMESTAMP();
+        double end = timestamp();
         std::cout << "dense_time: " << end - start << " s\n";
       }
     }

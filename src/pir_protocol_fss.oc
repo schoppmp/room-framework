@@ -10,7 +10,7 @@ void pir_fss_oblivc(void *vargs) {
   args->num_server_values = ocBroadcastLLong(args->num_server_values, 1);
 
   // set up oram; this is mostly local time, so count it as such
-  double start =TIMESTAMP(), end;
+  double start = timestamp(), end;
   if(ocCurrentParty() == 2) {
     // allocate zero array for client's shares for faster floram construction
     args->server_values = calloc(args->num_server_values,
@@ -20,7 +20,7 @@ void pir_fss_oblivc(void *vargs) {
   OcCopy cpy = ocCopyCharN(args->value_type_size + 1); // one extra byte for valid flag
   size_t floram_size = args->num_server_values < 8 ? 8 : args->num_server_values;
   floram *ram = floram_new(&cpy, args->server_values, floram_size, args->cprg, 1);
-  end =TIMESTAMP();
+  end = timestamp();
   args->local_time = end - start;
 
   // read inputs from parties
