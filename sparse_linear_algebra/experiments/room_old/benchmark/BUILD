@@ -4,8 +4,8 @@ cc_binary(
         "knn.cpp",
     ],
     deps = [
-        # TODO: Merge with the following.
-        "//sparse_linear_algebra/util:knn",
+        "//sparse_linear_algebra/applications/knn:knn_protocol",
+        "//sparse_linear_algebra/util",
     ],
 )
 

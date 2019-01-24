@@ -64,18 +64,3 @@ cc_library(
         "time.h",
     ],
 )
-
-# TODO: This shouldn't be in util
-cc_library(
-    name = "knn",
-    srcs = [
-        "top_k.cpp",
-    ],
-    hdrs = [
-        "knn.hpp",
-    ],
-    deps = [
-        ":util",
-        "//sparse_linear_algebra/applications/knn:knn_protocol",
-    ],
-)
