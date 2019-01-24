@@ -1,11 +1,10 @@
-// `#pragma once` does not work. TODO: investigate why
 #pragma once
 
 #include <Eigen/Dense>
 #include <Eigen/Sparse>
 #include <random>
-#include "mpc-utils/comm_channel.hpp"
-#include "pir_protocol.hpp"
+#include "mpc_utils/comm_channel.hpp"
+#include "src/pir_protocol.hpp"
 
 namespace sparse_linear_algebra::applications::knn {
   using T = uint64_t;

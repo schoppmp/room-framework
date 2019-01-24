@@ -5,9 +5,9 @@
 #include <Eigen/Sparse>
 #include "../dense.hpp"
 #include "sparse_common.hpp"
-#include "pir_protocol.hpp"
-#include "util/time.h"
-#include "zero_sharing/zero_sharing.hpp"
+#include "src/pir_protocol.hpp"
+#include "src/util/time.h"
+#include "src/zero_sharing/zero_sharing.hpp"
 extern "C" {
   #include <bcrandom.h>
 }

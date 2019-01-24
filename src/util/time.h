@@ -17,7 +17,6 @@ extern "C" {
 
 #endif
 
-
 // Returns the current time; use for benchmarks.
 double timestamp();
 

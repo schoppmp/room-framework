@@ -5,8 +5,8 @@
 #include <Eigen/Sparse>
 #include "../dense.hpp"
 #include "sparse_common.hpp"
-#include "pir_protocol.hpp"
-#include "util/time.h"
+#include "src/pir_protocol.hpp"
+#include "src/util/time.h"
 extern "C" {
   #include <bcrandom.h>
 }

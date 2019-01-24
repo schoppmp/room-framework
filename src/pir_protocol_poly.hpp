@@ -7,7 +7,7 @@
 #include <gcrypt.h>
 
 #include "pir_protocol.hpp"
-#include "mpc-utils/comm_channel.hpp"
+#include "mpc_utils/comm_channel.hpp"
 
 extern "C" {
   void gcryDefaultLibInit(); // defined in Obliv-C, but not in obliv.h
