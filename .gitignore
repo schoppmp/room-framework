@@ -36,8 +36,14 @@ bin/*
 *.oo
 *.od
 
+# Bazel
+bazel-*
+
 # Editors
 .vscode
+.clwb
+.idea
 
 # OS
 .DS_Store
+
