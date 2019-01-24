@@ -6,17 +6,19 @@
 #include "mpc_utils/comm_channel.hpp"
 #include "sparse_linear_algebra/oblivious_map/oblivious_map.hpp"
 
-namespace sparse_linear_algebra::applications::knn {
-  using T = uint64_t;
+namespace sparse_linear_algebra {
+namespace applications {
+namespace knn {
 
   enum MulType { dense, sparse };
   enum PirType { basic, poly, scs };
 
-  // TODO: printing types will print integers, tix this
-
-  // Encapsulation class for running KNN with random test data.
+  // Encapsulation class for running KNN.
+  template<typename T>
   class KNNProtocol {
   public:
+    using element_type = T;
+
     // disable move and copy
     KNNProtocol(const KNNProtocol&) = delete;
     KNNProtocol& operator=(const KNNProtocol&) = delete;
@@ -59,4 +61,6 @@ namespace sparse_linear_algebra::applications::knn {
     Eigen::Matrix<T, Eigen::Dynamic, Eigen::Dynamic> result_matrix;
   };
 
-}
+}  // namespace knn
+}  // namespace applications
+}  // namespace sparse_linear_algebra

@@ -1,5 +1,5 @@
 extern "C" {
-#include "knn.h"
+#include "top_k.h"
 }
 #include "knn_protocol.hpp"
 #include "mpc_utils/mpc_config.hpp"
@@ -16,7 +16,10 @@ extern "C" {
 #include "sparse_linear_algebra/util/reservoir_sampling.hpp"
 #include "sparse_linear_algebra/util/time.h"
 
-namespace sparse_linear_algebra::applications::knn {
+namespace sparse_linear_algebra {
+namespace applications {
+namespace knn {
+
 // Does a complete run of the knn protocol.
 // Example:
 //    // optional: generate random documents for client and server respectively
@@ -40,7 +43,8 @@ namespace sparse_linear_algebra::applications::knn {
 //    documents
 //    // that are most similiar to the client's document.
 //    auto result = protocol.run();
-KNNProtocol::KNNProtocol(comm_channel* channel, int party_id,
+template<typename T>
+KNNProtocol<T>::KNNProtocol(comm_channel* channel, int party_id,
                          int16_t statistical_security, int precision,
                          MulType mt, PirType pt, size_t chunk_size, size_t k,
                          size_t num_documents_server, size_t num_words,
@@ -82,12 +86,14 @@ KNNProtocol::KNNProtocol(comm_channel* channel, int party_id,
             << "\nmultiplication_type = " << mt << "\n";
 }
 
-std::vector<int> KNNProtocol::run() {
+template<typename T>
+std::vector<int> KNNProtocol<T>::run() {
   computeSimilarities();
   return topK();
 }
 
-void KNNProtocol::computeSimilarities() {
+template<typename T>
+void KNNProtocol<T>::computeSimilarities() {
   for (int row = 0; row < num_documents_server; row += chunk_size) {
     // The last chunk might be smaller.
     int this_chunk_size = chunk_size;
@@ -162,7 +168,8 @@ void KNNProtocol::computeSimilarities() {
   }
 }
 
-std::vector<int> KNNProtocol::topK() {
+template<typename T>
+std::vector<int> KNNProtocol<T>::topK() {
   // compute norms
   std::vector<T> norms_A(num_documents_server);
   for (int i = 0; i < num_documents_server; i++) {
@@ -201,11 +208,17 @@ std::vector<int> KNNProtocol::topK() {
                           serialized_inputs.data(),
                           serialized_norms.data(),
                           outputs.data()};
-  execYaoProtocol(&pd, knn_oblivc, &args);
+    execYaoProtocol(&pd, top_k_oblivc, &args);
   // TODO return this instead of printing it?
   std::cout << "Bytes sent: " << tcp2PBytesSent(&pd) << "\n";
   cleanupProtocol(&pd);
   return outputs;
 }
 
-}  // namespace sparse_linear_algebra::applications::knn
+// Template instantiations
+template class KNNProtocol<uint64_t>;
+
+
+}  // namespace knn
+}  // namespace applications
+}  // namespace sparse_linear_algebra

@@ -162,7 +162,7 @@ namespace sparse_linear_algebra::util::knn {
         Eigen::SparseMatrix<T, Eigen::RowMajor> server_matrix(l, m);
         Eigen::SparseMatrix<T, Eigen::ColMajor> client_matrix(m, n);
         generateRandomMatrices(123456, precision, l, m, n, num_nonzeros_server, num_nonzeros_client, &server_matrix, &client_matrix);
-        KNNProtocol protocol(channel, party_id, statistical_security, precision, mt, pt, chunk_size, k, l, m, n, num_nonzeros_server, num_nonzeros_client, server_matrix, client_matrix);
+        KNNProtocol<T> protocol(channel, party_id, statistical_security, precision, mt, pt, chunk_size, k, l, m, n, num_nonzeros_server, num_nonzeros_client, server_matrix, client_matrix);
         auto result = protocol.run();
         std::cout << "Top k documents: ";
         for (int i = 0; i < k; i++) {

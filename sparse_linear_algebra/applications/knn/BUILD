@@ -3,10 +3,10 @@ load("@com_github_schoppmp_rules_oblivc//oblivc:oblivc.bzl", "oblivc_library")
 oblivc_library(
     name = "knn",
     srcs = [
-        "knn.oc",
+        "top_k.oc",
     ],
     hdrs = [
-        "knn.h",
+        "top_k.h",
     ],
 )
 
@@ -33,15 +33,4 @@ cc_library(
         "@mpc_utils//mpc_utils:mpc_config",
         "@mpc_utils//third_party/eigen",
     ],
-)
-
-oblivc_library(
-    name = "sigmoid",
-    srcs = [
-        "sigmoid.oc",
-    ],
-    hdrs = [
-        "sigmoid.h",
-    ],
-    visibility = ["//visibility:public"],
 )

@@ -56,7 +56,7 @@ cc_binary(
         "sgd.cpp",
     ],
     deps = [
-        "//sparse_linear_algebra/applications:sigmoid",
+        "//sparse_linear_algebra/applications/sgd:sigmoid",
         "//sparse_linear_algebra/matrix_multiplication:dense",
         "//sparse_linear_algebra/matrix_multiplication:sparse",
         "//sparse_linear_algebra/oblivious_map:pir_protocol",

@@ -1,5 +1,5 @@
 extern "C" {
-  #include "sparse_linear_algebra/applications/sigmoid.h"
+  #include "sparse_linear_algebra/applications/sgd/sigmoid.h"
 }
 #include "mpc_utils/mpc_config.hpp"
 #include "mpc_utils/party.hpp"

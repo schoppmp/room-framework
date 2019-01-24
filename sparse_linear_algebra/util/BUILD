@@ -69,13 +69,13 @@ cc_library(
 cc_library(
     name = "knn",
     srcs = [
-        "knn.cpp",
+        "top_k.cpp",
     ],
     hdrs = [
         "knn.hpp",
     ],
     deps = [
         ":util",
-        "//sparse_linear_algebra/applications:knn_protocol",
+        "//sparse_linear_algebra/applications/knn:knn_protocol",
     ],
 )

@@ -1,8 +1,8 @@
-#include "knn.h"
+#include "top_k.h"
 #include "obliv.oh"
 #include "copy.oh"
 
-void knn_oblivc(void* vargs) {
+void top_k_oblivc(void *vargs) {
   knn_oblivc_args* args = vargs;
 
   obliv uint8_t* inputs = calloc(args->num_elements * args->value_size,

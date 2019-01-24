@@ -1,5 +1,5 @@
 #include <random>
-#include "sparse_linear_algebra/applications/knn_protocol.hpp"
+#include "sparse_linear_algebra/applications/knn/knn_protocol.hpp"
 
 namespace sparse_linear_algebra::util::knn {
   using T = uint64_t;
