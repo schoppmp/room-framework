@@ -1,6 +1,6 @@
 #pragma once
 
-#include "external/mpc_utils/third_party/eigen/eigen/include/eigen3/Eigen/Dense"
+#include "Eigen/Dense"
 #include "mpc_utils/boost_serialization/eigen.hpp"
 #include "mpc_utils/comm_channel.hpp"
 #include "sparse_linear_algebra/oblivious_map/oblivious_map.hpp"

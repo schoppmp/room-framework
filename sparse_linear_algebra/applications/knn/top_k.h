@@ -10,4 +10,4 @@ typedef struct {
   int* result;
 } knn_oblivc_args;
 
-void top_k_oblivc(void *vargs);
+void top_k_oblivc(void* vargs);

@@ -1,14 +1,13 @@
-#include "external/mpc_utils/third_party/eigen/eigen/include/eigen3/Eigen/Sparse"
-#include "boost/range/algorithm.hpp"
 #include <unordered_map>
 #include <unordered_set>
-#include "sparse_linear_algebra/matrix_multiplication/dense.hpp"
+#include "Eigen/Sparse"
+#include "boost/range/algorithm.hpp"
 #include "sparse_common.hpp"
+#include "sparse_linear_algebra/matrix_multiplication/dense.hpp"
 #include "sparse_linear_algebra/oblivious_map/oblivious_map.hpp"
 #include "sparse_linear_algebra/util/time.h"
-
 extern "C" {
-#include "external/oblivc/_virtual_includes/runtime/bcrandom.h"
+#include <bcrandom.h>
 }
 
 // generates a partial permutation from `g` that maps `all_inner_indices`

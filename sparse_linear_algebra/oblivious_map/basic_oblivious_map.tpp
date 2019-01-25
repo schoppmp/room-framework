@@ -1,12 +1,11 @@
 #include <algorithm>
-#include <boost/range.hpp>
-#include <boost/range/algorithm.hpp>
-
+#include "boost/range.hpp"
+#include "boost/range/algorithm.hpp"
 #include "sparse_linear_algebra/util/serialize_le.hpp"
 #include "sparse_linear_algebra/util/time.h"
 extern "C" {
-  #include <obliv.h>
-  #include "basic_oblivious_map.h"
+#include "obliv.h"
+#include "basic_oblivious_map.h"
 }
 
 template<typename K, typename V>

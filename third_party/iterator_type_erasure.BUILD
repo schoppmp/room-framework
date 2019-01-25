@@ -8,7 +8,6 @@ cc_library(
         "any_iterator/detail/any_iterator_metafunctions.hpp",
         "any_iterator/detail/any_iterator_wrapper.hpp",
     ],
-    strip_include_prefix = "any_iterator",
     visibility = ["//visibility:public"],
     deps = [
         "@boost//:conversion",

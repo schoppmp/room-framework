@@ -5,7 +5,7 @@ typedef struct {
   size_t statistical_security;
   size_t value_type_size;
   size_t input_size;
-  const uint8_t *input; // either encrypted elements or the key
+  const uint8_t *input;  // either encrypted elements or the key
   const uint8_t *defaults;
   uint8_t *result;
   bool shared_output;

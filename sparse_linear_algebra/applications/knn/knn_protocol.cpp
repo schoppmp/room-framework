@@ -1,11 +1,8 @@
-extern "C" {
-#include "top_k.h"
-}
 #include "knn_protocol.hpp"
 #include "mpc_utils/mpc_config.hpp"
-#include "sparse_linear_algebra/matrix_multiplication/dense.hpp"
 #include "sparse_linear_algebra/matrix_multiplication/cols-dense.hpp"
 #include "sparse_linear_algebra/matrix_multiplication/cols-rows.hpp"
+#include "sparse_linear_algebra/matrix_multiplication/dense.hpp"
 #include "sparse_linear_algebra/matrix_multiplication/rows-dense.hpp"
 #include "sparse_linear_algebra/oblivious_map/basic_oblivious_map.hpp"
 #include "sparse_linear_algebra/oblivious_map/fss_oblivious_map.hpp"
@@ -15,6 +12,9 @@ extern "C" {
 #include "sparse_linear_algebra/util/randomize_matrix.hpp"
 #include "sparse_linear_algebra/util/reservoir_sampling.hpp"
 #include "sparse_linear_algebra/util/time.h"
+extern "C" {
+#include "top_k.h"
+}
 
 namespace sparse_linear_algebra {
 namespace applications {
@@ -43,15 +43,14 @@ namespace knn {
 //    documents
 //    // that are most similiar to the client's document.
 //    auto result = protocol.run();
-template<typename T>
-KNNProtocol<T>::KNNProtocol(comm_channel* channel, int party_id,
-                         int16_t statistical_security, int precision,
-                         MulType mt, PirType pt, size_t chunk_size, size_t k,
-                         size_t num_documents_server, size_t num_words,
-                         size_t num_documents_client,
-                         size_t num_nonzeros_server, size_t num_nonzeros_client,
-                         Eigen::SparseMatrix<T, Eigen::RowMajor> server_matrix,
-                         Eigen::SparseMatrix<T, Eigen::ColMajor> client_matrix)
+template <typename T>
+KNNProtocol<T>::KNNProtocol(
+    comm_channel* channel, int party_id, int16_t statistical_security,
+    int precision, MulType mt, PirType pt, size_t chunk_size, size_t k,
+    size_t num_documents_server, size_t num_words, size_t num_documents_client,
+    size_t num_nonzeros_server, size_t num_nonzeros_client,
+    Eigen::SparseMatrix<T, Eigen::RowMajor> server_matrix,
+    Eigen::SparseMatrix<T, Eigen::ColMajor> client_matrix)
     : channel(channel),
       party_id(party_id),
       pir_protocols({
@@ -59,7 +58,8 @@ KNNProtocol<T>::KNNProtocol(comm_channel* channel, int party_id,
            std::make_shared<basic_oblivious_map<int, int>>(*channel, true)},
           {poly, std::make_shared<poly_oblivious_map<int, int>>(
                      *channel, statistical_security, true)},
-          {scs, std::make_shared<sorting_oblivious_map<int, int>>(*channel, true)},
+          {scs,
+           std::make_shared<sorting_oblivious_map<int, int>>(*channel, true)},
       }),
       precision(precision),
       mt(mt),
@@ -86,13 +86,13 @@ KNNProtocol<T>::KNNProtocol(comm_channel* channel, int party_id,
             << "\nmultiplication_type = " << mt << "\n";
 }
 
-template<typename T>
+template <typename T>
 std::vector<int> KNNProtocol<T>::run() {
   computeSimilarities();
   return topK();
 }
 
-template<typename T>
+template <typename T>
 void KNNProtocol<T>::computeSimilarities() {
   for (int row = 0; row < num_documents_server; row += chunk_size) {
     // The last chunk might be smaller.
@@ -168,7 +168,7 @@ void KNNProtocol<T>::computeSimilarities() {
   }
 }
 
-template<typename T>
+template <typename T>
 std::vector<int> KNNProtocol<T>::topK() {
   // compute norms
   std::vector<T> norms_A(num_documents_server);
@@ -208,7 +208,7 @@ std::vector<int> KNNProtocol<T>::topK() {
                           serialized_inputs.data(),
                           serialized_norms.data(),
                           outputs.data()};
-    execYaoProtocol(&pd, top_k_oblivc, &args);
+  execYaoProtocol(&pd, top_k_oblivc, &args);
   // TODO return this instead of printing it?
   std::cout << "Bytes sent: " << tcp2PBytesSent(&pd) << "\n";
   cleanupProtocol(&pd);
@@ -217,7 +217,6 @@ std::vector<int> KNNProtocol<T>::topK() {
 
 // Template instantiations
 template class KNNProtocol<uint64_t>;
-
 
 }  // namespace knn
 }  // namespace applications

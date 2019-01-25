@@ -6,7 +6,7 @@ typedef struct {
   size_t num_ciphertexts;
   uint8_t *indexes_server;
   uint8_t *values;
-  uint8_t *ciphertexts_server; // t values corresponding to indexes, serialized
+  uint8_t *ciphertexts_server;  // t values corresponding to indexes, serialized
   uint8_t *key_client;
   uint8_t *result_server;
 } zero_sharing_oblivc_args;

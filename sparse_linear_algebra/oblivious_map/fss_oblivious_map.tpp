@@ -1,7 +1,7 @@
 #include "sparse_linear_algebra/util/serialize_le.hpp"
 #include "sparse_linear_algebra/util/time.h"
 extern "C" {
-  #include <obliv.h>
+  #include "obliv.h"
   #include "fss_oblivious_map.h"
 }
 

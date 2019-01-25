@@ -1,12 +1,12 @@
 #include "sparse_linear_algebra/util/serialize_le.hpp"
 #include "sparse_linear_algebra/util/time.h"
+#include "boost/range/adaptor/map.hpp"
+#include "boost/range/combine.hpp"
+#include "boost/range/irange.hpp"
 extern "C" {
-  #include <obliv.h>
-  #include "sorting_oblivious_map.h"
+#include "obliv.h"
+#include "sorting_oblivious_map.h"
 }
-#include <boost/range/adaptor/map.hpp>
-#include <boost/range/combine.hpp>
-#include <boost/range/irange.hpp>
 
 template<typename K, typename V>
 void sorting_oblivious_map<K,V>::run_server(

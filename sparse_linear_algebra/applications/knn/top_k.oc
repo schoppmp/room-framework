@@ -1,56 +1,57 @@
-#include "top_k.h"
-#include "obliv.oh"
 #include "copy.oh"
+#include "obliv.oh"
+#include "top_k.h"
 
-void top_k_oblivc(void *vargs) {
+void top_k_oblivc(void* vargs) {
   knn_oblivc_args* args = vargs;
 
-  obliv uint8_t* inputs = calloc(args->num_elements * args->value_size,
-    sizeof(obliv uint8_t));
-  obliv uint8_t* inputs_b = calloc(args->num_elements * args->value_size,
-    sizeof(obliv uint8_t));
-  obliv uint8_t* norms_a = calloc(args->num_elements * args->value_size,
-    sizeof(obliv uint8_t));
+  obliv uint8_t* inputs =
+      calloc(args->num_elements * args->value_size, sizeof(obliv uint8_t));
+  obliv uint8_t* inputs_b =
+      calloc(args->num_elements * args->value_size, sizeof(obliv uint8_t));
+  obliv uint8_t* norms_a =
+      calloc(args->num_elements * args->value_size, sizeof(obliv uint8_t));
   obliv uint8_t* norm_b = calloc(args->value_size, sizeof(obliv uint8_t));
   feedOblivCharArray(inputs, args->serialized_inputs,
-    args->value_size * args->num_elements, 1);
+                     args->value_size * args->num_elements, 1);
   feedOblivCharArray(norms_a, args->serialized_norms,
-      args->value_size * args->num_elements, 1);
+                     args->value_size * args->num_elements, 1);
   feedOblivCharArray(inputs_b, args->serialized_inputs,
-    args->value_size * args->num_elements, 2);
-feedOblivCharArray(norm_b, args->serialized_norms, args->value_size, 2);
+                     args->value_size * args->num_elements, 2);
+  feedOblivCharArray(norm_b, args->serialized_norms, args->value_size, 2);
   for (int i = 0; i < args->num_elements; i++) {
     // Add up shares.
-    __obliv_c__setPlainAdd(&inputs[i * args->value_size],
-      &inputs[i * args->value_size], &inputs_b[i * args->value_size],
-      8 * args->value_size);
+    __obliv_c__setPlainAdd(
+        &inputs[i * args->value_size], &inputs[i * args->value_size],
+        &inputs_b[i * args->value_size], 8 * args->value_size);
     // TODO: We can replace these division with multiplications and use additive
     // sharing which is faster.
     // Divide by norm of A's document i.
-    __obliv_c__setDivUnsigned(&inputs[i * args->value_size],
-      &inputs[i * args->value_size], &norms_a[i * args->value_size],
-      8 * args->value_size);
+    __obliv_c__setDivUnsigned(
+        &inputs[i * args->value_size], &inputs[i * args->value_size],
+        &norms_a[i * args->value_size], 8 * args->value_size);
     // Divide by norm of B's document.
     __obliv_c__setDivUnsigned(&inputs[i * args->value_size],
-      &inputs[i * args->value_size], norm_b, 8 * args->value_size);
+                              &inputs[i * args->value_size], norm_b,
+                              8 * args->value_size);
   }
 
   obliv int* topk_indices = calloc(args->num_selected, sizeof(obliv int));
-  obliv uint8_t* topk_values = calloc(args->num_selected * args->value_size,
-    sizeof(obliv uint8_t));
+  obliv uint8_t* topk_values =
+      calloc(args->num_selected * args->value_size, sizeof(obliv uint8_t));
   OcCopy cpy_value = ocCopyCharN(args->value_size);
   for (int i = 0; i < args->num_elements; i++) {
     // keep_going makes sure we only copy each value once to the top-k.
     obliv bool keep_going = true;
     for (int j = 0; j < args->num_selected; j++) {
       obliv bool is_nearer;
-      __obliv_c__setLessThanUnsigned(&is_nearer,
-        &topk_values[j * args->value_size], &inputs[i * args->value_size],
-        8 * args->value_size);
+      __obliv_c__setLessThanUnsigned(
+          &is_nearer, &topk_values[j * args->value_size],
+          &inputs[i * args->value_size], 8 * args->value_size);
       obliv if (keep_going & is_nearer) {
         keep_going = false;
         ocCopy(&cpy_value, &topk_values[j * args->value_size],
-          &inputs[i * args->value_size]);
+               &inputs[i * args->value_size]);
         topk_indices[j] = i;
       }
     }

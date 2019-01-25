@@ -6,7 +6,7 @@
 #include <c++/8.2.1/chrono>
 #include <c++/8.2.1/iostream>
 // used for time measurements
-template<typename F>
+template <typename F>
 void benchmark(F f, const std::string& label) {
   auto start = std::chrono::steady_clock::now();
   f();

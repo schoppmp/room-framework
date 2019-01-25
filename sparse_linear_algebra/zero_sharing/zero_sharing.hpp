@@ -1,22 +1,21 @@
 #pragma once
 
-#include "NTL/ZZ.h"
-#include "NTL/ZZ_pX.h"
-#include "NTL/vector.h"
+#include <NTL/ZZ.h>
+#include <NTL/ZZ_pX.h>
+#include <NTL/vector.h>
 #include <gcrypt.h>
-#include "Eigen/Dense"
-#include "boost/exception/all.hpp"
-#include "boost/range/algorithm/sort.hpp"
-#include "boost/serialization/vector.hpp"
+#include <Eigen/Dense>
+#include <boost/exception/all.hpp>
+#include <boost/range/algorithm/sort.hpp>
+#include <boost/serialization/vector.hpp>
 #include <random>
 #include "fastpoly/recursive.h"
 #include "mpc_utils/comm_channel.hpp"
-
+#include "sparse_linear_algebra/util/serialize_le.hpp"
 extern "C" {
 #include "obliv_common.h"
 #include "zero_sharing.h"
 }
-#include "sparse_linear_algebra/util/serialize_le.hpp"
 
 // Inputs:
 // Server - A share of a short vector v of length l
