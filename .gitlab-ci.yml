@@ -8,20 +8,22 @@ build_all:
     - bazel build ...
 
 deploy:
-  image: docker:dind
+  image: docker:stable
   stage: deploy
   services:
     - docker:dind # Needed until container_push works (https://github.com/google/containerregistry/issues/42)
+  before_script:
+    - docker login -u gitlab-ci-token -p $CI_BUILD_TOKEN $REGISTRY
   script:
-    - docker run --rm \
-        -e CACHE_USER="$CACHE_USER" \
-        -e CACHE_PASSWORD="$CACHE_PASSWORD" \
-        -v /var/run/docker.sock:/var/run/docker.sock \
-        -v "$PWD":/data "$REGISTRY"/ti/software/bazel-builder:latest \
+    - docker run --rm
+        -e CACHE_USER="$CACHE_USER"
+        -e CACHE_PASSWORD="$CACHE_PASSWORD"
+        -v /var/run/docker.sock:/var/run/docker.sock
+        -v "$PWD":/data "$REGISTRY"/ti/software/bazel-builder:latest
         "cd /data && bazel run -c opt //sparse_linear_algebra:all_images"
-    - docker images | \
-        grep "$REGISTRY/$CI_PROJECT_PATH" | \
-        cut -d" " -f1 | \
-        while read image; do \
-          docker push "$image"; \
+    - docker images
+      | grep "$REGISTRY/$CI_PROJECT_PATH"
+      | cut -d" " -f1
+      | while read image; do
+          docker push "$image";
         done
