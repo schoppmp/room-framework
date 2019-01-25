@@ -1,5 +1,17 @@
+variables:
+  REGISTRY: gitlab.informatik.hu-berlin.de:4567
+
 build_all:
-  image: gitlab.informatik.hu-berlin.de:4567/ti/software/bazel-builder:latest
+  image: $REGISTRY/ti/software/bazel-builder:latest
   stage: build
   script:
-    - bazel build ...:all
+    - bazel build ...
+
+deploy:
+  image: $REGISTRY/ti/software/bazel-builder:latest
+  stage: deploy
+  services:
+    - docker:dind
+  script:
+    - bazel run -c opt //sparse_linear_algebra:all_images
+    - docker images | grep "$REGISTRY/$CI_PROJECT_PATH" | cut -d" " -f1 | while read image; do docker push $image; done
