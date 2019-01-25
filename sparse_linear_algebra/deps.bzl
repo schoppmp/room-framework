@@ -3,6 +3,10 @@ load(
     "http_archive",
 )
 load("@mpc_utils//mpc_utils:deps.bzl", "mpc_utils_deps")
+load(
+    "@io_bazel_rules_docker//cc:image.bzl",
+    _cc_image_repos = "repositories",
+)
 
 all_content = """
 filegroup(
@@ -14,6 +18,7 @@ filegroup(
 
 def sparse_linear_algebra_deps():
     mpc_utils_deps()
+    _cc_image_repos()
 
     if "fastpoly" not in native.existing_rules():
         http_archive(

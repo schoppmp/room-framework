@@ -7,7 +7,7 @@ load(
 # Copy those in a similar preload.bzl file in any workspace that depends on
 # this one.
 def sparse_linear_algebra_deps_preload():
-    # Transitive dependencies from mpc-utils.
+    # Transitive dependencies of mpc_utils.
     if "com_github_nelhage_rules_boost" not in native.existing_rules():
         http_archive(
             name = "com_github_nelhage_rules_boost",
@@ -19,9 +19,9 @@ def sparse_linear_algebra_deps_preload():
     if "com_github_schoppmp_rules_oblivc" not in native.existing_rules():
         http_archive(
             name = "com_github_schoppmp_rules_oblivc",
-            sha256 = "34d82f263d49feb96563823fd8f2197a5184a583eb04c17d546cb622a22db080",
-            url = "https://github.com/schoppmp/rules_oblivc/archive/89629de9ac5936f4bca7d0959c2d1ed8a842f6f7.zip",
-            strip_prefix = "rules_oblivc-89629de9ac5936f4bca7d0959c2d1ed8a842f6f7",
+            sha256 = "ab5f324e741ea70c7f5ebcd5d84710c4fd80a952211b86e68c3e0338fd2b39e0",
+            url = "https://github.com/schoppmp/rules_oblivc/archive/11ee07428193eadd0a807c725e379de2c2574d95.zip",
+            strip_prefix = "rules_oblivc-11ee07428193eadd0a807c725e379de2c2574d95",
         )
 
     if "rules_foreign_cc" not in native.existing_rules():
@@ -32,6 +32,15 @@ def sparse_linear_algebra_deps_preload():
             sha256 = "bb38d30c5d06cc1aedc9db7d2274d2323419a60200ac8e5fdbdc100e37740975",
         )
 
+    # Transitive dependency of io_bazel_rules_docker
+    if "bazel_skylib" not in native.existing_rules():
+        http_archive(
+            name = "bazel_skylib",
+            sha256 = "c33a54ef16961e48df7d306a67ccb92c0c4627d0549df519e07533a6f3d270aa",
+            strip_prefix = "bazel-skylib-9b85311ab47548ec051171213a1b3b4b3b3c9dc8",
+            url = "https://github.com/bazelbuild/bazel-skylib/archive/9b85311ab47548ec051171213a1b3b4b3b3c9dc8.zip",
+        )
+
     # New dependencies.
     if "mpc_utils" not in native.existing_rules():
         http_archive(
@@ -39,4 +48,12 @@ def sparse_linear_algebra_deps_preload():
             url = "https://github.com/schoppmp/mpc-utils/archive/ba1b34e630cd9a6b70a152234e8ece0e24cff291.zip",
             sha256 = "e63cba0c498322059c917ae02811fe820a7ced0ec648954afb40e1ee538d4e6b",
             strip_prefix = "mpc-utils-ba1b34e630cd9a6b70a152234e8ece0e24cff291",
+        )
+
+    if "io_bazel_rules_docker" not in native.existing_rules():
+        http_archive(
+            name = "io_bazel_rules_docker",
+            sha256 = "ed884a780b82b0586b9c5454a2163b4133b2c50788f9334de4b6008780e26032",
+            strip_prefix = "rules_docker-170335d284991ecc9fa5a6682c46bd32f167daa9",
+            url = "https://github.com/bazelbuild/rules_docker/archive/170335d284991ecc9fa5a6682c46bd32f167daa9.zip",
         )
