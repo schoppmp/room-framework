@@ -24,11 +24,9 @@ deploy:
     - docker images "$REGISTRY/$CI_PROJECT_PATH/"'*:latest'
       | cut -d" " -f1
       | while read image; do
-          # Tag with commit hash and name.
-          docker tag $image $image:$CI_COMMIT_SHA
-          docker tag $image $image:$CI_COMMIT_REF_SLUG
+          docker tag $image $image:$CI_COMMIT_SHA;
+          docker tag $image $image:$CI_COMMIT_REF_SLUG;
           docker push $image:$CI_COMMIT_SHA;
           docker push $image:$CI_COMMIT_REF_SLUG;
-          # Push to :latest if we're on branch master.
-          [ "$CI_COMMIT_REF_SLUG" = "master" ] && docker push $image:latest
+          [ "$CI_COMMIT_REF_SLUG" == "master" ] && docker push $image:latest;
         done
