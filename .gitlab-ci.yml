@@ -23,6 +23,7 @@ deploy:
         "cd /data && bazel run -c opt //sparse_linear_algebra:all_images"
     - docker images "$REGISTRY/$CI_PROJECT_PATH/"'*:latest'
       | cut -d" " -f1
+      | tail -n +1
       | while read image; do
           docker tag $image $image:$CI_COMMIT_SHA;
           docker tag $image $image:$CI_COMMIT_REF_SLUG;
