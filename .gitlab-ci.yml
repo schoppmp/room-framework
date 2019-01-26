@@ -29,5 +29,7 @@ deploy:
           docker tag $image $image:$CI_COMMIT_REF_SLUG;
           docker push $image:$CI_COMMIT_SHA;
           docker push $image:$CI_COMMIT_REF_SLUG;
-          [ "$CI_COMMIT_REF_SLUG" == "master" ] && docker push $image:latest;
-        done
+          if [ "$CI_COMMIT_REF_SLUG" = "master" ]; then
+            docker push $image:latest;
+          fi;
+        done;
