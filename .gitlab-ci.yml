@@ -21,9 +21,14 @@ deploy:
         -v /var/run/docker.sock:/var/run/docker.sock
         -v "$PWD":/data "$REGISTRY"/ti/software/bazel-builder:latest
         "cd /data && bazel run -c opt //sparse_linear_algebra:all_images"
-    - docker images
-      | grep "$REGISTRY/$CI_PROJECT_PATH"
+    - docker images "$REGISTRY/$CI_PROJECT_PATH/"'*:latest'
       | cut -d" " -f1
       | while read image; do
-          docker push "$image";
+          # Tag with commit hash and name.
+          docker tag $image $image:$CI_COMMIT_SHA
+          docker tag $image $image:$CI_COMMIT_REF_SLUG
+          docker push $image:$CI_COMMIT_SHA;
+          docker push $image:$CI_COMMIT_REF_SLUG;
+          # Push to :latest if we're on branch master.
+          [ "$CI_COMMIT_REF_SLUG" = "master" ] && docker push $image:latest
         done
