@@ -1,0 +1,52 @@
+#include "obliv.oh"
+#include "oaes.oh"
+#include "zero_sharing.h"
+
+void zero_sharing_oblivc(void *vargs) {
+  zero_sharing_oblivc_args *args = vargs;
+  size_t element_size = args->element_size;
+  size_t l = args->num_ciphertexts;
+  const size_t block_size = 16;
+
+  obliv uint8_t *ciphertexts = calloc(l * element_size, sizeof(obliv uint8_t));
+  obliv uint8_t *values_server =
+      calloc(l * element_size, sizeof(obliv uint8_t));
+  obliv uint8_t *values_client =
+      calloc(l * element_size, sizeof(obliv uint8_t));
+  obliv uint8_t *indexes = calloc(l * sizeof(size_t), sizeof(obliv uint8_t));
+  obliv uint8_t *key = calloc(176, sizeof(obliv uint8_t));
+  feedOblivCharArray(ciphertexts, args->ciphertexts_server, l * element_size,
+                     1);
+  feedOblivCharArray(values_server, args->values, l * element_size, 1);
+  feedOblivCharArray(indexes, args->indexes_server, l * sizeof(size_t), 1);
+  feedOblivCharArray(key, args->key_client, block_size, 2);
+  feedOblivCharArray(values_client, args->values, l * element_size, 2);
+
+  oaes_128_expandkey(key);
+  obliv uint8_t *buf = calloc(block_size, sizeof(obliv uint8_t));
+  obliv uint8_t *ctr = calloc(block_size, sizeof(obliv uint8_t));
+  for (size_t i = 0; i < l; i++) {
+    for (size_t j = 0; j < sizeof(size_t); j++) {
+      ctr[j] = indexes[i * sizeof(size_t) + j];
+    }
+    oaes_128_from_expanded(buf, key, ctr);
+    for (size_t j = 0; j < element_size; j++) {
+      ciphertexts[i * element_size + j] ^= buf[j];
+    }
+    __obliv_c__setPlainAdd(&values_server[i * element_size],
+                           &values_server[i * element_size],
+                           &values_client[i * element_size], 8 * element_size);
+    __obliv_c__setPlainSub(&values_server[i * element_size],
+                           &values_server[i * element_size],
+                           &ciphertexts[i * element_size], 8 * element_size);
+  }
+  revealOblivCharArray(args->result_server, values_server, l * element_size, 1);
+
+  free(ciphertexts);
+  free(indexes);
+  free(values_server);
+  free(values_client);
+  free(key);
+  free(buf);
+  free(ctr);
+}

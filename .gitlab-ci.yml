@@ -1,5 +1,35 @@
+variables:
+  REGISTRY: gitlab.informatik.hu-berlin.de:4567
+
 build_all:
-  image: gitlab.informatik.hu-berlin.de:4567/ti/software/bazel-builder:latest
+  image: $REGISTRY/ti/software/bazel-builder:latest
   stage: build
   script:
-    - bazel build ...:all
+    - bazel build ...
+
+deploy:
+  image: docker:stable
+  stage: deploy
+  services:
+    - docker:dind # Needed until container_push works (https://github.com/google/containerregistry/issues/42)
+  before_script:
+    - docker login -u gitlab-ci-token -p $CI_BUILD_TOKEN $REGISTRY
+  script:
+    - docker run --rm
+        -e CACHE_USER="$CACHE_USER"
+        -e CACHE_PASSWORD="$CACHE_PASSWORD"
+        -v /var/run/docker.sock:/var/run/docker.sock
+        -v "$PWD":/data "$REGISTRY"/ti/software/bazel-builder:latest
+        "cd /data && bazel run -c opt //sparse_linear_algebra:all_images"
+    - docker images "$REGISTRY/$CI_PROJECT_PATH/"'*:latest'
+      | cut -d" " -f1
+      | tail -n +2
+      | while read image; do
+          docker tag $image $image:$CI_COMMIT_SHA;
+          docker tag $image $image:$CI_COMMIT_REF_SLUG;
+          docker push $image:$CI_COMMIT_SHA;
+          docker push $image:$CI_COMMIT_REF_SLUG;
+          if [ "$CI_COMMIT_REF_SLUG" = "master" ]; then
+            docker push $image:latest;
+          fi;
+        done;
