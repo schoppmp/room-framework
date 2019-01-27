@@ -1,12 +1,14 @@
 package(default_visibility = ["//visibility:public"])
 
 load("@io_bazel_rules_docker//cc:image.bzl", "cc_image")
+load("@io_bazel_rules_docker//container:image.bzl", "container_image")
 
 cc_binary(
     name = "sgd",
     srcs = [
         "sgd.cpp",
     ],
+    data = glob(["*.ini"]),
     deps = [
         "//sparse_linear_algebra/applications/sgd:sigmoid",
         "//sparse_linear_algebra/matrix_multiplication:dense",
@@ -24,7 +26,15 @@ cc_binary(
 )
 
 cc_image(
-    name = "image",
+    name = "main_image",
     base = "@cc_image_base//image",
     binary = ":sgd",
+)
+
+container_image(
+    name = "image",
+    base = ":main_image",
+    env = {
+        "MPC_UTILS_CONFIG": "sparse_linear_algebra/experiments/sgd/sgd.ini",
+    },
 )

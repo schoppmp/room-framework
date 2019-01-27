@@ -74,7 +74,6 @@ class test_pir_config : public virtual mpc_config {
         "statistical_security,s",
         po::value(&statistical_security)->default_value(40),
         "Statistical security parameter");
-    set_default_filename("config/benchmark/pir.ini");
   }
 };
 

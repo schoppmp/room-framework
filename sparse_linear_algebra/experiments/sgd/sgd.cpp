@@ -131,7 +131,6 @@ class sgd_config : public virtual mpc_config {
     // ("measure_communication",
     // po::bool_switch(&measure_communication)->default_value(false), "Measure
     // communication");
-    set_default_filename("config/benchmark/sgd.ini");
   }
 };
 

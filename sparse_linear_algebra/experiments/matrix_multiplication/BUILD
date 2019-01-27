@@ -1,12 +1,14 @@
 package(default_visibility = ["//visibility:public"])
 
 load("@io_bazel_rules_docker//cc:image.bzl", "cc_image")
+load("@io_bazel_rules_docker//container:image.bzl", "container_image")
 
 cc_binary(
     name = "matrix_multiplication",
     srcs = [
         "matrix_multiplication.cpp",
     ],
+    data = glob(["*.ini"]),
     deps = [
         "//sparse_linear_algebra/matrix_multiplication:dense",
         "//sparse_linear_algebra/matrix_multiplication:sparse",
@@ -23,7 +25,14 @@ cc_binary(
 )
 
 cc_image(
-    name = "image",
-    base = "@cc_image_base//image",
+    name = "main_image",
     binary = ":matrix_multiplication",
+)
+
+container_image(
+    name = "image",
+    base = ":main_image",
+    env = {
+        "MPC_UTILS_CONFIG": "sparse_linear_algebra/experiments/matrix_multiplication/matrix_multiplication.ini",
+    },
 )

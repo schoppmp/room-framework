@@ -1,12 +1,14 @@
 package(default_visibility = ["//visibility:public"])
 
 load("@io_bazel_rules_docker//cc:image.bzl", "cc_image")
+load("@io_bazel_rules_docker//container:image.bzl", "container_image")
 
 cc_binary(
     name = "pir",
     srcs = [
         "pir.cpp",
     ],
+    data = glob(["*.ini"]),
     deps = [
         "//sparse_linear_algebra/oblivious_map:pir_protocol",
         "//sparse_linear_algebra/oblivious_map:pir_protocol_basic",
@@ -24,7 +26,14 @@ cc_binary(
 )
 
 cc_image(
-    name = "image",
-    base = "@cc_image_base//image",
+    name = "main_image",
     binary = ":pir",
+)
+
+container_image(
+    name = "image",
+    base = ":main_image",
+    env = {
+        "MPC_UTILS_CONFIG": "sparse_linear_algebra/experiments/pir/pir.ini",
+    },
 )
