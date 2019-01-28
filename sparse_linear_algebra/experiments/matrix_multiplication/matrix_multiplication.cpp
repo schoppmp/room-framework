@@ -7,7 +7,6 @@
 #include "sparse_linear_algebra/matrix_multiplication/dense.hpp"
 #include "sparse_linear_algebra/matrix_multiplication/rows-dense.hpp"
 #include "sparse_linear_algebra/oblivious_map/basic_oblivious_map.hpp"
-#include "sparse_linear_algebra/oblivious_map/fss_oblivious_map.hpp"
 #include "sparse_linear_algebra/oblivious_map/oblivious_map.hpp"
 #include "sparse_linear_algebra/oblivious_map/poly_oblivious_map.hpp"
 #include "sparse_linear_algebra/oblivious_map/sorting_oblivious_map.hpp"
@@ -94,11 +93,10 @@ class matrix_multiplication_config : public virtual mpc_config {
       }
     }
     for (auto& pir_type : pir_types) {
-      if (pir_type != "basic" && pir_type != "poly" && pir_type != "fss" &&
-          pir_type != "fss_cprg" && pir_type != "scs") {
+      if (pir_type != "basic" && pir_type != "poly" && pir_type != "scs") {
         BOOST_THROW_EXCEPTION(
             po::error("'pir_type' must be either "
-                      "`basic`, `poly`, `scs`, `fss` or `fss_cprg`"));
+                      "`basic`, `poly` or `scs`"));
       }
     }
     mpc_config::validate();
@@ -137,7 +135,7 @@ class matrix_multiplication_config : public virtual mpc_config {
         "Multiplication type: dense | cols_rows | cols_dense | rows_dense; can "
         "be passed multiple times")(
         "pir_type", po::value(&pir_types)->composing(),
-        "PIR type: basic | poly | fss | fss_cprg | scs; can be passed multiple "
+        "PIR type: basic | poly | scs; can be passed multiple "
         "times")("statistical_security,s",
                  po::value(&statistical_security)->default_value(40),
                  "Statistical security parameter; used only for pir_type=poly")(
@@ -176,9 +174,6 @@ int main(int argc, const char* argv[]) {
                        channel, conf.statistical_security, true)},
           {"scs", std::make_shared<sorting_oblivious_map<size_t, size_t>>(
                       channel, true)},
-          {"fss_cprg",
-           std::make_shared<fss_oblivious_map<size_t, size_t>>(channel, true)},
-          {"fss", std::make_shared<fss_oblivious_map<size_t, size_t>>(channel)},
       };
   std::map<std::string, std::shared_ptr<oblivious_map<size_t, T>>> protos_val{
       {"basic",
@@ -187,9 +182,6 @@ int main(int argc, const char* argv[]) {
                    channel, conf.statistical_security, true)},
       {"scs",
        std::make_shared<sorting_oblivious_map<size_t, T>>(channel, true)},
-      {"fss_cprg",
-       std::make_shared<fss_oblivious_map<size_t, T>>(channel, true)},
-      {"fss", std::make_shared<fss_oblivious_map<size_t, T>>(channel)},
   };
   using dense_matrix = Eigen::Matrix<T, Eigen::Dynamic, Eigen::Dynamic>;
   int seed = 12345;  // seed random number generator deterministically

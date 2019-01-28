@@ -4,7 +4,7 @@ cc_library(
     name = "dense",
     hdrs = ["dense.hpp"],
     deps = [
-        "//sparse_linear_algebra/oblivious_map:pir_protocol",
+        "//sparse_linear_algebra/oblivious_map",
         "//sparse_linear_algebra/util",
         "@mpc_utils//mpc_utils:comm_channel_oblivc",
         "@mpc_utils//mpc_utils/boost_serialization:eigen",
@@ -32,7 +32,7 @@ cc_library(
     deps = [
         ":sparse_common",
         "//sparse_linear_algebra/matrix_multiplication:dense",
-        "//sparse_linear_algebra/oblivious_map:pir_protocol",
+        "//sparse_linear_algebra/oblivious_map",
         "//sparse_linear_algebra/util:time",
         "@boost//:range",
         "@mpc_utils//third_party/eigen",
@@ -45,7 +45,7 @@ cc_library(
     deps = [
         ":sparse_common",
         "//sparse_linear_algebra/matrix_multiplication:dense",
-        "//sparse_linear_algebra/oblivious_map:pir_protocol",
+        "//sparse_linear_algebra/oblivious_map",
         "//sparse_linear_algebra/util:time",
         "@boost//:range",
         "@mpc_utils//third_party/eigen",
@@ -58,7 +58,7 @@ cc_library(
     deps = [
         ":sparse_common",
         "//sparse_linear_algebra/matrix_multiplication:dense",
-        "//sparse_linear_algebra/oblivious_map:pir_protocol",
+        "//sparse_linear_algebra/oblivious_map",
         "//sparse_linear_algebra/util:time",
         "//sparse_linear_algebra/zero_sharing",
         "@boost//:range",
