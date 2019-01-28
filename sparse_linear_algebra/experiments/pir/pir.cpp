@@ -8,7 +8,6 @@
 #include "mpc_utils/mpc_config.hpp"
 #include "mpc_utils/party.hpp"
 #include "sparse_linear_algebra/oblivious_map/basic_oblivious_map.hpp"
-#include "sparse_linear_algebra/oblivious_map/fss_oblivious_map.hpp"
 #include "sparse_linear_algebra/oblivious_map/poly_oblivious_map.hpp"
 #include "sparse_linear_algebra/oblivious_map/sorting_oblivious_map.hpp"
 #include "sparse_linear_algebra/util/get_ceil.hpp"
@@ -43,12 +42,11 @@ class test_pir_config : public virtual mpc_config {
             po::error("'num_elements_client' must be positive"));
       }
     }
-    for (auto &pir_type : pir_types) {
-      if (pir_type != "basic" && pir_type != "poly" && pir_type != "fss" &&
-          pir_type != "fss_cprg" && pir_type != "scs") {
+    for (auto& pir_type : pir_types) {
+      if (pir_type != "basic" && pir_type != "poly" && pir_type != "scs") {
         BOOST_THROW_EXCEPTION(
-            po::error("'pir_type' must be either `basic`, "
-                      "`poly`, `scs`, `fss` or `fss_cprg`"));
+              po::error("'pir_type' must be either "
+                        "`basic`, `poly` or `scs`"));
       }
     }
     mpc_config::validate();
@@ -69,7 +67,7 @@ class test_pir_config : public virtual mpc_config {
         "num_elements_client,n", po::value(&num_elements_client)->composing(),
         "Number of non-zero elements in the client's database; can be passed "
         "multiple times")("pir_type", po::value(&pir_types)->composing(),
-                          "PIR type: basic | poly | fss | fss_cprg | scs; can "
+                          "PIR type: basic | poly | scs; can "
                           "be passed multiple times")(
         "statistical_security,s",
         po::value(&statistical_security)->default_value(40),
@@ -114,12 +112,6 @@ int main(int argc, const char **argv) {
           proto = std::unique_ptr<oblivious_map<key_type, value_type>>(
               new poly_oblivious_map<key_type, value_type>(
                   chan, conf.statistical_security, true));
-        } else if (pir_type == "fss") {
-          proto = std::unique_ptr<oblivious_map<key_type, value_type>>(
-              new fss_oblivious_map<key_type, value_type>(chan, false, true));
-        } else if (pir_type == "fss_cprg") {
-          proto = std::unique_ptr<oblivious_map<key_type, value_type>>(
-              new fss_oblivious_map<key_type, value_type>(chan, true, true));
         } else {  // if(conf.pir_type == "scs") {
           proto = std::unique_ptr<oblivious_map<key_type, value_type>>(
               new sorting_oblivious_map<key_type, value_type>(chan, true));
