@@ -168,20 +168,18 @@ int main(int argc, const char* argv[]) {
 
   std::map<std::string, std::shared_ptr<oblivious_map<size_t, size_t>>>
       protos_perm{
-          {"basic", std::make_shared<basic_oblivious_map<size_t, size_t>>(
-                        channel, true)},
+          {"basic",
+           std::make_shared<basic_oblivious_map<size_t, size_t>>(channel)},
           {"poly", std::make_shared<poly_oblivious_map<size_t, size_t>>(
-                       channel, conf.statistical_security, true)},
-          {"scs", std::make_shared<sorting_oblivious_map<size_t, size_t>>(
-                      channel, true)},
+                       channel, conf.statistical_security)},
+          {"scs",
+           std::make_shared<sorting_oblivious_map<size_t, size_t>>(channel)},
       };
   std::map<std::string, std::shared_ptr<oblivious_map<size_t, T>>> protos_val{
-      {"basic",
-       std::make_shared<basic_oblivious_map<size_t, T>>(channel, true)},
+      {"basic", std::make_shared<basic_oblivious_map<size_t, T>>(channel)},
       {"poly", std::make_shared<poly_oblivious_map<size_t, T>>(
-                   channel, conf.statistical_security, true)},
-      {"scs",
-       std::make_shared<sorting_oblivious_map<size_t, T>>(channel, true)},
+                   channel, conf.statistical_security)},
+      {"scs", std::make_shared<sorting_oblivious_map<size_t, T>>(channel)},
   };
   using dense_matrix = Eigen::Matrix<T, Eigen::Dynamic, Eigen::Dynamic>;
   int seed = 12345;  // seed random number generator deterministically
@@ -197,6 +195,7 @@ int main(int argc, const char* argv[]) {
        num_runs++) {
     for (size_t experiment = 0; experiment < num_experiments; experiment++) {
       std::cout << "Run " << num_runs << "\n";
+      mpc_utils::Benchmarker benchmarker;
       size_t l = get_ceil(conf.rows_server, experiment);
       size_t m = get_ceil(conf.inner_dim, experiment);
       size_t n = get_ceil(conf.cols_client, experiment);
@@ -257,8 +256,9 @@ int main(int argc, const char* argv[]) {
         if (mult_type == "dense") {
           fake_triple_provider<T> triples(chunk_size, m, n, p.get_id());
           channel.sync();
-          benchmark([&] { triples.precompute(l / chunk_size); },
-                    "Fake Triple Generation");
+          benchmarker.BenchmarkFunction("Fake Triple Generation", [&] {
+            triples.precompute(l / chunk_size);
+          });
 
           channel.sync();
           benchmark(
@@ -271,45 +271,42 @@ int main(int argc, const char* argv[]) {
         } else if (mult_type == "cols_rows") {
           fake_triple_provider<T> triples(chunk_size, k_A + k_B, n, p.get_id());
           channel.sync();
-          benchmark([&] { triples.precompute(l / chunk_size); },
-                    "Fake Triple Generation");
+          benchmarker.BenchmarkFunction("Fake Triple Generation", [&] {
+            triples.precompute(l / chunk_size);
+          });
 
           channel.sync();
-          benchmark(
-              [&] {
-                C = matrix_multiplication_cols_rows(
-                    A, B, *protos_perm[type], channel, p.get_id(), triples,
-                    chunk_size, k_A, k_B, true);
-              },
-              "Total");
+          benchmarker.BenchmarkFunction("Matrix Multiplication", [&] {
+            C = matrix_multiplication_cols_rows(A, B, *protos_perm[type],
+                                                channel, p.get_id(), triples,
+                                                chunk_size, k_A, k_B, &benchmarker);
+          });
         } else if (mult_type == "cols_dense") {
           fake_triple_provider<T, true> triples(chunk_size, k_A, n, p.get_id());
           channel.sync();
-          benchmark([&] { triples.precompute(l / chunk_size); },
-                    "Fake Triple Generation");
+          benchmarker.BenchmarkFunction("Fake Triple Generation", [&] {
+            triples.precompute(l / chunk_size);
+          });
 
           channel.sync();
-          benchmark(
-              [&] {
-                C = matrix_multiplication_cols_dense(
-                    A, dense_matrix(B), *protos_val[type], channel, p.get_id(),
-                    triples, chunk_size, k_A, true);
-              },
-              "Total");
+          benchmarker.BenchmarkFunction("Matrix Multiplication", [&] {
+            C = matrix_multiplication_cols_dense(
+                A, dense_matrix(B), *protos_val[type], channel, p.get_id(),
+                triples, chunk_size, k_A, &benchmarker);
+          });
         } else if (mult_type == "rows_dense") {
           fake_triple_provider<T, false> triples(chunk_size, m, n, p.get_id());
           channel.sync();
-          benchmark([&] { triples.precompute(k_A / chunk_size); },
-                    "Fake Triple Generation");
+          benchmarker.BenchmarkFunction("Fake Triple Generation", [&] {
+            triples.precompute(k_A / chunk_size);
+          });
 
           channel.sync();
-          benchmark(
-              [&] {
-                C = matrix_multiplication_rows_dense(
-                    A, dense_matrix(B), channel, p.get_id(), triples,
-                    chunk_size, k_A, true);
-              },
-              "Total");
+          benchmarker.BenchmarkFunction("Matrix Multiplication", [&] {
+            C = matrix_multiplication_rows_dense(A, dense_matrix(B), channel,
+                                                 p.get_id(), triples,
+                                                 chunk_size, k_A, &benchmarker);
+          });
         } else {
           BOOST_THROW_EXCEPTION(
               std::runtime_error("Unknown multiplication_type"));
@@ -344,6 +341,10 @@ int main(int argc, const char* argv[]) {
       } catch (boost::exception& ex) {
         std::cerr << boost::diagnostic_information(ex);
         return 1;
+      }
+
+      for (const auto& pair : benchmarker.GetAll()) {
+        std::cout << pair.first << ": " << pair.second << "\n";
       }
     }
   }

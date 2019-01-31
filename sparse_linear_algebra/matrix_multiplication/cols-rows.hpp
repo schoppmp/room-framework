@@ -48,7 +48,7 @@ matrix_multiplication_cols_rows(  // TODO: somehow derive row-/column sparsity
                    // indexes in another garbled circuit
     ssize_t chunk_size_in = -1, ssize_t k_A = -1,
     ssize_t k_B = -1,  // saves a communication round if set
-    bool print_times = false) {
+    mpc_utils::Benchmarker* benchmarker = nullptr) {
   try {
     size_t k;
     std::vector<K> inner_indices;
@@ -83,14 +83,17 @@ matrix_multiplication_cols_rows(  // TODO: somehow derive row-/column sparsity
       }
     }
     k = k_A + k_B;
-    double start = 0;
+
     std::vector<std::pair<K, K>> perm(inner_indices.size());
+
+    mpc_utils::Benchmarker::time_point start;
+    if (benchmarker != nullptr) {
+      start = benchmarker->StartTimer();
+    }
+
     // generate correlated permutations; party with the higher number of indices
     // acts as the server of the ROOM protocol
     if ((k_A > k_B) == (role == 0)) {
-      if (print_times) {
-        start = timestamp();
-      }
       int seed;  // TODO: use wrapper around AES-based PRG from Obliv-C
       auto gen = newBCipherRandomGen();
       randomizeBuffer(gen, (char *)&seed, sizeof(int));
@@ -98,23 +101,21 @@ matrix_multiplication_cols_rows(  // TODO: somehow derive row-/column sparsity
       std::mt19937 prg(seed);
       auto perm_result = permute_inner_indices(prg, inner_indices, k);
       // run ROOM protocol to give client their permutation
-      prot.run_server(perm_result.first, perm_result.second);
+      prot.run_server(perm_result.first, perm_result.second, false, benchmarker);
       boost::copy(perm_result.first, perm.begin());
     } else {
-      if (print_times) {
-        start = timestamp();
-      }
       std::vector<K> perm_values(role == 0 ? k_A : k_B);
-      prot.run_client(inner_indices, perm_values);
+      prot.run_client(inner_indices, perm_values, false, benchmarker);
       for (size_t i = 0; i < perm_values.size(); i++) {
         perm[i] = std::make_pair(inner_indices[i], perm_values[i]);
       }
     }
-    if (print_times) {
-      double end = timestamp();
-      std::cout << "room_time: " << end - start << " s\n";
-      start = end;
+
+    if (benchmarker != nullptr) {
+      benchmarker->AddSecondsSinceStart("room_time", start);
+      start = benchmarker->StartTimer();
     }
+
     // apply permutation and multiply
     if (role == 0) {
       Eigen::Matrix<T, Derived_A::RowsAtCompileTime,
@@ -126,17 +127,17 @@ matrix_multiplication_cols_rows(  // TODO: somehow derive row-/column sparsity
         A_permuted.col(pair.second) = A_cols.col(pair.first);
       }
 
-      if (print_times) {
-        double end = timestamp();
-        std::cout << "permutation_time: " << end - start << " s\n";
-        start = end;
+      if (benchmarker != nullptr) {
+        benchmarker->AddSecondsSinceStart("permutation_time", start);
+        start = benchmarker->StartTimer();
       }
+
       B.resize(k, B_in.cols());
       ret = matrix_multiplication(A_permuted, B, channel, role, triples,
                                   chunk_size_in);
-      if (print_times) {
-        double end = timestamp();
-        std::cout << "dense_time: " << end - start << " s\n";
+
+      if (benchmarker != nullptr) {
+        benchmarker->AddSecondsSinceStart("dense_time", start);
       }
     } else {
       Eigen::Matrix<T, Derived_B::RowsAtCompileTime,
@@ -149,17 +150,18 @@ matrix_multiplication_cols_rows(  // TODO: somehow derive row-/column sparsity
         B_permuted.row(pair.second) = B_rows.row(pair.first);
       }
 
-      if (print_times) {
-        double end = timestamp();
-        std::cout << "permutation_time: " << end - start << " s\n";
-        start = end;
+      if (benchmarker != nullptr) {
+        benchmarker->AddSecondsSinceStart("permutation_time", start);
+        start = benchmarker->StartTimer();
       }
+
       A.resize(A_in.rows(), k);
       ret = matrix_multiplication(A, B_permuted, channel, role, triples,
                                   chunk_size_in);
-      if (print_times) {
-        double end = timestamp();
-        std::cout << "dense_time: " << end - start << " s\n";
+
+      if (benchmarker != nullptr) {
+        benchmarker->AddSecondsSinceStart("dense_time", start);
+        start = benchmarker->StartTimer();
       }
     }
     return ret;

@@ -4,6 +4,7 @@
 #include <Eigen/Sparse>
 #include <random>
 #include "mpc_utils/comm_channel.hpp"
+#include "mpc_utils/benchmarker.hpp"
 #include "sparse_linear_algebra/oblivious_map/oblivious_map.hpp"
 
 namespace sparse_linear_algebra {
@@ -35,12 +36,12 @@ class KNNProtocol {
 
   // Returns the result of a complete protocol run, i.e a vector of the
   // top `k` matches.
-  std::vector<int> run();
+  std::vector<int> run(mpc_utils::Benchmarker* benchmarker = nullptr);
 
  private:
-  void computeSimilarities();
+  void computeSimilarities(mpc_utils::Benchmarker* benchmarker);
 
-  std::vector<int> topK();
+  std::vector<int> topK(mpc_utils::Benchmarker* benchmarker);
 
   comm_channel* channel;
   const int party_id;

@@ -149,7 +149,7 @@ int main(int argc, const char* argv[]) {
   party p(conf);
   auto channel = p.connect_to(1 - p.get_id());
 
-  basic_oblivious_map<int, T> proto(channel, false);
+  basic_oblivious_map<int, T> proto(channel);
   using dense_matrix = Eigen::Matrix<T, Eigen::Dynamic, Eigen::Dynamic>;
   int seed = 123456;  // seed random number generator deterministically
   std::mt19937 prg(seed);
@@ -166,6 +166,7 @@ int main(int argc, const char* argv[]) {
        num_runs++) {
     for (size_t experiment = 0; experiment < num_experiments; experiment++) {
       std::cout << "Run " << num_runs << "\n";
+      mpc_utils::Benchmarker benchmarker;
       size_t batch_size = get_ceil(conf.batch_size, experiment);
       size_t l = get_ceil(conf.num_documents, experiment);
       size_t m = get_ceil(conf.vocabulary_size, experiment);
@@ -235,37 +236,35 @@ int main(int argc, const char* argv[]) {
                                               active_party == p.get_id());
               channel.sync();
               // TODO: aggregate fake triple computation times
-              benchmark([&] { triples.precompute(1); },
-                        "Fake Triple Generation");
+              benchmarker.BenchmarkFunction("Fake Triple Generation",
+                                            [&] { triples.precompute(1); });
 
               channel.sync();
-              benchmark(
-                  [&] {
-                    activations = matrix_multiplication(
-                        input[active_party]->middleRows(row_index[active_party],
-                                                        this_batch_size),
-                        model, channel, active_party == p.get_id(), triples,
-                        this_batch_size);
-                  },
-                  "Forward Pass");
+              benchmarker.BenchmarkFunction("Forward Pass", [&] {
+                activations = matrix_multiplication(
+                    input[active_party]->middleRows(row_index[active_party],
+                                                    this_batch_size),
+                    model, channel, active_party == p.get_id(), triples,
+                    this_batch_size);
+              });
             } else if (mult_type == "sparse") {
               fake_triple_provider<T, true> triples(this_batch_size,
                                                     sparsity[active_party], n,
                                                     active_party == p.get_id());
               channel.sync();
-              benchmark([&] { triples.precompute(1); },
-                        "Fake Triple Generation");
+              benchmarker.BenchmarkFunction("Fake Triple Generation",
+                                            [&] { triples.precompute(1); });
 
               channel.sync();
-              benchmark(
+              benchmarker.BenchmarkFunction(
+                  "Forward Pass",
                   [&] {
                     activations = matrix_multiplication_cols_dense(
                         input[active_party]->middleRows(row_index[active_party],
                                                         this_batch_size),
                         model, proto, channel, active_party == p.get_id(),
-                        triples, this_batch_size, sparsity[active_party]);
-                  },
-                  "Forward Pass");
+                        triples, this_batch_size, sparsity[active_party], &benchmarker);
+                  });
             } else {
               BOOST_THROW_EXCEPTION(
                   std::runtime_error("Unknown multiplication_type"));
@@ -301,8 +300,8 @@ int main(int argc, const char* argv[]) {
               .input = serialized_activations.data(),
               .output = serialized_activations.data(),
           };
-          benchmark([&] { execYaoProtocol(&pd, sigmoid_oblivc, &args); },
-                    "Sigmoid");
+          benchmarker.BenchmarkFunction(
+              "Sigmoid", [&] { execYaoProtocol(&pd, sigmoid_oblivc, &args); });
           deserialize_le(activations.data(), serialized_activations.begin(),
                          this_batch_size);
           cleanupProtocol(&pd);
@@ -321,41 +320,35 @@ int main(int argc, const char* argv[]) {
                                               active_party == p.get_id());
               channel.sync();
               // TODO: aggregate fake triple computation times
-              benchmark([&] { triples.precompute(1); },
-                        "Fake Triple Generation");
+              benchmarker.BenchmarkFunction("Fake Triple Generation",
+                                            [&] { triples.precompute(1); });
 
               channel.sync();
-              benchmark(
-                  [&] {
-                    gradient = matrix_multiplication(
-                        input[active_party]
-                            ->middleRows(row_index[active_party],
-                                         this_batch_size)
-                            .transpose(),
-                        activations, channel, active_party == p.get_id(),
-                        triples, -1);
-                  },
-                  "Backward Pass");
+              benchmarker.BenchmarkFunction("Backward Pass", [&] {
+                gradient = matrix_multiplication(
+                    input[active_party]
+                        ->middleRows(row_index[active_party], this_batch_size)
+                        .transpose(),
+                    activations, channel, active_party == p.get_id(), triples,
+                    -1);
+              });
             } else if (mult_type == "sparse") {
               fake_triple_provider<T> triples(sparsity[active_party],
                                               this_batch_size, n,
                                               active_party == p.get_id());
               channel.sync();
-              benchmark([&] { triples.precompute(1); },
-                        "Fake Triple Generation");
+              benchmarker.BenchmarkFunction("Fake Triple Generation",
+                                            [&] { triples.precompute(1); });
 
               channel.sync();
-              benchmark(
-                  [&] {
-                    gradient = matrix_multiplication_rows_dense(
-                        input[active_party]
-                            ->middleRows(row_index[active_party],
-                                         this_batch_size)
-                            .transpose(),
-                        activations, channel, active_party == p.get_id(),
-                        triples, -1, sparsity[active_party]);
-                  },
-                  "Backward Pass");
+              benchmarker.BenchmarkFunction("Backward Pass", [&] {
+                gradient = matrix_multiplication_rows_dense(
+                    input[active_party]
+                        ->middleRows(row_index[active_party], this_batch_size)
+                        .transpose(),
+                    activations, channel, active_party == p.get_id(), triples,
+                    -1, sparsity[active_party], &benchmarker);
+              });
             } else {
               BOOST_THROW_EXCEPTION(
                   std::runtime_error("Unknown multiplication_type"));
@@ -387,6 +380,10 @@ int main(int argc, const char* argv[]) {
             active_party = 1 - active_party;
           }
         }
+      }
+
+      for (const auto& pair : benchmarker.GetAll()) {
+        std::cout << pair.first << ": " << pair.second << "\n";
       }
     }
   }

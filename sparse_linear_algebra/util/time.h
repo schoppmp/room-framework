@@ -3,8 +3,8 @@
 
 #ifdef __cplusplus
 
-#include <c++/8.2.1/chrono>
-#include <c++/8.2.1/iostream>
+#include <chrono>
+#include <iostream>
 // used for time measurements
 template <typename F>
 void benchmark(F f, const std::string& label) {

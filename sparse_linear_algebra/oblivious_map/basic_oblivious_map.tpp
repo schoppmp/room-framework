@@ -12,10 +12,13 @@ template<typename K, typename V>
 void basic_oblivious_map<K,V>::run_server(
   const basic_oblivious_map<K,V>::pair_range input,
   const basic_oblivious_map<K,V>::value_range defaults,
-  bool shared_output
+  bool shared_output,
+  mpc_utils::Benchmarker* benchmarker
 ) {
-  double local_time = 0, mpc_time = 0;
-  double start = timestamp(), end;
+  mpc_utils::Benchmarker::time_point start;
+  if (benchmarker != nullptr) {
+    start = benchmarker->StartTimer();
+  }
   size_t input_length = boost::size(input);
   size_t default_length = boost::size(defaults);
     // write values into a dense vector
@@ -62,9 +65,11 @@ void basic_oblivious_map<K,V>::run_server(
 
   // send encrypted vector to client for selection
   chan.send(input_bytes);
-  end = timestamp();
-  local_time += end - start;
-  start = end;
+
+  if (benchmarker != nullptr) {
+    benchmarker->AddSecondsSinceStart("local_time", start);
+    start = benchmarker->StartTimer();
+  }
 
   // setup obliv-c inputs
   pir_basic_oblivc_args args = {
@@ -86,11 +91,9 @@ void basic_oblivious_map<K,V>::run_server(
   setCurrentParty(&pd, 1);
   execYaoProtocol(&pd, pir_basic_oblivc, &args);
   cleanupProtocol(&pd);
-  end = timestamp();
-  mpc_time += end - start;
-  if(print_times) {
-    std::cout << "local_time: " << local_time << " s\n";
-    std::cout << "mpc_time: " << mpc_time << " s\n";
+
+  if (benchmarker != nullptr) {
+    benchmarker->AddSecondsSinceStart("mpc_time", start);
   }
 }
 
@@ -98,10 +101,13 @@ template<typename K, typename V>
 void basic_oblivious_map<K,V>::run_client(
   const basic_oblivious_map<K,V>::key_range input,
   const basic_oblivious_map<K,V>::value_range output,
-  bool shared_output
+  bool shared_output,
+  mpc_utils::Benchmarker* benchmarker
 ) {
-  double local_time = 0, mpc_time = 0;
-  double start = timestamp(), end;
+  mpc_utils::Benchmarker::time_point start;
+  if (benchmarker != nullptr) {
+    start = benchmarker->StartTimer();
+  }
   size_t length = boost::size(input);
   std::vector<uint8_t> all_ciphertexts;
   chan.recv(all_ciphertexts);
@@ -120,9 +126,11 @@ void basic_oblivious_map<K,V>::run_client(
       indexes_bytes[i * (sizeof(K) + 1) + sizeof(K)] = 0;
     }
   }
-  end = timestamp();
-  local_time += end - start;
-  start = end;
+
+  if (benchmarker != nullptr) {
+    benchmarker->AddSecondsSinceStart("local_time", start);
+    start = benchmarker->StartTimer();
+  }
 
   // setup obliv-c arguments
   std::vector<uint8_t> result_bytes(sizeof(V) * length);
@@ -145,15 +153,15 @@ void basic_oblivious_map<K,V>::run_client(
   setCurrentParty(&pd, 2);
   execYaoProtocol(&pd, pir_basic_oblivc, &args);
   cleanupProtocol(&pd);
-  end = timestamp();
-  mpc_time += end - start;
 
-  start = end;
+  if (benchmarker != nullptr) {
+    benchmarker->AddSecondsSinceStart("mpc_time", start);
+    start = benchmarker->StartTimer();
+  }
+
   deserialize_le(output.begin(), result_bytes.data(), length);
-  end = timestamp();
-  local_time += end - start;
-  if(print_times) {
-    std::cout << "local_time: " << local_time << " s\n";
-    std::cout << "mpc_time: " << mpc_time << " s\n";
+
+  if (benchmarker != nullptr) {
+    benchmarker->AddSecondsSinceStart("local_time", start);
   }
 }

@@ -6,7 +6,7 @@ load("@io_bazel_rules_docker//container:image.bzl", "container_image")
 #load("@io_bazel_rules_docker//docker:docker.bzl", "docker_push")
 
 cc_binary(
-    name = "main",
+    name = "knn",
     srcs = [
         "knn.cpp",
     ],
@@ -19,7 +19,7 @@ cc_binary(
 
 cc_image(
     name = "main_image",
-    binary = ":main",
+    binary = ":knn",
 )
 
 container_image(

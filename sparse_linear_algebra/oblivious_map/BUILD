@@ -11,6 +11,7 @@ cc_library(
         "@boost//:iterator",
         "@boost//:range",
         "@iterator_type_erasure//:any_iterator",
+        "@mpc_utils//mpc_utils:benchmarker",
     ],
 )
 

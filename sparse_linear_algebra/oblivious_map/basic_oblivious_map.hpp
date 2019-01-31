@@ -19,15 +19,13 @@ class basic_oblivious_map : public virtual oblivious_map<K, V> {
   const size_t block_size;
   std::vector<uint8_t> key;
   comm_channel& chan;
-  bool print_times;
 
  public:
-  basic_oblivious_map(comm_channel& chan, bool print_times = false)
+  basic_oblivious_map(comm_channel& chan)
       : oblivious_map<K, V>(),
         cipher(GCRY_CIPHER_AES128),
         block_size(16),
-        chan(chan),
-        print_times(print_times) {
+        chan(chan) {
     // initialize libgcrypt via obliv-c
     gcryDefaultLibInit();
     // check if sizes fit into ciphertexts
@@ -45,9 +43,11 @@ class basic_oblivious_map : public virtual oblivious_map<K, V> {
   using value_range = typename oblivious_map<K, V>::value_range;
 
   void run_server(const pair_range input, const value_range defaults,
-                  bool shared_output);
+                  bool shared_output,
+                  mpc_utils::Benchmarker* benchmarker = nullptr);
   void run_client(const key_range input, value_range output,
-                  bool shared_output);
+                  bool shared_output,
+                  mpc_utils::Benchmarker* benchmarker = nullptr);
 };
 
 #include "basic_oblivious_map.tpp"
