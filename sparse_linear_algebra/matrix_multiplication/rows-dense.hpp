@@ -23,7 +23,7 @@ matrix_multiplication_rows_dense(
     const Eigen::MatrixBase<Derived_B>& B_in, comm_channel& channel, int role,
     triple_provider<T, false>& triples, ssize_t chunk_size_in = -1,
     ssize_t k_A = -1,  // saves a communication round if set
-    bool print_times = false) {
+    mpc_utils::Benchmarker* benchmarker = nullptr) {
   try {
     std::vector<size_t> inner_indices;
     Eigen::SparseMatrix<T, Eigen::ColMajor> A;
@@ -46,7 +46,11 @@ matrix_multiplication_rows_dense(
       A.resize(k_A, A_in.cols());
       A.setZero();
     }
-    double start = timestamp();
+
+    mpc_utils::Benchmarker::time_point start;
+    if (benchmarker != nullptr) {
+      start = benchmarker->StartTimer();
+    }
 
     // extract nonzero rows
     Eigen::Matrix<T, Derived_A::RowsAtCompileTime, Derived_A::ColsAtCompileTime>
@@ -59,10 +63,10 @@ matrix_multiplication_rows_dense(
         A_dense.row(i) = A_rows.row(inner_indices[i]);
       }
     }
-    if (print_times) {
-      double end = timestamp();
-      std::cout << "reordering_time: " << end - start << " s\n";
-      start = end;
+
+    if (benchmarker != nullptr) {
+      benchmarker->AddSecondsSinceStart("reordering_time", start);
+      start = benchmarker->StartTimer();
     }
 
     // dense multiplication
@@ -73,10 +77,10 @@ matrix_multiplication_rows_dense(
       ret_dense =
           matrix_multiplication(A, B, channel, role, triples, chunk_size_in);
     }
-    if (print_times) {
-      double end = timestamp();
-      std::cout << "dense_time: " << end - start << " s\n";
-      start = end;
+
+    if (benchmarker != nullptr) {
+      benchmarker->AddSecondsSinceStart("dense_time", start);
+      start = benchmarker->StartTimer();
     }
 
     // use zero-sharing protocol to share the result back to dimension A.rows()
@@ -99,10 +103,10 @@ matrix_multiplication_rows_dense(
         ret(row, col) = current_col[row];
       }
     }
-    if (print_times) {
-      double end = timestamp();
-      std::cout << "zero_sharing_time: " << end - start << " s\n";
-      start = end;
+
+    if (benchmarker != nullptr) {
+      benchmarker->AddSecondsSinceStart("zero_sharing_time", start);
+      start = benchmarker->StartTimer();
     }
 
     return ret;

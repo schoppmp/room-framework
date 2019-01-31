@@ -53,12 +53,10 @@ KNNProtocol<T>::KNNProtocol(
     : channel(channel),
       party_id(party_id),
       pir_protocols({
-          {basic,
-           std::make_shared<basic_oblivious_map<int, int>>(*channel, true)},
+          {basic, std::make_shared<basic_oblivious_map<int, int>>(*channel)},
           {poly, std::make_shared<poly_oblivious_map<int, int>>(
                      *channel, statistical_security, true)},
-          {scs,
-           std::make_shared<sorting_oblivious_map<int, int>>(*channel, true)},
+          {scs, std::make_shared<sorting_oblivious_map<int, int>>(*channel)},
       }),
       precision(precision),
       mt(mt),
@@ -86,13 +84,13 @@ KNNProtocol<T>::KNNProtocol(
 }
 
 template <typename T>
-std::vector<int> KNNProtocol<T>::run() {
-  computeSimilarities();
-  return topK();
+std::vector<int> KNNProtocol<T>::run(mpc_utils::Benchmarker* benchmarker) {
+  computeSimilarities(benchmarker);
+  return topK(benchmarker);
 }
 
 template <typename T>
-void KNNProtocol<T>::computeSimilarities() {
+void KNNProtocol<T>::computeSimilarities(mpc_utils::Benchmarker* benchmarker) {
   for (int row = 0; row < num_documents_server; row += chunk_size) {
     // The last chunk might be smaller.
     int this_chunk_size = chunk_size;
@@ -110,17 +108,15 @@ void KNNProtocol<T>::computeSimilarities() {
         fake_triple_provider<T> triples(dense_chunk_size, num_words,
                                         num_documents_client, party_id);
         channel->sync();
-        // TODO: aggregate fake triple computation times
-        benchmark(
-            [&] {
+        mpc_utils::Benchmarker::MaybeBenchmarkFunction(
+            benchmarker, "Fake Triple Generation", [&] {
               triples.precompute((this_chunk_size + dense_chunk_size - 1) /
                                  dense_chunk_size);
-            },
-            "Fake Triple Generation");
+            });
 
         channel->sync();
-        benchmark(
-            [&] {
+        mpc_utils::Benchmarker::MaybeBenchmarkFunction(
+            benchmarker, "Matrix Multiplication", [&] {
               result_matrix.middleRows(row, this_chunk_size) =
                   matrix_multiplication(
                       Eigen::Matrix<T, Eigen::Dynamic, Eigen::Dynamic>(
@@ -129,8 +125,7 @@ void KNNProtocol<T>::computeSimilarities() {
                       Eigen::Matrix<T, Eigen::Dynamic, Eigen::Dynamic>(
                           client_matrix),
                       *channel, party_id, triples, dense_chunk_size);
-            },
-            "Total");
+            });
         break;
       }
       case sparse: {
@@ -138,24 +133,22 @@ void KNNProtocol<T>::computeSimilarities() {
             dense_chunk_size, num_nonzeros_server + num_nonzeros_client,
             num_documents_client, party_id);
         channel->sync();
-        benchmark(
-            [&] {
+        mpc_utils::Benchmarker::MaybeBenchmarkFunction(
+            benchmarker, "Fake Triple Generation", [&] {
               triples.precompute((this_chunk_size + dense_chunk_size - 1) /
                                  dense_chunk_size);
-            },
-            "Fake Triple Generation");
+            });
 
         channel->sync();
-        benchmark(
-            [&] {
+        mpc_utils::Benchmarker::MaybeBenchmarkFunction(
+            benchmarker, "Matrix Multiplication", [&] {
               result_matrix.middleRows(row, this_chunk_size) =
                   matrix_multiplication_cols_rows(
                       server_matrix.middleRows(row, this_chunk_size),
                       client_matrix, *pir_protocols[pt], *channel, party_id,
                       triples, dense_chunk_size, num_nonzeros_server,
-                      num_nonzeros_client, true);
-            },
-            "Total");
+                      num_nonzeros_client, benchmarker);
+            });
         break;
       }
       default: {
@@ -168,7 +161,7 @@ void KNNProtocol<T>::computeSimilarities() {
 }
 
 template <typename T>
-std::vector<int> KNNProtocol<T>::topK() {
+std::vector<int> KNNProtocol<T>::topK(mpc_utils::Benchmarker* benchmarker) {
   // compute norms
   std::vector<T> norms_A(num_documents_server);
   for (int i = 0; i < num_documents_server; i++) {
@@ -176,41 +169,42 @@ std::vector<int> KNNProtocol<T>::topK() {
         (server_matrix.row(i) / (static_cast<T>(1) << precision)).norm();
   }
   T norm_B = (client_matrix / (static_cast<T>(1) << precision)).norm();
-
-  // run top-k selection
-  ProtocolDesc pd;
-  if (channel->connect_to_oblivc(pd) == -1) {
-    BOOST_THROW_EXCEPTION(std::runtime_error("run_server: connection failed"));
-  }
-  setCurrentParty(&pd, 1 + party_id);
-  std::vector<uint8_t> serialized_inputs(num_documents_server * sizeof(T));
-  std::vector<uint8_t> serialized_norms;
-  std::vector<uint8_t> serialized_outputs(k * sizeof(int));
-  std::vector<T> inputs_vec(num_words);
   std::vector<int> outputs(k);
-  for (int i = 0; i < num_documents_server; i++) {
-    inputs_vec[i] = result_matrix(i, 0);
-  }
-  serialize_le(serialized_inputs.begin(), inputs_vec.begin(),
-               num_documents_server);
-  if (party_id == 0) {
-    serialized_norms.resize(num_documents_server * sizeof(T));
-    serialize_le(serialized_norms.begin(), norms_A.begin(),
+
+  mpc_utils::Benchmarker::MaybeBenchmarkFunction(benchmarker, "Top-K", [&] {
+    // run top-k selection
+    ProtocolDesc pd;
+    if (channel->connect_to_oblivc(pd) == -1) {
+      BOOST_THROW_EXCEPTION(
+          std::runtime_error("run_server: connection failed"));
+    }
+    setCurrentParty(&pd, 1 + party_id);
+    std::vector<uint8_t> serialized_inputs(num_documents_server * sizeof(T));
+    std::vector<uint8_t> serialized_norms;
+    std::vector<uint8_t> serialized_outputs(k * sizeof(int));
+    std::vector<T> inputs_vec(num_words);
+    for (int i = 0; i < num_documents_server; i++) {
+      inputs_vec[i] = result_matrix(i, 0);
+    }
+    serialize_le(serialized_inputs.begin(), inputs_vec.begin(),
                  num_documents_server);
-  } else {
-    serialized_norms.resize(sizeof(T));
-    serialize_le(serialized_norms.begin(), &norm_B, num_documents_client);
-  }
-  knn_oblivc_args args = {static_cast<int>(num_documents_server),
-                          static_cast<int>(k),
-                          sizeof(T),
-                          serialized_inputs.data(),
-                          serialized_norms.data(),
-                          outputs.data()};
-  execYaoProtocol(&pd, top_k_oblivc, &args);
-  // TODO return this instead of printing it?
-  std::cout << "Bytes sent: " << tcp2PBytesSent(&pd) << "\n";
-  cleanupProtocol(&pd);
+    if (party_id == 0) {
+      serialized_norms.resize(num_documents_server * sizeof(T));
+      serialize_le(serialized_norms.begin(), norms_A.begin(),
+                   num_documents_server);
+    } else {
+      serialized_norms.resize(sizeof(T));
+      serialize_le(serialized_norms.begin(), &norm_B, num_documents_client);
+    }
+    knn_oblivc_args args = {static_cast<int>(num_documents_server),
+                            static_cast<int>(k),
+                            sizeof(T),
+                            serialized_inputs.data(),
+                            serialized_norms.data(),
+                            outputs.data()};
+    execYaoProtocol(&pd, top_k_oblivc, &args);
+    cleanupProtocol(&pd);
+  });
   return outputs;
 }
 

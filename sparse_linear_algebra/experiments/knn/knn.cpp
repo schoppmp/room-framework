@@ -221,6 +221,7 @@ void runExperiments(comm_channel* channel, int party_id,
        num_runs++) {
     for (size_t experiment = 0; experiment < num_experiments; experiment++) {
       std::cout << "Run " << num_runs << "\n";
+      mpc_utils::Benchmarker benchmarker;
       size_t chunk_size = get_ceil(conf.chunk_size, experiment);
       size_t k = get_ceil(conf.num_selected, experiment);
       size_t l = get_ceil(conf.num_documents, experiment);
@@ -239,7 +240,10 @@ void runExperiments(comm_channel* channel, int party_id,
                               precision, mt, pt, chunk_size, k, l, m, n,
                               num_nonzeros_server, num_nonzeros_client,
                               server_matrix, client_matrix);
-      auto result = protocol.run();
+      auto result = protocol.run(&benchmarker);
+      for (const auto& pair : benchmarker.GetAll()) {
+        std::cout << pair.first << ": " << pair.second << "\n";
+      }
       std::cout << "Top k documents: ";
       for (int i = 0; i < k; i++) {
         std::cout << result[i] << " ";

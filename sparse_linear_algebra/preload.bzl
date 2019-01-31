@@ -19,17 +19,17 @@ def sparse_linear_algebra_deps_preload():
     if "com_github_schoppmp_rules_oblivc" not in native.existing_rules():
         http_archive(
             name = "com_github_schoppmp_rules_oblivc",
-            sha256 = "ab5f324e741ea70c7f5ebcd5d84710c4fd80a952211b86e68c3e0338fd2b39e0",
-            url = "https://github.com/schoppmp/rules_oblivc/archive/11ee07428193eadd0a807c725e379de2c2574d95.zip",
-            strip_prefix = "rules_oblivc-11ee07428193eadd0a807c725e379de2c2574d95",
+            sha256 = "0ca82feb4acab59f42ebbf8544c959ef8e9a2a45550c07030c2f0d900c85e185",
+            url = "https://github.com/schoppmp/rules_oblivc/archive/08a7ff3b836f14ac45f98eb6abf3004df8b1b59e.zip",
+            strip_prefix = "rules_oblivc-08a7ff3b836f14ac45f98eb6abf3004df8b1b59e",
         )
 
     if "rules_foreign_cc" not in native.existing_rules():
         http_archive(
             name = "rules_foreign_cc",
-            url = "https://github.com/bazelbuild/rules_foreign_cc/archive/216ded8acb95d81e312b228dce3c39872c7a7c34.zip",
-            strip_prefix = "rules_foreign_cc-216ded8acb95d81e312b228dce3c39872c7a7c34",
-            sha256 = "bb38d30c5d06cc1aedc9db7d2274d2323419a60200ac8e5fdbdc100e37740975",
+            url = "https://github.com/bazelbuild/rules_foreign_cc/archive/4a6fd7fd6228107cbfeba359c18367a16e5efbf8.zip",
+            strip_prefix = "rules_foreign_cc-4a6fd7fd6228107cbfeba359c18367a16e5efbf8",
+            sha256 = "f230217cd8f21632779581a5bd97e1bdd87cbe659e28e3d2cff8656127a52316",
         )
 
     # Transitive dependency of io_bazel_rules_docker
@@ -45,9 +45,9 @@ def sparse_linear_algebra_deps_preload():
     if "mpc_utils" not in native.existing_rules():
         http_archive(
             name = "mpc_utils",
-            url = "https://github.com/schoppmp/mpc-utils/archive/a01f41b5d21d933d36abdaae27d14c61a1272fd7.zip",
-            sha256 = "cdd1c9c0a36fcba2250f049bd74d4c8e99289eb4de16c7789a9eac2a26a155ee",
-            strip_prefix = "mpc-utils-a01f41b5d21d933d36abdaae27d14c61a1272fd7",
+            url = "https://github.com/schoppmp/mpc-utils/archive/d2638269875faf105a3e962e4113335b45ef660f.zip",
+            sha256 = "c927f3db2ed64f6c73e24a6160fb4b8f19227d735db77038e9b4df5fc34a3032",
+            strip_prefix = "mpc-utils-d2638269875faf105a3e962e4113335b45ef660f",
         )
 
     if "io_bazel_rules_docker" not in native.existing_rules():

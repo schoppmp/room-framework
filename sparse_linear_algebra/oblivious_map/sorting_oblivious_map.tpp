@@ -12,27 +12,29 @@ template<typename K, typename V>
 void sorting_oblivious_map<K,V>::run_server(
   const sorting_oblivious_map<K,V>::pair_range input,
   const sorting_oblivious_map<K,V>::value_range defaults,
-  bool shared_output
+  bool shared_output,
+  mpc_utils::Benchmarker* benchmarker
 ) {
-  double local_time = 0, mpc_time = 0;
-  double start = timestamp(), end;
+  mpc_utils::Benchmarker::time_point start;
+  if (benchmarker != nullptr) {
+    start = benchmarker->StartTimer();
+  }
+
   size_t input_size = boost::size(input);
   // sort inputs
   std::vector<std::pair<K,V>> input_vec;
   std::vector<uint8_t> input_keys_bytes(input_size * sizeof(K));
   std::vector<uint8_t> input_values_bytes(input_size * sizeof(V));
   std::vector<uint8_t> input_defaults_bytes(boost::size(defaults) * sizeof(V));
-  // benchmark([&]{
+
   input_vec = std::vector<std::pair<K,V>>(boost::begin(input), boost::end(input));
   boost::sort(input_vec);
   // serialize for obliv-c
   serialize_le(input_keys_bytes.begin(), boost::begin(boost::adaptors::keys(input_vec)), input_size);
   serialize_le(input_values_bytes.begin(), boost::begin(boost::adaptors::values(input_vec)), input_size);
   serialize_le(input_defaults_bytes.begin(), boost::begin(defaults), boost::size(defaults));
-  // }, "Copying inputs (server)");
   chan.flush();
 
-  // benchmark([&]{
   pir_scs_oblivc_args args = {
     .key_type_size = sizeof(K),
     .value_type_size = sizeof(V),
@@ -44,9 +46,11 @@ void sorting_oblivious_map<K,V>::run_server(
     .result_values = nullptr,
     .shared_output = shared_output
   };
-  end = timestamp();
-  local_time += end - start;
-  start = end;
+
+  if (benchmarker != nullptr) {
+    benchmarker->AddSecondsSinceStart("local_time", start);
+    start = benchmarker->StartTimer();
+  }
 
   // run yao's protocol using Obliv-C
   ProtocolDesc pd;
@@ -57,39 +61,37 @@ void sorting_oblivious_map<K,V>::run_server(
   execYaoProtocol(&pd, pir_scs_oblivc, &args);
   cleanupProtocol(&pd);
 
-  end = timestamp();
-  mpc_time += end - start;
-  if(print_times) {
-    std::cout << "local_time: " << local_time << " s\n";
-    std::cout << "mpc_time: " << mpc_time << " s\n";
+  if (benchmarker != nullptr) {
+    benchmarker->AddSecondsSinceStart("mpc_time", start);
+    start = benchmarker->StartTimer();
   }
-  // }, "SCS Yao protocol (Server)");
 }
 
 template<typename K, typename V>
 void sorting_oblivious_map<K,V>::run_client(
   const sorting_oblivious_map<K,V>::key_range input,
   sorting_oblivious_map<K,V>::value_range output,
-  bool shared_output
+  bool shared_output,
+  mpc_utils::Benchmarker* benchmarker
 ) {
-  double local_time = 0, mpc_time = 0;
-  double start = timestamp(), end;
+  mpc_utils::Benchmarker::time_point start;
+  if (benchmarker != nullptr) {
+    start = benchmarker->StartTimer();
+  }
+
   size_t input_size = boost::size(input);
   std::map<K, size_t> input_map;
   std::vector<uint8_t> input_bytes(input_size * sizeof(K));
   std::vector<uint8_t> output_keys_bytes(boost::size(output) * sizeof(K));
   std::vector<uint8_t> output_values_bytes(boost::size(output) * sizeof(V));
 
-  // benchmark([&]{
   auto it = boost::begin(input);
   for(size_t i = 0; i < input_size; i++) {
     input_map.emplace(*(it++), i);
   }
   serialize_le(input_bytes.begin(),
     boost::begin(boost::adaptors::keys(input_map)), input_size);
-  // }, "Copying inputs (client)");
 
-  // benchmark([&]{
   pir_scs_oblivc_args args = {
     .key_type_size = sizeof(K),
     .value_type_size = sizeof(V),
@@ -102,9 +104,10 @@ void sorting_oblivious_map<K,V>::run_client(
     .shared_output = shared_output
   };
 
-  end = timestamp();
-  local_time += end - start;
-  start = end;
+  if (benchmarker != nullptr) {
+    benchmarker->AddSecondsSinceStart("local_time", start);
+    start = benchmarker->StartTimer();
+  }
 
   // run yao's protocol using Obliv-C
   ProtocolDesc pd;
@@ -115,13 +118,12 @@ void sorting_oblivious_map<K,V>::run_client(
   setCurrentParty(&pd, 2);
   execYaoProtocol(&pd, pir_scs_oblivc, &args);
   cleanupProtocol(&pd);
-  // }, "SCS Yao protocol (Client)");
 
-  end = timestamp();
-  mpc_time += end - start;
-  start = end;
+  if (benchmarker != nullptr) {
+    benchmarker->AddSecondsSinceStart("mpc_time", start);
+    start = benchmarker->StartTimer();
+  }
 
-  // benchmark([&]{
   // reorder outputs to match original order of the inputs
   std::vector<V> output_values(input_size);
   for(size_t i = 0; i < input_size; i++) {
@@ -132,11 +134,7 @@ void sorting_oblivious_map<K,V>::run_client(
   }
   boost::copy(output_values, boost::begin(output));
 
-  end = timestamp();
-  local_time += end - start;
-  if(print_times) {
-    std::cout << "local_time: " << local_time << " s\n";
-    std::cout << "mpc_time: " << mpc_time << " s\n";
+  if (benchmarker != nullptr) {
+    benchmarker->AddSecondsSinceStart("local_time", start);
   }
-  // }, "Copying results");
 }

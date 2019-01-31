@@ -42,11 +42,11 @@ class test_pir_config : public virtual mpc_config {
             po::error("'num_elements_client' must be positive"));
       }
     }
-    for (auto& pir_type : pir_types) {
+    for (auto &pir_type : pir_types) {
       if (pir_type != "basic" && pir_type != "poly" && pir_type != "scs") {
         BOOST_THROW_EXCEPTION(
-              po::error("'pir_type' must be either "
-                        "`basic`, `poly` or `scs`"));
+            po::error("'pir_type' must be either "
+                      "`basic`, `poly` or `scs`"));
       }
     }
     mpc_config::validate();
@@ -107,14 +107,14 @@ int main(int argc, const char **argv) {
       try {
         if (pir_type == "basic") {
           proto = std::unique_ptr<oblivious_map<key_type, value_type>>(
-              new basic_oblivious_map<key_type, value_type>(chan, true));
+              new basic_oblivious_map<key_type, value_type>(chan));
         } else if (pir_type == "poly") {
           proto = std::unique_ptr<oblivious_map<key_type, value_type>>(
               new poly_oblivious_map<key_type, value_type>(
-                  chan, conf.statistical_security, true));
+                  chan, conf.statistical_security));
         } else {  // if(conf.pir_type == "scs") {
           proto = std::unique_ptr<oblivious_map<key_type, value_type>>(
-              new sorting_oblivious_map<key_type, value_type>(chan, true));
+              new sorting_oblivious_map<key_type, value_type>(chan));
         }
       } catch (boost::exception &ex) {
         std::cerr << boost::diagnostic_information(ex);
@@ -123,28 +123,32 @@ int main(int argc, const char **argv) {
       std::cout << "PIR type: " << pir_type << "\n";
       std::cout << "num_elements_server: " << num_elements_server << "\n";
       std::cout << "num_elements_client: " << num_elements_client << "\n";
+      mpc_utils::Benchmarker benchmarker;
       try {
         if (party.get_id() == 0) {
           std::vector<key_type> server_keys_in(num_elements_server);
           std::iota(server_keys_in.begin(), server_keys_in.end(), 0);
           std::vector<value_type> server_values_in(num_elements_server, 23);
           std::vector<value_type> server_defaults(num_elements_client, 13);
-          benchmark(
-              [&]() {
-                proto->run_server(server_keys_in, server_values_in,
-                                  server_defaults);
-              },
-              "total_time");
+          benchmarker.BenchmarkFunction("total_time", [&]() {
+            proto->run_server(server_keys_in, server_values_in, server_defaults, false,
+                              &benchmarker);
+          });
         } else {
           std::vector<key_type> client_in(num_elements_client);
           std::iota(client_in.begin(), client_in.end(), 42);
           std::vector<value_type> client_out(num_elements_client);
-          benchmark([&]() { proto->run_client(client_in, client_out); },
-                    "total_time");
+          benchmarker.BenchmarkFunction("total_time", [&]() {
+            proto->run_client(client_in, client_out, false, &benchmarker);
+          });
         }
       } catch (boost::exception &ex) {
         std::cerr << boost::diagnostic_information(ex);
         return 1;
+      }
+
+      for (const auto &pair : benchmarker.GetAll()) {
+        std::cout << pair.first << ": " << pair.second << "\n";
       }
     }
   }

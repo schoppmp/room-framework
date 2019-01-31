@@ -23,7 +23,7 @@ matrix_multiplication_cols_dense(
     comm_channel& channel, int role, triple_provider<T, true>& triples,
     ssize_t chunk_size_in = -1,
     ssize_t k_A = -1,  // saves a communication round if set
-    bool print_times = false) {
+    mpc_utils::Benchmarker* benchmarker = nullptr) {
   try {
     std::vector<K> inner_indices;
     Eigen::SparseMatrix<T, Eigen::RowMajor> A;
@@ -50,7 +50,11 @@ matrix_multiplication_cols_dense(
       A.resize(A_in.rows(), k_A);
       A.setZero();
     }
-    double start = timestamp();
+
+    mpc_utils::Benchmarker::time_point start;
+    if (benchmarker != nullptr) {
+      start = benchmarker->StartTimer();
+    }
 
     // get additive shares of B at inner_indices
     // TODO: extend ROOM to multiple values, do whole matrix B at once
@@ -61,7 +65,7 @@ matrix_multiplication_cols_dense(
     for (size_t col = 0; col < num_cols_B; col++) {
       std::vector<T> result(k_A);
       if (role == 0) {
-        prot.run_client(inner_indices, result, true);
+        prot.run_client(inner_indices, result, true, benchmarker);
       } else {
         // set our share
         auto rng = newBCipherRandomGen();
@@ -73,16 +77,16 @@ matrix_multiplication_cols_dense(
           values[row] = B(row, col);
         }
         prot.run_server(boost::counting_range(K(0), K(B.rows())), values,
-                        result, true);
+                        result, true, benchmarker);
       }
       for (size_t row = 0; row < k_A; row++) {
         B_shared(row, col) = result[row];
       }
     }
-    if (print_times) {
-      double end = timestamp();
-      std::cout << "room_time: " << end - start << " s\n";
-      start = end;
+
+    if (benchmarker != nullptr) {
+      benchmarker->AddSecondsSinceStart("room_time", start);
+      start = benchmarker->StartTimer();
     }
 
     // extract nonzero rows
@@ -96,10 +100,10 @@ matrix_multiplication_cols_dense(
         A_dense.col(i) = A_cols.col(inner_indices[i]);
       }
     }
-    if (print_times) {
-      double end = timestamp();
-      std::cout << "reordering_time: " << end - start << " s\n";
-      start = end;
+
+    if (benchmarker != nullptr) {
+      benchmarker->AddSecondsSinceStart("reordering_time", start);
+      start = benchmarker->StartTimer();
     }
 
     // dense multiplication
@@ -110,11 +114,12 @@ matrix_multiplication_cols_dense(
       ret = matrix_multiplication(A, B_shared, channel, role, triples,
                                   chunk_size_in);
     }
-    if (print_times) {
-      double end = timestamp();
-      std::cout << "dense_time: " << end - start << " s\n";
-      start = end;
+
+    if (benchmarker != nullptr) {
+      benchmarker->AddSecondsSinceStart("dense_time", start);
+      start = benchmarker->StartTimer();
     }
+
     return ret;
 
   } catch (boost::exception& e) {

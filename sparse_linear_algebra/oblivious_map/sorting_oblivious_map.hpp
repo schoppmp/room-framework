@@ -19,9 +19,11 @@ class sorting_oblivious_map : public virtual oblivious_map<K, V> {
   using value_range = typename oblivious_map<K, V>::value_range;
 
   void run_server(const pair_range input, const value_range defaults,
-                  bool shared_output);
+                  bool shared_output,
+                  mpc_utils::Benchmarker* benchmarker = nullptr);
   void run_client(const key_range input, value_range output,
-                  bool shared_output);
+                  bool shared_output,
+                  mpc_utils::Benchmarker* benchmarker = nullptr);
 };
 
 #include "sorting_oblivious_map.tpp"

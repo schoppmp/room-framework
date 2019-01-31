@@ -14,11 +14,15 @@ template<typename K, typename V>
 void poly_oblivious_map<K,V>::run_server(
   const poly_oblivious_map<K,V>::pair_range input,
   const poly_oblivious_map<K,V>::value_range defaults,
-  bool shared_output
+  bool shared_output,
+  mpc_utils::Benchmarker* benchmarker
 ) {
   try {
-    double local_time = 0, mpc_time = 0;
-    double start = timestamp(), end;
+    mpc_utils::Benchmarker::time_point start;
+    if (benchmarker != nullptr) {
+      start = benchmarker->StartTimer();
+    }
+
     NTL::ZZ_pPush push(modulus);
     nonce++;
     NTL::ZZ_pX poly_server;
@@ -83,9 +87,11 @@ void poly_oblivious_map<K,V>::run_server(
       .result = nullptr,
       .shared_output = shared_output
     };
-    end = timestamp();
-    local_time += end - start;
-    start = end;
+
+    if (benchmarker != nullptr) {
+      benchmarker->AddSecondsSinceStart("local_time", start);
+      start = benchmarker->StartTimer();
+    }
 
     // run yao's protocol using Obliv-C
     ProtocolDesc pd;
@@ -95,11 +101,10 @@ void poly_oblivious_map<K,V>::run_server(
     setCurrentParty(&pd, 1);
     execYaoProtocol(&pd, pir_poly_oblivc, &args);
     cleanupProtocol(&pd);
-    end = timestamp();
-    mpc_time += end - start;
-    if(print_times) {
-      std::cout << "local_time: " << local_time << " s\n";
-      std::cout << "mpc_time: " << mpc_time << " s\n";
+
+    if (benchmarker != nullptr) {
+      benchmarker->AddSecondsSinceStart("mpc_time", start);
+      start = benchmarker->StartTimer();
     }
   } catch (NTL::ErrorObject& ex) {
     BOOST_THROW_EXCEPTION(ex);
@@ -110,11 +115,15 @@ template<typename K, typename V>
 void poly_oblivious_map<K,V>::run_client(
   const poly_oblivious_map<K,V>::key_range input,
   const poly_oblivious_map<K,V>::value_range output,
-  bool shared_output
+  bool shared_output,
+  mpc_utils::Benchmarker* benchmarker
 ) {
   try {
-    double local_time = 0, mpc_time = 0;
-    double start = timestamp(), end;
+    mpc_utils::Benchmarker::time_point start;
+    if (benchmarker != nullptr) {
+      start = benchmarker->StartTimer();
+    }
+
     NTL::ZZ_pPush push(modulus);
     nonce++;
     size_t length = boost::size(input);
@@ -153,9 +162,11 @@ void poly_oblivious_map<K,V>::run_client(
         (NTL::conv<NTL::ZZ>(elements_client[i]) << 8 * (sizeof(nonce))) + nonce, block_size);
     }
     chan.flush();
-    end = timestamp();
-    local_time += end - start;
-    start = end;
+
+    if (benchmarker != nullptr) {
+      benchmarker->AddSecondsSinceStart("local_time", start);
+      start = benchmarker->StartTimer();
+    }
 
     // run yao's protocol using Obliv-C
     ProtocolDesc pd;
@@ -166,17 +177,15 @@ void poly_oblivious_map<K,V>::run_client(
     execYaoProtocol(&pd, pir_poly_oblivc, &args);
     cleanupProtocol(&pd);
 
-    end = timestamp();
-    mpc_time += end - start;
-    start = end;
+    if (benchmarker != nullptr) {
+      benchmarker->AddSecondsSinceStart("mpc_time", start);
+      start = benchmarker->StartTimer();
+    }
 
     deserialize_le(boost::begin(output), result.data(), length);
 
-    end = timestamp();
-    local_time += end - start;
-    if(print_times) {
-      std::cout << "local_time: " << local_time << " s\n";
-      std::cout << "mpc_time: " << mpc_time << " s\n";
+    if (benchmarker != nullptr) {
+      benchmarker->AddSecondsSinceStart("local_time", start);
     }
   } catch (NTL::ErrorObject& ex) {
     BOOST_THROW_EXCEPTION(ex);
