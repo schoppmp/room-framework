@@ -74,13 +74,6 @@ KNNProtocol<T>::KNNProtocol(
           num_documents_server, num_documents_client)) {
   // TODO: assert size of input matrices match inputted sizes
   assert(num_documents_client == 1);
-  std::cout << "num_documents_server = " << num_documents_server
-            << "\nm = " << num_words
-            << "\nnum_documents_client = " << num_documents_client
-            << "\nnum_nonzeros_server = " << num_nonzeros_server
-            << "\nnum_nonzeros_client = " << num_nonzeros_client
-            << "\nchunk_size = " << chunk_size << "\npir_type = " << pt
-            << "\nmultiplication_type = " << mt << "\n";
 }
 
 template <typename T>
