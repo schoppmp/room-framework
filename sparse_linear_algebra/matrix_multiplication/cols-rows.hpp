@@ -48,7 +48,7 @@ matrix_multiplication_cols_rows(  // TODO: somehow derive row-/column sparsity
                    // indexes in another garbled circuit
     ssize_t chunk_size_in = -1, ssize_t k_A = -1,
     ssize_t k_B = -1,  // saves a communication round if set
-    mpc_utils::Benchmarker* benchmarker = nullptr) {
+    mpc_utils::Benchmarker *benchmarker = nullptr) {
   try {
     size_t k;
     std::vector<K> inner_indices;
@@ -101,7 +101,8 @@ matrix_multiplication_cols_rows(  // TODO: somehow derive row-/column sparsity
       std::mt19937 prg(seed);
       auto perm_result = permute_inner_indices(prg, inner_indices, k);
       // run ROOM protocol to give client their permutation
-      prot.run_server(perm_result.first, perm_result.second, false, benchmarker);
+      prot.run_server(perm_result.first, perm_result.second, false,
+                      benchmarker);
       boost::copy(perm_result.first, perm.begin());
     } else {
       std::vector<K> perm_values(role == 0 ? k_A : k_B);

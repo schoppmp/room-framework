@@ -231,26 +231,30 @@ void runExperiments(comm_channel* channel, int party_id,
       size_t num_nonzeros_client = get_ceil(conf.nonzeros_client, experiment);
       PirType pir_type = get_ceil(conf.pir_types, experiment);
       std::string pir_type_raw = get_ceil(conf.pir_types_raw, experiment);
-      MulType multiplication_type = get_ceil(conf.multiplication_types, experiment);
-      std::string multiplication_type_raw = get_ceil(conf.multiplication_types_raw, experiment);
+      MulType multiplication_type =
+          get_ceil(conf.multiplication_types, experiment);
+      std::string multiplication_type_raw =
+          get_ceil(conf.multiplication_types_raw, experiment);
       Eigen::SparseMatrix<T, Eigen::RowMajor> server_matrix(l, m);
       Eigen::SparseMatrix<T, Eigen::ColMajor> client_matrix(m, n);
       generateRandomMatrices<T>(123456, precision, l, m, n, num_nonzeros_server,
                                 num_nonzeros_client, &server_matrix,
                                 &client_matrix);
 
-      std::cout << "num_documents_server = " << l
-                << "\nm = " << m
+      std::cout << "num_documents_server = " << l << "\nm = " << m
                 << "\nnum_documents_client = " << n
                 << "\nnum_nonzeros_server = " << num_nonzeros_server
                 << "\nnum_nonzeros_client = " << num_nonzeros_client
-                << "\nchunk_size = " << chunk_size << "\npir_type = " << pir_type_raw
-                << "\nmultiplication_type = " << multiplication_type_raw << "\n";
+                << "\nchunk_size = " << chunk_size
+                << "\npir_type = " << pir_type_raw
+                << "\nmultiplication_type = " << multiplication_type_raw
+                << "\n";
 
       KNNProtocol<T> protocol(channel, party_id, statistical_security,
-                              precision, multiplication_type, pir_type, chunk_size, k, l, m, n,
-                              num_nonzeros_server, num_nonzeros_client,
-                              server_matrix, client_matrix);
+                              precision, multiplication_type, pir_type,
+                              chunk_size, k, l, m, n, num_nonzeros_server,
+                              num_nonzeros_client, server_matrix,
+                              client_matrix);
       auto result = protocol.run(&benchmarker);
       for (const auto& pair : benchmarker.GetAll()) {
         std::cout << pair.first << ": " << pair.second << "\n";

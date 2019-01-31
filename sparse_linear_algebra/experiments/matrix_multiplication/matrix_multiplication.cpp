@@ -277,9 +277,9 @@ int main(int argc, const char* argv[]) {
 
           channel.sync();
           benchmarker.BenchmarkFunction("Matrix Multiplication", [&] {
-            C = matrix_multiplication_cols_rows(A, B, *protos_perm[type],
-                                                channel, p.get_id(), triples,
-                                                chunk_size, k_A, k_B, &benchmarker);
+            C = matrix_multiplication_cols_rows(
+                A, B, *protos_perm[type], channel, p.get_id(), triples,
+                chunk_size, k_A, k_B, &benchmarker);
           });
         } else if (mult_type == "cols_dense") {
           fake_triple_provider<T, true> triples(chunk_size, k_A, n, p.get_id());

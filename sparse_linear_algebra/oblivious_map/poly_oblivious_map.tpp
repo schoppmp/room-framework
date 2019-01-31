@@ -1,22 +1,20 @@
 #include <algorithm>
 #include "boost/range.hpp"
 #include "boost/range/algorithm.hpp"
-#include "mpc_utils/boost_serialization/ntl.hpp"
 #include "fastpoly/recursive.h"
+#include "mpc_utils/boost_serialization/ntl.hpp"
 #include "sparse_linear_algebra/util/serialize_le.hpp"
 #include "sparse_linear_algebra/util/time.h"
 extern "C" {
-  #include "obliv.h"
-  #include "poly_oblivious_map.h"
+#include "obliv.h"
+#include "poly_oblivious_map.h"
 }
 
-template<typename K, typename V>
-void poly_oblivious_map<K,V>::run_server(
-  const poly_oblivious_map<K,V>::pair_range input,
-  const poly_oblivious_map<K,V>::value_range defaults,
-  bool shared_output,
-  mpc_utils::Benchmarker* benchmarker
-) {
+template <typename K, typename V>
+void poly_oblivious_map<K, V>::run_server(
+    const poly_oblivious_map<K, V>::pair_range input,
+    const poly_oblivious_map<K, V>::value_range defaults, bool shared_output,
+    mpc_utils::Benchmarker* benchmarker) {
   try {
     mpc_utils::Benchmarker::time_point start;
     if (benchmarker != nullptr) {
@@ -34,13 +32,13 @@ void poly_oblivious_map<K,V>::run_server(
     NTL::Vec<NTL::ZZ_p> values_server;
     elements_server.SetMaxLength(input_length);
     values_server.SetMaxLength(input_length);
-    for(auto pair : input) {
+    for (auto pair : input) {
       elements_server.append(NTL::conv<NTL::ZZ_p>(pair.first));
       values_server.append(NTL::conv<NTL::ZZ_p>(pair.second));
     }
 
     // setup encryption
-    if(key.size() == 0) {
+    if (key.size() == 0) {
       key.resize(block_size);
       gcry_randomize(key.data(), block_size, GCRY_STRONG_RANDOM);
     }
@@ -49,18 +47,22 @@ void poly_oblivious_map<K,V>::run_server(
     gcry_cipher_setkey(handle, key.data(), block_size);
 
     // encrypt server values
-    for(size_t i = 0; i < input_length; i++) {
+    for (size_t i = 0; i < input_length; i++) {
       NTL::ZZ val;
       NTL::conv(val, values_server[i]);
       val <<= statistical_security;
       // use AES counter mode with the element as the counter
       unsigned char buf[block_size] = {0};
       unsigned char ctr[block_size] = {0};
-      NTL::BytesFromZZ(ctr, (NTL::conv<NTL::ZZ>(elements_server[i]) << 8 * (sizeof(nonce))) + nonce, block_size);
+      NTL::BytesFromZZ(
+          ctr,
+          (NTL::conv<NTL::ZZ>(elements_server[i]) << 8 * (sizeof(nonce))) +
+              nonce,
+          block_size);
       gcry_cipher_setctr(handle, ctr, block_size);
-      if(NTL::NumBytes(val) > block_size) {
+      if (NTL::NumBytes(val) > block_size) {
         BOOST_THROW_EXCEPTION(
-          std::runtime_error("Server value does not fit in plaintext space"));
+            std::runtime_error("Server value does not fit in plaintext space"));
       }
       NTL::BytesFromZZ(buf, val, block_size);
       gcry_cipher_encrypt(handle, buf, block_size, nullptr, 0);
@@ -71,22 +73,22 @@ void poly_oblivious_map<K,V>::run_server(
     // interpolate polynomial over the values
     // interpolate_recursive(poly_server, elements_server,values_server);
     poly_interpolate_zp_recursive(values_server.length() - 1,
-      elements_server.data(), values_server.data(), poly_server);
+                                  elements_server.data(), values_server.data(),
+                                  poly_server);
     chan.send(poly_server);
     chan.flush();
 
     // set up inputs for obliv-c
     std::vector<uint8_t> defaults_bytes(default_length * sizeof(V), 0);
-    serialize_le(defaults_bytes.begin(), boost::begin(defaults), default_length);
-    pir_poly_oblivc_args args = {
-      .statistical_security = statistical_security,
-      .value_type_size = sizeof(V),
-      .input_size = key.size(),
-      .input = key.data(),
-      .defaults = defaults_bytes.data(),
-      .result = nullptr,
-      .shared_output = shared_output
-    };
+    serialize_le(defaults_bytes.begin(), boost::begin(defaults),
+                 default_length);
+    pir_poly_oblivc_args args = {.statistical_security = statistical_security,
+                                 .value_type_size = sizeof(V),
+                                 .input_size = key.size(),
+                                 .input = key.data(),
+                                 .defaults = defaults_bytes.data(),
+                                 .result = nullptr,
+                                 .shared_output = shared_output};
 
     if (benchmarker != nullptr) {
       benchmarker->AddSecondsSinceStart("local_time", start);
@@ -95,8 +97,9 @@ void poly_oblivious_map<K,V>::run_server(
 
     // run yao's protocol using Obliv-C
     ProtocolDesc pd;
-    if(chan.connect_to_oblivc(pd) == -1) {
-      BOOST_THROW_EXCEPTION(std::runtime_error("run_server: connection failed"));
+    if (chan.connect_to_oblivc(pd) == -1) {
+      BOOST_THROW_EXCEPTION(
+          std::runtime_error("run_server: connection failed"));
     }
     setCurrentParty(&pd, 1);
     execYaoProtocol(&pd, pir_poly_oblivc, &args);
@@ -111,13 +114,11 @@ void poly_oblivious_map<K,V>::run_server(
   }
 }
 
-template<typename K, typename V>
-void poly_oblivious_map<K,V>::run_client(
-  const poly_oblivious_map<K,V>::key_range input,
-  const poly_oblivious_map<K,V>::value_range output,
-  bool shared_output,
-  mpc_utils::Benchmarker* benchmarker
-) {
+template <typename K, typename V>
+void poly_oblivious_map<K, V>::run_client(
+    const poly_oblivious_map<K, V>::key_range input,
+    const poly_oblivious_map<K, V>::value_range output, bool shared_output,
+    mpc_utils::Benchmarker* benchmarker) {
   try {
     mpc_utils::Benchmarker::time_point start;
     if (benchmarker != nullptr) {
@@ -140,26 +141,28 @@ void poly_oblivious_map<K,V>::run_client(
     boost::copy(input, elements_client.begin());
     // evaluate polynomial using fastpoly
     poly_evaluate_zp_recursive(elements_client.length() - 1, poly_server,
-      elements_client.data(), values_client.data());
+                               elements_client.data(), values_client.data());
 
     std::vector<uint8_t> result(values_client.length() * sizeof(V));
     // set up inputs for obliv-c
-    std::vector<uint8_t> ciphertexts_client(values_client.length() * 2 * block_size);
-    pir_poly_oblivc_args args = {
-      .statistical_security = statistical_security,
-      .value_type_size = sizeof(V),
-      .input_size = ciphertexts_client.size(),
-      .input = ciphertexts_client.data(),
-      .defaults = nullptr,
-      .result = result.data(),
-      .shared_output = shared_output
-    };
+    std::vector<uint8_t> ciphertexts_client(values_client.length() * 2 *
+                                            block_size);
+    pir_poly_oblivc_args args = {.statistical_security = statistical_security,
+                                 .value_type_size = sizeof(V),
+                                 .input_size = ciphertexts_client.size(),
+                                 .input = ciphertexts_client.data(),
+                                 .defaults = nullptr,
+                                 .result = result.data(),
+                                 .shared_output = shared_output};
     // serialize ciphertexts and elements (used as ctr in decryption)
-    for(size_t i = 0; i < values_client.length(); i++) {
-      NTL::BytesFromZZ(ciphertexts_client.data() + i*2*block_size,
-        NTL::conv<NTL::ZZ>(values_client[i]), block_size);
-      NTL::BytesFromZZ(ciphertexts_client.data() + (i*2+1)*block_size,
-        (NTL::conv<NTL::ZZ>(elements_client[i]) << 8 * (sizeof(nonce))) + nonce, block_size);
+    for (size_t i = 0; i < values_client.length(); i++) {
+      NTL::BytesFromZZ(ciphertexts_client.data() + i * 2 * block_size,
+                       NTL::conv<NTL::ZZ>(values_client[i]), block_size);
+      NTL::BytesFromZZ(
+          ciphertexts_client.data() + (i * 2 + 1) * block_size,
+          (NTL::conv<NTL::ZZ>(elements_client[i]) << 8 * (sizeof(nonce))) +
+              nonce,
+          block_size);
     }
     chan.flush();
 
@@ -170,8 +173,9 @@ void poly_oblivious_map<K,V>::run_client(
 
     // run yao's protocol using Obliv-C
     ProtocolDesc pd;
-    if(chan.connect_to_oblivc(pd) == -1) {
-      BOOST_THROW_EXCEPTION(std::runtime_error("run_client: connection failed"));
+    if (chan.connect_to_oblivc(pd) == -1) {
+      BOOST_THROW_EXCEPTION(
+          std::runtime_error("run_client: connection failed"));
     }
     setCurrentParty(&pd, 2);
     execYaoProtocol(&pd, pir_poly_oblivc, &args);

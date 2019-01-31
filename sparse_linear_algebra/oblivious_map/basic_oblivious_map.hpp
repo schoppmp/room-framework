@@ -45,8 +45,7 @@ class basic_oblivious_map : public virtual oblivious_map<K, V> {
   void run_server(const pair_range input, const value_range defaults,
                   bool shared_output,
                   mpc_utils::Benchmarker* benchmarker = nullptr);
-  void run_client(const key_range input, value_range output,
-                  bool shared_output,
+  void run_client(const key_range input, value_range output, bool shared_output,
                   mpc_utils::Benchmarker* benchmarker = nullptr);
 };
 

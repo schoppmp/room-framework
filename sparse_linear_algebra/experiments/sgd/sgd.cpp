@@ -256,15 +256,13 @@ int main(int argc, const char* argv[]) {
                                             [&] { triples.precompute(1); });
 
               channel.sync();
-              benchmarker.BenchmarkFunction(
-                  "Forward Pass",
-                  [&] {
-                    activations = matrix_multiplication_cols_dense(
-                        input[active_party]->middleRows(row_index[active_party],
-                                                        this_batch_size),
-                        model, proto, channel, active_party == p.get_id(),
-                        triples, this_batch_size, sparsity[active_party], &benchmarker);
-                  });
+              benchmarker.BenchmarkFunction("Forward Pass", [&] {
+                activations = matrix_multiplication_cols_dense(
+                    input[active_party]->middleRows(row_index[active_party],
+                                                    this_batch_size),
+                    model, proto, channel, active_party == p.get_id(), triples,
+                    this_batch_size, sparsity[active_party], &benchmarker);
+              });
             } else {
               BOOST_THROW_EXCEPTION(
                   std::runtime_error("Unknown multiplication_type"));

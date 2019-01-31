@@ -131,8 +131,8 @@ int main(int argc, const char **argv) {
           std::vector<value_type> server_values_in(num_elements_server, 23);
           std::vector<value_type> server_defaults(num_elements_client, 13);
           benchmarker.BenchmarkFunction("total_time", [&]() {
-            proto->run_server(server_keys_in, server_values_in, server_defaults, false,
-                              &benchmarker);
+            proto->run_server(server_keys_in, server_values_in, server_defaults,
+                              false, &benchmarker);
           });
         } else {
           std::vector<key_type> client_in(num_elements_client);

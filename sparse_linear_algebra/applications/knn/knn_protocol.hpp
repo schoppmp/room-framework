@@ -3,8 +3,8 @@
 #include <Eigen/Dense>
 #include <Eigen/Sparse>
 #include <random>
-#include "mpc_utils/comm_channel.hpp"
 #include "mpc_utils/benchmarker.hpp"
+#include "mpc_utils/comm_channel.hpp"
 #include "sparse_linear_algebra/oblivious_map/oblivious_map.hpp"
 
 namespace sparse_linear_algebra {
