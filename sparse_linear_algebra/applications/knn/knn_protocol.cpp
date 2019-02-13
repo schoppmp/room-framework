@@ -196,6 +196,11 @@ std::vector<int> KNNProtocol<T>::topK(mpc_utils::Benchmarker* benchmarker) {
                             serialized_norms.data(),
                             outputs.data()};
     execYaoProtocol(&pd, top_k_oblivc, &args);
+
+    if (benchmarker && channel->is_measured()) {
+      benchmarker->AddAmount("Bytes Sent (Obliv-C)", tcp2PBytesSent(&pd));
+    }
+
     cleanupProtocol(&pd);
   });
   return outputs;

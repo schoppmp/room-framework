@@ -94,10 +94,10 @@ matrix_multiplication_rows_dense(
       }
       if (role == 0) {
         current_col = zero_sharing_server(current_col_dense, inner_indices,
-                                          A_in.rows(), channel);
+                                          A_in.rows(), channel, benchmarker);
       } else {
-        current_col =
-            zero_sharing_client(current_col_dense, A_in.rows(), channel);
+        current_col = zero_sharing_client(current_col_dense, A_in.rows(),
+                                          channel, benchmarker);
       }
       for (size_t row = 0; row < ret.rows(); row++) {
         ret(row, col) = current_col[row];

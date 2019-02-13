@@ -38,8 +38,9 @@ class KNNConfig : public virtual mpc_config {
 
   int16_t statistical_security;
   ssize_t max_runs;
+  bool measure_communication;
+
   KNNConfig();
-  // bool measure_communication;
 };
 
 void KNNConfig::validate() {
@@ -165,11 +166,10 @@ KNNConfig::KNNConfig() : mpc_config() {
       po::value(&statistical_security)->default_value(40),
       "Statistical security parameter; used only for pir_type=poly")(
       "max_runs", po::value(&max_runs)->default_value(-1),
-      "Maximum number of runs. Default is unlimited");
-  // TODO:
-  // ("measure_communication",
-  // po::bool_switch(&measure_communication)->default_value(false), "Measure
-  // communication");
+      "Maximum number of runs. Default is unlimited")(
+      "measure_communication",
+      po::bool_switch(&measure_communication)->default_value(false),
+      "Measure communication");
 }
 
 template <typename T>
@@ -256,6 +256,11 @@ void runExperiments(comm_channel* channel, int party_id,
                               num_nonzeros_client, server_matrix,
                               client_matrix);
       auto result = protocol.run(&benchmarker);
+
+      if (conf.measure_communication) {
+        benchmarker.AddAmount("Bytes Sent (direct)",
+                              channel->get_num_bytes_sent());
+      }
       for (const auto& pair : benchmarker.GetAll()) {
         std::cout << pair.first << ": " << pair.second << "\n";
       }
@@ -282,7 +287,7 @@ int main(int argc, const char* argv[]) {
   }
   // connect to other party
   party p(conf);
-  auto channel = p.connect_to(1 - p.get_id());
+  auto channel = p.connect_to(1 - p.get_id(), conf.measure_communication);
   try {
     runExperiments(&channel, p.get_id(), conf.statistical_security, precision,
                    conf);

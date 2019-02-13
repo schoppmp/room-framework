@@ -103,6 +103,11 @@ void poly_oblivious_map<K, V>::run_server(
     }
     setCurrentParty(&pd, 1);
     execYaoProtocol(&pd, pir_poly_oblivc, &args);
+
+    if (benchmarker != nullptr && chan.is_measured()) {
+      benchmarker->AddAmount("Bytes Sent (Obliv-C)", tcp2PBytesSent(&pd));
+    }
+
     cleanupProtocol(&pd);
 
     if (benchmarker != nullptr) {
@@ -179,6 +184,11 @@ void poly_oblivious_map<K, V>::run_client(
     }
     setCurrentParty(&pd, 2);
     execYaoProtocol(&pd, pir_poly_oblivc, &args);
+
+    if (benchmarker != nullptr && chan.is_measured()) {
+      benchmarker->AddAmount("Bytes Sent (Obliv-C)", tcp2PBytesSent(&pd));
+    }
+
     cleanupProtocol(&pd);
 
     if (benchmarker != nullptr) {

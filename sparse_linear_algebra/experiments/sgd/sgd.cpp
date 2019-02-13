@@ -101,7 +101,7 @@ class sgd_config : public virtual mpc_config {
   std::vector<ssize_t> num_epochs;
   std::vector<std::string> multiplication_types;
   ssize_t max_runs;
-  // bool measure_communication;
+  bool measure_communication;
 
   sgd_config() : mpc_config() {
     namespace po = boost::program_options;
@@ -125,11 +125,10 @@ class sgd_config : public virtual mpc_config {
         "multiplication_type", po::value(&multiplication_types)->composing(),
         "Multiplication type: dense | sparse; can be passed multiple times")(
         "max_runs", po::value(&max_runs)->default_value(-1),
-        "Maximum number of runs. Default is unlimited");
-    // TODO:
-    // ("measure_communication",
-    // po::bool_switch(&measure_communication)->default_value(false), "Measure
-    // communication");
+        "Maximum number of runs. Default is unlimited")(
+        "measure_communication",
+        po::bool_switch(&measure_communication)->default_value(false),
+        "Measure communication");
   }
 };
 
@@ -147,7 +146,7 @@ int main(int argc, const char* argv[]) {
   }
   // connect to other party
   party p(conf);
-  auto channel = p.connect_to(1 - p.get_id());
+  auto channel = p.connect_to(1 - p.get_id(), conf.measure_communication);
 
   basic_oblivious_map<int, T> proto(channel);
   using dense_matrix = Eigen::Matrix<T, Eigen::Dynamic, Eigen::Dynamic>;
@@ -380,6 +379,10 @@ int main(int argc, const char* argv[]) {
         }
       }
 
+      if (conf.measure_communication) {
+        benchmarker.AddAmount("Bytes Sent (direct)",
+                              channel.get_num_bytes_sent());
+      }
       for (const auto& pair : benchmarker.GetAll()) {
         std::cout << pair.first << ": " << pair.second << "\n";
       }
