@@ -37,3 +37,20 @@ container_image(
         "MPC_UTILS_CONFIG": "sparse_linear_algebra/experiments/sgd/sgd.ini",
     },
 )
+
+# Images for running experiments from the ROOM paper.
+container_image(
+    name = "room_time",
+    base = ":main_image",
+    env = {
+        "MPC_UTILS_CONFIG": "sparse_linear_algebra/experiments/sgd/room_time.ini",
+    },
+)
+
+container_image(
+    name = "room_communication",
+    base = ":main_image",
+    env = {
+        "MPC_UTILS_CONFIG": "sparse_linear_algebra/experiments/sgd/room_communication.ini",
+    },
+)

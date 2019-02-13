@@ -143,11 +143,10 @@ class matrix_multiplication_config : public virtual mpc_config {
         "Maximum number of runs. Default is unlimited")(
         "skip_verification",
         po::bool_switch(&skip_verification)->default_value(false),
-        "Skip verification");
-    // TODO:
-    // ("measure_communication",
-    // po::bool_switch(&measure_communication)->default_value(false), "Measure
-    // communication");
+        "Skip verification")(
+        "measure_communication",
+        po::bool_switch(&measure_communication)->default_value(false),
+        "Measure communication");
   }
 };
 
@@ -164,7 +163,7 @@ int main(int argc, const char* argv[]) {
   }
   // connect to other party
   party p(conf);
-  auto channel = p.connect_to(1 - p.get_id());
+  auto channel = p.connect_to(1 - p.get_id(), conf.measure_communication);
 
   std::map<std::string, std::shared_ptr<oblivious_map<size_t, size_t>>>
       protos_perm{
@@ -343,6 +342,10 @@ int main(int argc, const char* argv[]) {
         return 1;
       }
 
+      if (conf.measure_communication) {
+        benchmarker.AddAmount("Bytes Sent (direct)",
+                              channel.get_num_bytes_sent());
+      }
       for (const auto& pair : benchmarker.GetAll()) {
         std::cout << pair.first << ": " << pair.second << "\n";
       }

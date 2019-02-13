@@ -57,6 +57,7 @@ class test_pir_config : public virtual mpc_config {
   std::vector<ssize_t> num_elements_client;
   std::vector<std::string> pir_types;
   int16_t statistical_security;
+  bool measure_communication;
 
   test_pir_config() {
     namespace po = boost::program_options;
@@ -71,7 +72,10 @@ class test_pir_config : public virtual mpc_config {
                           "be passed multiple times")(
         "statistical_security,s",
         po::value(&statistical_security)->default_value(40),
-        "Statistical security parameter");
+        "Statistical security parameter")(
+        "measure_communication",
+        po::bool_switch(&measure_communication)->default_value(false),
+        "Measure communication");
   }
 };
 
@@ -85,7 +89,7 @@ int main(int argc, const char **argv) {
     return 1;
   }
   party party(conf);
-  auto chan = party.connect_to(1 - party.get_id());
+  auto chan = party.connect_to(1 - party.get_id(), conf.measure_communication);
 
   using key_type = uint32_t;
   using value_type = uint32_t;
@@ -147,6 +151,9 @@ int main(int argc, const char **argv) {
         return 1;
       }
 
+      if (conf.measure_communication) {
+        benchmarker.AddAmount("Bytes Sent (direct)", chan.get_num_bytes_sent());
+      }
       for (const auto &pair : benchmarker.GetAll()) {
         std::cout << pair.first << ": " << pair.second << "\n";
       }

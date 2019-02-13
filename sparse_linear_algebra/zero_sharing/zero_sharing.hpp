@@ -27,8 +27,9 @@ extern "C" {
 //               indexes from I and zeros everywhere else
 
 template <typename T>
-std::vector<T> zero_sharing_server(std::vector<T> v, std::vector<size_t> I,
-                                   size_t n, comm_channel &chan) {
+std::vector<T> zero_sharing_server(
+    std::vector<T> v, std::vector<size_t> I, size_t n, comm_channel &chan,
+    mpc_utils::Benchmarker *benchmarker = nullptr) {
   size_t l = v.size();
   if (I.size() != v.size()) {
     BOOST_THROW_EXCEPTION(
@@ -144,13 +145,19 @@ std::vector<T> zero_sharing_server(std::vector<T> v, std::vector<size_t> I,
   }
 
   free(choices);
+
+  if (benchmarker != nullptr && chan.is_measured()) {
+    benchmarker->AddAmount("Bytes Sent (Obliv-C)", tcp2PBytesSent(&pd));
+  }
+
   cleanupProtocol(&pd);
   return s;
 }
 
 template <typename T>
-std::vector<T> zero_sharing_client(std::vector<T> v, size_t n,
-                                   comm_channel &chan) {
+std::vector<T> zero_sharing_client(
+    std::vector<T> v, size_t n, comm_channel &chan,
+    mpc_utils::Benchmarker *benchmarker = nullptr) {
   size_t l = v.size();
 
   // setup encryption and generate keys
@@ -253,6 +260,10 @@ std::vector<T> zero_sharing_client(std::vector<T> v, size_t n,
       .result_server = nullptr,
   };
   execYaoProtocol(&pd, zero_sharing_oblivc, &args);
+
+  if (benchmarker != nullptr && chan.is_measured()) {
+    benchmarker->AddAmount("Bytes Sent (Obliv-C)", tcp2PBytesSent(&pd));
+  }
 
   cleanupProtocol(&pd);
   return s;
