@@ -30,6 +30,14 @@ container_image(
     },
 )
 
+container_image(
+    name = "room_time",
+    base = ":main_image",
+    env = {
+        "MPC_UTILS_CONFIG": "sparse_linear_algebra/experiments/knn/room_time.ini",
+    },
+)
+
 ## Pushing currently does not work when Python 3 is default:
 ## https://github.com/google/containerregistry/issues/42
 #docker_push(
