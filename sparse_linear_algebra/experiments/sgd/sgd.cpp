@@ -52,22 +52,13 @@ class sgd_config : public virtual mpc_config {
         BOOST_THROW_EXCEPTION(po::error("'vocabulary_size' must be positive"));
       }
     }
-    if (nonzeros_a.size() == 0) {
+    if (nonzeros.size() == 0) {
       BOOST_THROW_EXCEPTION(
-          po::error("'nonzeros_a' must be passed at least once"));
+          po::error("'nonzeros' must be passed at least once"));
     }
-    for (auto k_A : nonzeros_a) {
-      if (k_A <= 0) {
-        BOOST_THROW_EXCEPTION(po::error("'nonzeros_a' must be positive"));
-      }
-    }
-    if (nonzeros_b.size() == 0) {
-      BOOST_THROW_EXCEPTION(
-          po::error("'nonzeros_b' must be passed at least once"));
-    }
-    for (auto k_B : nonzeros_b) {
-      if (k_B <= 0) {
-        BOOST_THROW_EXCEPTION(po::error("'nonzeros_b' must be positive"));
+    for (auto k : nonzeros) {
+      if (k <= 0) {
+        BOOST_THROW_EXCEPTION(po::error("'nonzeros' must be positive"));
       }
     }
     if (num_epochs.size() == 0) {
@@ -96,8 +87,7 @@ class sgd_config : public virtual mpc_config {
   std::vector<ssize_t> num_documents;
   std::vector<ssize_t> batch_size;
   std::vector<ssize_t> vocabulary_size;
-  std::vector<ssize_t> nonzeros_a;
-  std::vector<ssize_t> nonzeros_b;
+  std::vector<ssize_t> nonzeros;
   std::vector<ssize_t> num_epochs;
   std::vector<std::string> multiplication_types;
   ssize_t max_runs;
@@ -112,13 +102,9 @@ class sgd_config : public virtual mpc_config {
         "Number of documents to process at once; can be passed multiple times")(
         "vocabulary_size,m", po::value(&vocabulary_size)->composing(),
         "Number of columns in A and number of rows in B; can be passed "
-        "multiple times")(
-        "nonzeros_a,a", po::value(&nonzeros_a)->composing(),
-        "Number of non-zero columns in each batch of the first party's matrix "
-        "A; can be passed multiple times")(
-        "nonzeros_b,b", po::value(&nonzeros_b)->composing(),
-        "Number of non-zero columns in each batch of the second party's matrix "
-        "B; can be passed multiple times")(
+        "multiple times")("nonzeros", po::value(&nonzeros)->composing(),
+                          "Number of non-zero columns in each batch of the "
+                          "dataset; can be passed multiple times")(
         "num_epochs,e", po::value(&num_epochs)->composing(),
         "Number of epochs to train for. Defaults to 1. Can be passed multiple "
         "times")(
@@ -157,9 +143,8 @@ int main(int argc, const char* argv[]) {
   // generate test data
   size_t num_experiments =
       std::max({conf.num_documents.size(), conf.batch_size.size(),
-                conf.vocabulary_size.size(), conf.nonzeros_a.size(),
-                conf.nonzeros_b.size(), conf.num_epochs.size(),
-                conf.multiplication_types.size()});
+                conf.vocabulary_size.size(), conf.nonzeros.size(),
+                conf.num_epochs.size(), conf.multiplication_types.size()});
   size_t n = 1;
   for (size_t num_runs = 0; conf.max_runs < 0 || num_runs < conf.max_runs;
        num_runs++) {
@@ -169,13 +154,12 @@ int main(int argc, const char* argv[]) {
       size_t batch_size = get_ceil(conf.batch_size, experiment);
       size_t l = get_ceil(conf.num_documents, experiment);
       size_t m = get_ceil(conf.vocabulary_size, experiment);
-      size_t k_A = get_ceil(conf.nonzeros_a, experiment);
-      size_t k_B = get_ceil(conf.nonzeros_b, experiment);
+      size_t nonzeros = get_ceil(conf.nonzeros, experiment);
       size_t num_epochs = get_ceil(conf.num_epochs, experiment);
       const std::string& mult_type =
           get_ceil(conf.multiplication_types, experiment);
       std::cout << "l = " << l << "\nm = " << m << "\nn = " << n
-                << "\nk_A = " << k_A << "\nk_B = " << k_B
+                << "\nnonzeros = " << nonzeros
                 << "\nbatch_size = " << batch_size
                 << "\nmultiplication_type = " << mult_type << "\n";
 
@@ -188,7 +172,7 @@ int main(int argc, const char* argv[]) {
       std::cout << "Generating random data\n";
 
       std::vector<Eigen::Triplet<T>> triplets_A;
-      auto indices_A = reservoir_sampling(prg, k_A, m);
+      auto indices_A = reservoir_sampling(prg, nonzeros, m);
       for (size_t i = 0; i < A.rows(); i++) {
         for (size_t j = 0; j < indices_A.size(); j++) {
           Eigen::Triplet<T> triplet(
@@ -199,7 +183,7 @@ int main(int argc, const char* argv[]) {
       }
       A.setFromTriplets(triplets_A.begin(), triplets_A.end());
       std::vector<Eigen::Triplet<T>> triplets_B;
-      auto indices_B = reservoir_sampling(prg, k_B, m);
+      auto indices_B = reservoir_sampling(prg, nonzeros, m);
       for (size_t i = 0; i < B.rows(); i++) {
         for (size_t j = 0; j < indices_B.size(); j++) {
           Eigen::Triplet<T> triplet(
@@ -215,7 +199,6 @@ int main(int argc, const char* argv[]) {
         const Eigen::SparseMatrix<T, Eigen::RowMajor>* input[2] = {&A, &B};
         const Eigen::Matrix<T, Eigen::Dynamic, 1>* labels[2] = {&A_labels,
                                                                 &B_labels};
-        const size_t sparsity[2] = {k_A, k_B};
         int row_index[2] = {0, 0};
         bool done[2] = {false, false};
         while (!done[0] && !done[1]) {
@@ -247,9 +230,8 @@ int main(int argc, const char* argv[]) {
                     this_batch_size);
               });
             } else if (mult_type == "sparse") {
-              fake_triple_provider<T, true> triples(this_batch_size,
-                                                    sparsity[active_party], n,
-                                                    active_party == p.get_id());
+              fake_triple_provider<T, true> triples(
+                  this_batch_size, nonzeros, n, active_party == p.get_id());
               channel.sync();
               benchmarker.BenchmarkFunction("Fake Triple Generation",
                                             [&] { triples.precompute(1); });
@@ -260,7 +242,7 @@ int main(int argc, const char* argv[]) {
                     input[active_party]->middleRows(row_index[active_party],
                                                     this_batch_size),
                     model, proto, channel, active_party == p.get_id(), triples,
-                    this_batch_size, sparsity[active_party], &benchmarker);
+                    this_batch_size, nonzeros, &benchmarker);
               });
             } else {
               BOOST_THROW_EXCEPTION(
@@ -330,8 +312,7 @@ int main(int argc, const char* argv[]) {
                     -1);
               });
             } else if (mult_type == "sparse") {
-              fake_triple_provider<T> triples(sparsity[active_party],
-                                              this_batch_size, n,
+              fake_triple_provider<T> triples(nonzeros, this_batch_size, n,
                                               active_party == p.get_id());
               channel.sync();
               benchmarker.BenchmarkFunction("Fake Triple Generation",
@@ -344,7 +325,7 @@ int main(int argc, const char* argv[]) {
                         ->middleRows(row_index[active_party], this_batch_size)
                         .transpose(),
                     activations, channel, active_party == p.get_id(), triples,
-                    -1, sparsity[active_party], &benchmarker);
+                    -1, nonzeros, &benchmarker);
               });
             } else {
               BOOST_THROW_EXCEPTION(

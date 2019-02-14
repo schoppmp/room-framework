@@ -54,3 +54,11 @@ container_image(
         "MPC_UTILS_CONFIG": "sparse_linear_algebra/experiments/sgd/room_communication.ini",
     },
 )
+
+container_image(
+    name = "room_sparsity",
+    base = ":main_image",
+    env = {
+        "MPC_UTILS_CONFIG": "sparse_linear_algebra/experiments/sgd/room_sparsity.ini",
+    },
+)

@@ -90,12 +90,12 @@ void KNNProtocol<T>::computeSimilarities(mpc_utils::Benchmarker* benchmarker) {
     if (row + this_chunk_size > num_documents_server) {
       this_chunk_size = num_documents_server - row;
     }
-    // Avoid out-of-memory errors by using a different chunk size for dense
-    // matrix multiplication.
     int dense_chunk_size = this_chunk_size;
-    if (dense_chunk_size > 4096) {
-      dense_chunk_size = 2048;
-    }
+    //    Avoid out-of-memory errors by using a different chunk size for dense
+    //    matrix multiplication.
+    //    if (dense_chunk_size > 4096) {
+    //      dense_chunk_size = 2048;
+    //    }
     switch (this->mt) {
       case dense: {
         fake_triple_provider<T> triples(dense_chunk_size, num_words,
@@ -113,8 +113,7 @@ void KNNProtocol<T>::computeSimilarities(mpc_utils::Benchmarker* benchmarker) {
               result_matrix.middleRows(row, this_chunk_size) =
                   matrix_multiplication(
                       Eigen::Matrix<T, Eigen::Dynamic, Eigen::Dynamic>(
-                          server_matrix)
-                          .middleRows(row, this_chunk_size),
+                          server_matrix.middleRows(row, this_chunk_size)),
                       Eigen::Matrix<T, Eigen::Dynamic, Eigen::Dynamic>(
                           client_matrix),
                       *channel, party_id, triples, dense_chunk_size);

@@ -10,6 +10,9 @@ container_bundle(
         "gitlab.informatik.hu-berlin.de:4567/ti/research/sparse-linear-algebra/matrix_multiplication": "//sparse_linear_algebra/experiments/matrix_multiplication:image",
 
         # ROOM paper
+        "gitlab.informatik.hu-berlin.de:4567/ti/research/sparse-linear-algebra/knn/room_time": "//sparse_linear_algebra/experiments/knn:room_time",
         "gitlab.informatik.hu-berlin.de:4567/ti/research/sparse-linear-algebra/sgd/room_communication": "//sparse_linear_algebra/experiments/sgd:room_communication",
+        "gitlab.informatik.hu-berlin.de:4567/ti/research/sparse-linear-algebra/sgd/room_time": "//sparse_linear_algebra/experiments/sgd:room_time",
+        "gitlab.informatik.hu-berlin.de:4567/ti/research/sparse-linear-algebra/sgd/room_sparsity": "//sparse_linear_algebra/experiments/sgd:room_sparsity",
     },
 )

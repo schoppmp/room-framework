@@ -21,9 +21,10 @@ deploy:
         -v /var/run/docker.sock:/var/run/docker.sock
         -v "$PWD":/data "$REGISTRY"/ti/software/bazel-builder:latest
         "cd /data && bazel run -c opt //sparse_linear_algebra/experiments:all_images"
-    - docker images "$REGISTRY/$CI_PROJECT_PATH/"'*:latest'
+    - docker images --format "{{.Repository}} {{.Tag}}"
+      | grep -E "^$REGISTRY/$CI_PROJECT_PATH"
+      | grep -E 'latest$'
       | cut -d" " -f1
-      | tail -n +2
       | while read image; do
           docker tag $image $image:$CI_COMMIT_SHA;
           docker tag $image $image:$CI_COMMIT_REF_SLUG;
