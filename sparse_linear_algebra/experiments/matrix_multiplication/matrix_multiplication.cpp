@@ -5,6 +5,7 @@
 #include "sparse_linear_algebra/matrix_multiplication/cols-dense.hpp"
 #include "sparse_linear_algebra/matrix_multiplication/cols-rows.hpp"
 #include "sparse_linear_algebra/matrix_multiplication/dense.hpp"
+#include "sparse_linear_algebra/matrix_multiplication/offline/fake_triple_provider.hpp"
 #include "sparse_linear_algebra/matrix_multiplication/rows-dense.hpp"
 #include "sparse_linear_algebra/oblivious_map/basic_oblivious_map.hpp"
 #include "sparse_linear_algebra/oblivious_map/oblivious_map.hpp"
@@ -152,6 +153,8 @@ class matrix_multiplication_config : public virtual mpc_config {
 
 // generates random matrices and multiplies them using multiplication triples
 int main(int argc, const char* argv[]) {
+  using sparse_linear_algebra::matrix_multiplication::offline::
+      FakeTripleProvider;
   using T = uint64_t;
   // parse config
   matrix_multiplication_config conf;
@@ -253,25 +256,25 @@ int main(int argc, const char* argv[]) {
       try {
         dense_matrix C, C2;
         if (mult_type == "dense") {
-          fake_triple_provider<T> triples(chunk_size, m, n, p.get_id());
+          FakeTripleProvider<T> triples(chunk_size, m, n, p.get_id());
           channel.sync();
           benchmarker.BenchmarkFunction("Fake Triple Generation", [&] {
-            triples.precompute(l / chunk_size);
+            triples.Precompute(l / chunk_size);
           });
 
           channel.sync();
           benchmark(
               [&] {
-                C = matrix_multiplication(dense_matrix(A), dense_matrix(B),
-                                          channel, p.get_id(), triples,
-                                          chunk_size);
+                C = matrix_multiplication_dense(
+                    dense_matrix(A), dense_matrix(B), channel, p.get_id(),
+                    triples, chunk_size);
               },
               "Total");
         } else if (mult_type == "cols_rows") {
-          fake_triple_provider<T> triples(chunk_size, k_A + k_B, n, p.get_id());
+          FakeTripleProvider<T> triples(chunk_size, k_A + k_B, n, p.get_id());
           channel.sync();
           benchmarker.BenchmarkFunction("Fake Triple Generation", [&] {
-            triples.precompute(l / chunk_size);
+            triples.Precompute(l / chunk_size);
           });
 
           channel.sync();
@@ -281,10 +284,10 @@ int main(int argc, const char* argv[]) {
                 chunk_size, k_A, k_B, &benchmarker);
           });
         } else if (mult_type == "cols_dense") {
-          fake_triple_provider<T, true> triples(chunk_size, k_A, n, p.get_id());
+          FakeTripleProvider<T, true> triples(chunk_size, k_A, n, p.get_id());
           channel.sync();
           benchmarker.BenchmarkFunction("Fake Triple Generation", [&] {
-            triples.precompute(l / chunk_size);
+            triples.Precompute(l / chunk_size);
           });
 
           channel.sync();
@@ -294,10 +297,10 @@ int main(int argc, const char* argv[]) {
                 triples, chunk_size, k_A, &benchmarker);
           });
         } else if (mult_type == "rows_dense") {
-          fake_triple_provider<T, false> triples(chunk_size, m, n, p.get_id());
+          FakeTripleProvider<T, false> triples(chunk_size, m, n, p.get_id());
           channel.sync();
           benchmarker.BenchmarkFunction("Fake Triple Generation", [&] {
-            triples.precompute(k_A / chunk_size);
+            triples.Precompute(k_A / chunk_size);
           });
 
           channel.sync();

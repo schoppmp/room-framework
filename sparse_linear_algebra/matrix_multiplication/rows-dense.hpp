@@ -1,3 +1,5 @@
+#pragma once
+
 #include <Eigen/Sparse>
 #include <boost/range/algorithm.hpp>
 #include <boost/range/counting_range.hpp>
@@ -21,7 +23,9 @@ Eigen::Matrix<T, Derived_A::RowsAtCompileTime, Derived_B::ColsAtCompileTime>
 matrix_multiplication_rows_dense(
     const Eigen::SparseMatrixBase<Derived_A>& A_in,
     const Eigen::MatrixBase<Derived_B>& B_in, comm_channel& channel, int role,
-    triple_provider<T, false>& triples, ssize_t chunk_size_in = -1,
+    sparse_linear_algebra::matrix_multiplication::offline::TripleProvider<
+        T, false>& triples,
+    ssize_t chunk_size_in = -1,
     ssize_t k_A = -1,  // saves a communication round if set
     mpc_utils::Benchmarker* benchmarker = nullptr) {
   try {
@@ -71,11 +75,11 @@ matrix_multiplication_rows_dense(
 
     // dense multiplication
     if (role == 0) {
-      ret_dense = matrix_multiplication(A_dense, B, channel, role, triples,
-                                        chunk_size_in);
+      ret_dense = matrix_multiplication_dense(A_dense, B, channel, role,
+                                              triples, chunk_size_in);
     } else {
-      ret_dense =
-          matrix_multiplication(A, B, channel, role, triples, chunk_size_in);
+      ret_dense = matrix_multiplication_dense(A, B, channel, role, triples,
+                                              chunk_size_in);
     }
 
     if (benchmarker != nullptr) {

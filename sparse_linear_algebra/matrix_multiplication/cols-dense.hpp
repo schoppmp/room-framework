@@ -1,3 +1,5 @@
+#pragma once
+
 #include <unordered_map>
 #include <unordered_set>
 #include "Eigen/Sparse"
@@ -20,7 +22,9 @@ Eigen::Matrix<T, Derived_A::RowsAtCompileTime, Derived_B::ColsAtCompileTime>
 matrix_multiplication_cols_dense(
     const Eigen::SparseMatrixBase<Derived_A>& A_in,
     const Eigen::MatrixBase<Derived_B>& B_in, oblivious_map<K, T>& prot,
-    comm_channel& channel, int role, triple_provider<T, true>& triples,
+    comm_channel& channel, int role,
+    sparse_linear_algebra::matrix_multiplication::offline::TripleProvider<
+        T, true>& triples,
     ssize_t chunk_size_in = -1,
     ssize_t k_A = -1,  // saves a communication round if set
     mpc_utils::Benchmarker* benchmarker = nullptr) {
@@ -108,11 +112,11 @@ matrix_multiplication_cols_dense(
 
     // dense multiplication
     if (role == 0) {
-      ret = matrix_multiplication(A_dense, B_shared, channel, role, triples,
-                                  chunk_size_in);
+      ret = matrix_multiplication_dense(A_dense, B_shared, channel, role,
+                                        triples, chunk_size_in);
     } else {
-      ret = matrix_multiplication(A, B_shared, channel, role, triples,
-                                  chunk_size_in);
+      ret = matrix_multiplication_dense(A, B_shared, channel, role, triples,
+                                        chunk_size_in);
     }
 
     if (benchmarker != nullptr) {

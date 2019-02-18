@@ -4,6 +4,7 @@ cc_library(
     name = "dense",
     hdrs = ["dense.hpp"],
     deps = [
+        "//sparse_linear_algebra/matrix_multiplication/offline:triple_provider",
         "//sparse_linear_algebra/oblivious_map",
         "//sparse_linear_algebra/util",
         "@mpc_utils//mpc_utils:comm_channel_oblivc",

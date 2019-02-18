@@ -13,6 +13,7 @@ cc_binary(
         "//sparse_linear_algebra/applications/sgd:sigmoid",
         "//sparse_linear_algebra/matrix_multiplication:dense",
         "//sparse_linear_algebra/matrix_multiplication:sparse",
+        "//sparse_linear_algebra/matrix_multiplication/offline:fake_triple_provider",
         "//sparse_linear_algebra/oblivious_map",
         "//sparse_linear_algebra/oblivious_map:basic_oblivious_map",
         "//sparse_linear_algebra/oblivious_map:poly_oblivious_map",
