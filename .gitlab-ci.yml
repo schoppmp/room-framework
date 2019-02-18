@@ -6,6 +6,7 @@ build_all:
   stage: build
   script:
     - bazel build ...
+    - bazel test ...
 
 deploy:
   image: docker:stable

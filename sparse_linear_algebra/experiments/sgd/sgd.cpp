@@ -5,6 +5,7 @@
 #include "sparse_linear_algebra/matrix_multiplication/cols-dense.hpp"
 #include "sparse_linear_algebra/matrix_multiplication/cols-rows.hpp"
 #include "sparse_linear_algebra/matrix_multiplication/dense.hpp"
+#include "sparse_linear_algebra/matrix_multiplication/offline/fake_triple_provider.hpp"
 #include "sparse_linear_algebra/matrix_multiplication/rows-dense.hpp"
 #include "sparse_linear_algebra/oblivious_map/basic_oblivious_map.hpp"
 #include "sparse_linear_algebra/oblivious_map/oblivious_map.hpp"
@@ -120,7 +121,10 @@ class sgd_config : public virtual mpc_config {
 
 // generates random matrices and multiplies them using multiplication triples
 int main(int argc, const char* argv[]) {
+  using sparse_linear_algebra::matrix_multiplication::offline::
+      FakeTripleProvider;
   using T = uint64_t;
+
   int precision = 10;
   // parse config
   sgd_config conf;
@@ -214,27 +218,27 @@ int main(int argc, const char* argv[]) {
           Eigen::Matrix<T, Eigen::Dynamic, 1> activations(this_batch_size);
           try {
             if (mult_type == "dense") {
-              fake_triple_provider<T> triples(this_batch_size, m, n,
-                                              active_party == p.get_id());
+              FakeTripleProvider<T> triples(this_batch_size, m, n,
+                                            active_party == p.get_id());
               channel.sync();
-              // TODO: aggregate fake triple computation times
+              // TODO: aggregate fake Triple computation times
               benchmarker.BenchmarkFunction("Fake Triple Generation",
-                                            [&] { triples.precompute(1); });
+                                            [&] { triples.Precompute(1); });
 
               channel.sync();
               benchmarker.BenchmarkFunction("Forward Pass", [&] {
-                activations = matrix_multiplication(
+                activations = matrix_multiplication_dense(
                     input[active_party]->middleRows(row_index[active_party],
                                                     this_batch_size),
                     model, channel, active_party == p.get_id(), triples,
                     this_batch_size);
               });
             } else if (mult_type == "sparse") {
-              fake_triple_provider<T, true> triples(
-                  this_batch_size, nonzeros, n, active_party == p.get_id());
+              FakeTripleProvider<T, true> triples(this_batch_size, nonzeros, n,
+                                                  active_party == p.get_id());
               channel.sync();
               benchmarker.BenchmarkFunction("Fake Triple Generation",
-                                            [&] { triples.precompute(1); });
+                                            [&] { triples.Precompute(1); });
 
               channel.sync();
               benchmarker.BenchmarkFunction("Forward Pass", [&] {
@@ -295,16 +299,16 @@ int main(int argc, const char* argv[]) {
           Eigen::Matrix<T, Eigen::Dynamic, 1> gradient(m);
           try {
             if (mult_type == "dense") {
-              fake_triple_provider<T> triples(m, this_batch_size, n,
-                                              active_party == p.get_id());
+              FakeTripleProvider<T> triples(m, this_batch_size, n,
+                                            active_party == p.get_id());
               channel.sync();
-              // TODO: aggregate fake triple computation times
+              // TODO: aggregate fake Triple computation times
               benchmarker.BenchmarkFunction("Fake Triple Generation",
-                                            [&] { triples.precompute(1); });
+                                            [&] { triples.Precompute(1); });
 
               channel.sync();
               benchmarker.BenchmarkFunction("Backward Pass", [&] {
-                gradient = matrix_multiplication(
+                gradient = matrix_multiplication_dense(
                     input[active_party]
                         ->middleRows(row_index[active_party], this_batch_size)
                         .transpose(),
@@ -312,11 +316,11 @@ int main(int argc, const char* argv[]) {
                     -1);
               });
             } else if (mult_type == "sparse") {
-              fake_triple_provider<T> triples(nonzeros, this_batch_size, n,
-                                              active_party == p.get_id());
+              FakeTripleProvider<T> triples(nonzeros, this_batch_size, n,
+                                            active_party == p.get_id());
               channel.sync();
               benchmarker.BenchmarkFunction("Fake Triple Generation",
-                                            [&] { triples.precompute(1); });
+                                            [&] { triples.Precompute(1); });
 
               channel.sync();
               benchmarker.BenchmarkFunction("Backward Pass", [&] {

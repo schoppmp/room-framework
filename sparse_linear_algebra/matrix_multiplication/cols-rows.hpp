@@ -1,3 +1,7 @@
+#pragma once
+
+#include <numeric>
+#include <random>
 #include <unordered_map>
 #include <unordered_set>
 #include "Eigen/Sparse"
@@ -43,9 +47,9 @@ matrix_multiplication_cols_rows(  // TODO: somehow derive row-/column sparsity
     const Eigen::SparseMatrixBase<Derived_A> &A_in,
     const Eigen::SparseMatrixBase<Derived_B> &B_in, oblivious_map<K, K> &prot,
     comm_channel &channel, int role,
-    triple_provider<T, false>
-        &triples,  // TODO: implement shared variant by pseudorandomly permuting
-                   // indexes in another garbled circuit
+    sparse_linear_algebra::matrix_multiplication::offline::TripleProvider<
+        T, false> &triples,  // TODO: implement shared variant by pseudorandomly
+                             // permuting indexes in another garbled circuit
     ssize_t chunk_size_in = -1, ssize_t k_A = -1,
     ssize_t k_B = -1,  // saves a communication round if set
     mpc_utils::Benchmarker *benchmarker = nullptr) {
@@ -134,8 +138,8 @@ matrix_multiplication_cols_rows(  // TODO: somehow derive row-/column sparsity
       }
 
       B.resize(k, B_in.cols());
-      ret = matrix_multiplication(A_permuted, B, channel, role, triples,
-                                  chunk_size_in);
+      ret = matrix_multiplication_dense(A_permuted, B, channel, role, triples,
+                                        chunk_size_in);
 
       if (benchmarker != nullptr) {
         benchmarker->AddSecondsSinceStart("dense_time", start);
@@ -157,8 +161,8 @@ matrix_multiplication_cols_rows(  // TODO: somehow derive row-/column sparsity
       }
 
       A.resize(A_in.rows(), k);
-      ret = matrix_multiplication(A, B_permuted, channel, role, triples,
-                                  chunk_size_in);
+      ret = matrix_multiplication_dense(A, B_permuted, channel, role, triples,
+                                        chunk_size_in);
 
       if (benchmarker != nullptr) {
         benchmarker->AddSecondsSinceStart("dense_time", start);

@@ -3,6 +3,7 @@
 #include "sparse_linear_algebra/matrix_multiplication/cols-dense.hpp"
 #include "sparse_linear_algebra/matrix_multiplication/cols-rows.hpp"
 #include "sparse_linear_algebra/matrix_multiplication/dense.hpp"
+#include "sparse_linear_algebra/matrix_multiplication/offline/fake_triple_provider.hpp"
 #include "sparse_linear_algebra/matrix_multiplication/rows-dense.hpp"
 #include "sparse_linear_algebra/oblivious_map/basic_oblivious_map.hpp"
 #include "sparse_linear_algebra/oblivious_map/poly_oblivious_map.hpp"
@@ -11,6 +12,7 @@
 #include "sparse_linear_algebra/util/randomize_matrix.hpp"
 #include "sparse_linear_algebra/util/reservoir_sampling.hpp"
 #include "sparse_linear_algebra/util/time.h"
+
 extern "C" {
 #include "top_k.h"
 }
@@ -84,6 +86,9 @@ std::vector<int> KNNProtocol<T>::run(mpc_utils::Benchmarker* benchmarker) {
 
 template <typename T>
 void KNNProtocol<T>::computeSimilarities(mpc_utils::Benchmarker* benchmarker) {
+  using sparse_linear_algebra::matrix_multiplication::offline::
+      FakeTripleProvider;
+
   for (int row = 0; row < num_documents_server; row += chunk_size) {
     // The last chunk might be smaller.
     int this_chunk_size = chunk_size;
@@ -98,12 +103,12 @@ void KNNProtocol<T>::computeSimilarities(mpc_utils::Benchmarker* benchmarker) {
     //    }
     switch (this->mt) {
       case dense: {
-        fake_triple_provider<T> triples(dense_chunk_size, num_words,
-                                        num_documents_client, party_id);
+        FakeTripleProvider<T> triples(dense_chunk_size, num_words,
+                                      num_documents_client, party_id);
         channel->sync();
         mpc_utils::Benchmarker::MaybeBenchmarkFunction(
             benchmarker, "Fake Triple Generation", [&] {
-              triples.precompute((this_chunk_size + dense_chunk_size - 1) /
+              triples.Precompute((this_chunk_size + dense_chunk_size - 1) /
                                  dense_chunk_size);
             });
 
@@ -111,7 +116,7 @@ void KNNProtocol<T>::computeSimilarities(mpc_utils::Benchmarker* benchmarker) {
         mpc_utils::Benchmarker::MaybeBenchmarkFunction(
             benchmarker, "Matrix Multiplication", [&] {
               result_matrix.middleRows(row, this_chunk_size) =
-                  matrix_multiplication(
+                  matrix_multiplication_dense(
                       Eigen::Matrix<T, Eigen::Dynamic, Eigen::Dynamic>(
                           server_matrix.middleRows(row, this_chunk_size)),
                       Eigen::Matrix<T, Eigen::Dynamic, Eigen::Dynamic>(
@@ -121,13 +126,13 @@ void KNNProtocol<T>::computeSimilarities(mpc_utils::Benchmarker* benchmarker) {
         break;
       }
       case sparse: {
-        fake_triple_provider<T> triples(
-            dense_chunk_size, num_nonzeros_server + num_nonzeros_client,
-            num_documents_client, party_id);
+        FakeTripleProvider<T> triples(dense_chunk_size,
+                                      num_nonzeros_server + num_nonzeros_client,
+                                      num_documents_client, party_id);
         channel->sync();
         mpc_utils::Benchmarker::MaybeBenchmarkFunction(
             benchmarker, "Fake Triple Generation", [&] {
-              triples.precompute((this_chunk_size + dense_chunk_size - 1) /
+              triples.Precompute((this_chunk_size + dense_chunk_size - 1) /
                                  dense_chunk_size);
             });
 
