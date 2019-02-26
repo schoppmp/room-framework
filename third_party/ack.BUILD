@@ -82,6 +82,12 @@ oblivc_library(
         "oram_fssl/floram_util.oh",
         "oram_fssl/scanrom.oh",
     ],
+    copts = [
+        "-fopenmp",
+    ],
+    linkopts = [
+        "-lgomp",
+    ],
     deps = [
         ":ackutil",
         ":endian",
