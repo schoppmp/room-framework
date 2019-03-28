@@ -1,5 +1,7 @@
 package(default_visibility = ["//visibility:public"])
 
+licenses(["notice"])  # MIT
+
 cc_library(
     name = "triple_provider",
     hdrs = [
@@ -36,6 +38,8 @@ cc_library(
     deps = [
         ":triple_provider",
         "//sparse_linear_algebra/util",
+        "//third_party/emp:emp_ot",
+        "@boost//:throw_exception",
         "@mpc_utils//mpc_utils:comm_channel_oblivc",
     ],
 )
@@ -57,9 +61,16 @@ cc_test(
     srcs = [
         "ot_triple_provider_test.cpp",
     ],
+    # These copts need to be passed to anything that depends on EMP.
+    copts = [
+        "-maes",
+        "-msse4.2",
+    ],
     deps = [
         ":ot_triple_provider",
-        "@mpc_utils//mpc_utils/testing:comm_channel_test_helper_oblivc",
+        "@boost//:thread",
+        "@mpc_utils//mpc_utils:comm_channel_oblivc",
+        "@mpc_utils//mpc_utils/boost_serialization:eigen",
         "@mpc_utils//mpc_utils/testing:test_deps",
     ],
 )
