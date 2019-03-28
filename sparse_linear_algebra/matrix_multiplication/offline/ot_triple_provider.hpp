@@ -1,13 +1,13 @@
-/*
- An implementation of secure 2-party triple generation based on oblivious transfer.
- It is similar to Gilboa's method for oblivious multiplication, but with
- some optimizations specific to matrix multiplication, namely vectorization.
-*/
+// An implementation of secure 2-party triple generation based on oblivious
+// transfer. It is similar to Gilboa's method for oblivious multiplication, but
+// with some optimizations specific to matrix multiplication, namely
+// vectorization.
 
 #pragma once
 
 #include <random>
-#include "mpc_utils/comm_channel.hpp"
+#include "emp-ot/emp-ot.h"
+#include "emp-tool/emp-tool.h"
 #include "sparse_linear_algebra/matrix_multiplication/offline/triple_provider.hpp"
 #include "sparse_linear_algebra/util/blocking_queue.hpp"
 
@@ -17,12 +17,15 @@ namespace offline {
 
 template <typename T, bool is_shared = false>
 class OTTripleProvider : public virtual TripleProvider<T, is_shared> {
+  static_assert(sizeof(T) == 8,
+                "OtTripleProvider only supports 64-bit integers at the moment");
+
  public:
   // Constructs a triple provider for multiplying an (l x m) with an (m x n)
   // matrix. The `cap` argument allows to use a bounded queue for storing
   // triples.
-  OTTripleProvider(int l, int m, int n, int role, comm_channel *chan,
-      int cap = -1);
+  OTTripleProvider(int l, int m, int n, int role, emp::NetIO *chan,
+                   int cap = -1);
 
   // Precomputes a number of triples. Blocks if capacity is bounded and queue is
   // full.
@@ -40,7 +43,7 @@ class OTTripleProvider : public virtual TripleProvider<T, is_shared> {
   std::mt19937 rng_;
 
   // Communication channel for the triple generation.
-  comm_channel *chan_;
+  emp::NetIO *chan_;
 
   // Returns an additive share of UV, where
   // input_assign is 0 iff party 0 provides U and party 1 provides V
