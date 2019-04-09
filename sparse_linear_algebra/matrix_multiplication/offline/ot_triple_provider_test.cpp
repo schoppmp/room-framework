@@ -1,104 +1,107 @@
 #include "sparse_linear_algebra/matrix_multiplication/offline/ot_triple_provider.hpp"
+#include <thread>
 #include "absl/memory/memory.h"
-#include "boost/thread.hpp"
 #include "emp-ot/emp-ot.h"
 #include "emp-tool/emp-tool.h"
 #include "gtest/gtest.h"
 #include "mpc_utils/boost_serialization/eigen.hpp"
 #include "mpc_utils/comm_channel.hpp"
+#include "mpc_utils/status_matchers.h"
+#include "mpc_utils/testing/comm_channel_test_helper.hpp"
 
 namespace sparse_linear_algebra {
 namespace matrix_multiplication {
 namespace offline {
 namespace {
 
-// TODO: Merge runParty and runParty2 into a single function
+class OTTripleProviderTest : public ::testing::Test {
+ protected:
+  OTTripleProviderTest() : helper_(false) {}
+  void SetUp(int l, int m, int n) {
+    using DistributedTripleProvider = OTTripleProvider<uint64_t, false>;
+    using SharedTripleProvider = OTTripleProvider<uint64_t, true>;
+    comm_channel *chan0 = helper_.GetChannel(0);
+    comm_channel *chan1 = helper_.GetChannel(1);
+    std::thread thread1([this, chan1, l, m, n] {
+      ASSERT_OK_AND_ASSIGN(
+          distributed_triples_1_,
+          DistributedTripleProvider::Create(l, m, n, 1, chan1));
+      ASSERT_OK_AND_ASSIGN(shared_triples_1_,
+                           SharedTripleProvider::Create(l, m, n, 1, chan1));
+    });
+    ASSERT_OK_AND_ASSIGN(distributed_triples_0_,
+                         DistributedTripleProvider::Create(l, m, n, 0, chan0));
+    ASSERT_OK_AND_ASSIGN(shared_triples_0_,
+                         SharedTripleProvider::Create(l, m, n, 0, chan0));
+    thread1.join();
+  }
 
-void runParty(int l, int m, int n, int role) {
-  Matrix<uint64_t> u, v, w1, w2;
-  mpc_config conf;
-  conf.servers = {server_info("127.0.0.23", 1235),
-                  server_info("127.0.0.42", 1235)};
-  conf.party_id = role;
-  party p(conf);
-  emp::NetIO io(!role ? nullptr : "127.0.0.1", 1234);
-  OTTripleProvider<uint64_t, false> triples(l, m, n, role, &io);
-  triples.Precompute(1);
-  auto channel = p.connect_to(!role ? 1 : 0);
-  channel.sync();
-  if (role == 0) {
-    std::tie(u, std::ignore, w1) = triples.GetTriple();
-    channel.recv(v);
-    channel.recv(w2);
-    EXPECT_EQ(u.rows(), l);
-    EXPECT_EQ(u.cols(), m);
-    EXPECT_EQ(v.rows(), m);
-    EXPECT_EQ(v.cols(), n);
-    EXPECT_EQ(w1.rows(), l);
-    EXPECT_EQ(w2.rows(), l);
+  mpc_utils::testing::CommChannelTestHelper helper_;
+  std::unique_ptr<OTTripleProvider<uint64_t, false>> distributed_triples_0_;
+  std::unique_ptr<OTTripleProvider<uint64_t, true>> shared_triples_0_;
+  std::unique_ptr<OTTripleProvider<uint64_t, false>> distributed_triples_1_;
+  std::unique_ptr<OTTripleProvider<uint64_t, true>> shared_triples_1_;
+};
 
-    EXPECT_EQ(w1.cols(), n);
-    EXPECT_EQ(w2.cols(), n);
-    EXPECT_EQ((u * v), (w1 + w2));
-  } else {
-    std::tie(std::ignore, v, w2) = triples.GetTriple();
-    channel.send(v);
-    channel.send(w2);
+TEST_F(OTTripleProviderTest, DistributedTriples) {
+  Matrix<uint64_t> u, v, w0, w1;
+  for (int l = 1; l < 5; l++) {
+    for (int m = 1; m < 5; m++) {
+      for (int n = 1; n < 5; n++) {
+        SetUp(l, m, n);
+        std::thread thread1([this, &v, &w1] {
+          distributed_triples_1_->Precompute(1);
+          std::tie(std::ignore, v, w1) = distributed_triples_1_->GetTriple();
+        });
+        distributed_triples_0_->Precompute(1);
+        std::tie(u, std::ignore, w0) = distributed_triples_0_->GetTriple();
+        thread1.join();
+
+        EXPECT_EQ(u.rows(), l);
+        EXPECT_EQ(u.cols(), m);
+        EXPECT_EQ(v.rows(), m);
+        EXPECT_EQ(v.cols(), n);
+        EXPECT_EQ(w0.rows(), l);
+        EXPECT_EQ(w1.rows(), l);
+
+        EXPECT_EQ(w0.cols(), n);
+        EXPECT_EQ(w1.cols(), n);
+        EXPECT_EQ(u * v, w0 + w1);
+      }
+    }
   }
 }
 
-void runParty2(int l, int m, int n, int role) {
-  Matrix<uint64_t> u1, u2, v1, v2, w1, w2;
-  mpc_config conf;
-  conf.servers = {server_info("127.0.0.23", 1237),
-                  server_info("127.0.0.42", 1237)};
-  conf.party_id = role;
-  party p(conf);
-  emp::NetIO io(!role ? nullptr : "127.0.0.1", 1236);
-  OTTripleProvider<uint64_t, true> triples(l, m, n, role, &io);
-  triples.Precompute(1);
-  auto channel = p.connect_to(!role ? 1 : 0);
-  channel.sync();
-  if (role == 0) {
-    std::tie(u1, v1, w1) = triples.GetTriple();
-    channel.recv(u2);
-    channel.recv(v2);
-    channel.recv(w2);
-    EXPECT_EQ(u1.rows(), l);
-    EXPECT_EQ(u2.rows(), l);
-    EXPECT_EQ(u1.cols(), m);
-    EXPECT_EQ(u2.cols(), m);
-    EXPECT_EQ(v1.rows(), m);
-    EXPECT_EQ(v2.rows(), m);
-    EXPECT_EQ(v1.cols(), n);
-    EXPECT_EQ(v2.cols(), n);
-    EXPECT_EQ(w1.rows(), l);
-    EXPECT_EQ(w2.rows(), l);
-    EXPECT_EQ(w1.cols(), n);
-    EXPECT_EQ(w2.cols(), n);
-    EXPECT_EQ((u1 + u2) * (v1 + v2), w1 + w2);
-  } else {
-    std::tie(u2, v2, w2) = triples.GetTriple();
-    channel.send(u2);
-    channel.send(v2);
-    channel.send(w2);
+TEST_F(OTTripleProviderTest, SharedTriples) {
+  Matrix<uint64_t> u0, u1, v0, v1, w0, w1;
+  for (int l = 1; l < 5; l++) {
+    for (int m = 1; m < 5; m++) {
+      for (int n = 1; n < 5; n++) {
+        SetUp(l, m, n);
+        std::thread thread1([this, &u1, &v1, &w1] {
+          shared_triples_1_->Precompute(1);
+          std::tie(u1, v1, w1) = shared_triples_1_->GetTriple();
+        });
+        shared_triples_0_->Precompute(1);
+        std::tie(u0, v0, w0) = shared_triples_0_->GetTriple();
+        thread1.join();
+
+        EXPECT_EQ(u0.rows(), l);
+        EXPECT_EQ(u0.cols(), m);
+        EXPECT_EQ(v0.rows(), m);
+        EXPECT_EQ(v0.cols(), n);
+        EXPECT_EQ(u1.rows(), l);
+        EXPECT_EQ(u1.cols(), m);
+        EXPECT_EQ(v1.rows(), m);
+        EXPECT_EQ(v1.cols(), n);
+        EXPECT_EQ(w0.rows(), l);
+        EXPECT_EQ(w1.rows(), l);
+        EXPECT_EQ(w0.cols(), n);
+        EXPECT_EQ(w1.cols(), n);
+        EXPECT_EQ((u0 + u1) * (v0 + v1), w0 + w1);
+      }
+    }
   }
-}
-
-TEST(OTTripleProvider, DistributedTriple) {
-  int l = 2, m = 2, n = 2;
-  emp::initialize_relic();
-  boost::thread thread1([this, l, m, n] { runParty(l, m, n, 0); });
-  runParty(l, m, n, 1);
-  boost::thread_guard<> g(thread1);
-}
-
-TEST(OTTripleProvider, SharedTriple) {
-  int l = 128, m = 100, n = 1;
-  emp::initialize_relic();
-  boost::thread thread1([this, l, m, n] { runParty2(l, m, n, 0); });
-  runParty2(l, m, n, 1);
-  boost::thread_guard<> g(thread1);
 }
 
 }  // namespace

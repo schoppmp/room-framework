@@ -38,9 +38,12 @@ cc_library(
     deps = [
         ":triple_provider",
         "//sparse_linear_algebra/util",
+        "@abseil//absl/memory",
         "@boost//:throw_exception",
+        "@mpc_utils//mpc_utils:comm_channel_emp_adapter",
         "@mpc_utils//mpc_utils:comm_channel_oblivc",
         "@mpc_utils//mpc_utils:openssl_uniform_bit_generator",
+        "@mpc_utils//mpc_utils:statusor",
         "@mpc_utils//third_party/emp:emp_ot",
     ],
 )
@@ -69,9 +72,11 @@ cc_test(
     ],
     deps = [
         ":ot_triple_provider",
-        "@boost//:thread",
-        "@mpc_utils//mpc_utils:comm_channel_oblivc",
+        "@mpc_utils//mpc_utils:comm_channel",
+        "@mpc_utils//mpc_utils:status_matchers",
+        "@mpc_utils//mpc_utils:statusor",
         "@mpc_utils//mpc_utils/boost_serialization:eigen",
+        "@mpc_utils//mpc_utils/testing:comm_channel_test_helper",
         "@mpc_utils//mpc_utils/testing:test_deps",
     ],
 )
