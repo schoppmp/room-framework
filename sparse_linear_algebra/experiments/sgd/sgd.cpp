@@ -266,11 +266,14 @@ int main(int argc, const char* argv[]) {
           activations /= (static_cast<T>(1) << precision);
 
           // Sigmoid.
-          ProtocolDesc pd;
-          if (channel.connect_to_oblivc(pd) == -1) {
-            BOOST_THROW_EXCEPTION(
-                std::runtime_error("run_server: connection failed"));
+          auto status = mpc_utils::CommChannelOblivCAdapter::Connect(
+              channel, /*sleep_time=*/10);
+          if (!status.ok()) {
+            std::string error =
+                absl::StrCat("Connection failed: ", status.status().message());
+            BOOST_THROW_EXCEPTION(std::runtime_error(error));
           }
+          ProtocolDesc pd = status.ValueOrDie();
           setCurrentParty(&pd, 1 + p.get_id());
           std::vector<uint8_t> serialized_activations(sizeof(T) *
                                                       this_batch_size);

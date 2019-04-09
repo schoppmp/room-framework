@@ -1,4 +1,6 @@
-#include "knn_protocol.hpp"
+#include "sparse_linear_algebra/applications/knn/knn_protocol.hpp"
+#include "absl/strings/str_cat.h"
+#include "mpc_utils/comm_channel_oblivc_adapter.hpp"
 #include "mpc_utils/mpc_config.hpp"
 #include "sparse_linear_algebra/matrix_multiplication/cols-dense.hpp"
 #include "sparse_linear_algebra/matrix_multiplication/cols-rows.hpp"
@@ -170,11 +172,14 @@ std::vector<int> KNNProtocol<T>::topK(mpc_utils::Benchmarker* benchmarker) {
 
   mpc_utils::Benchmarker::MaybeBenchmarkFunction(benchmarker, "Top-K", [&] {
     // run top-k selection
-    ProtocolDesc pd;
-    if (channel->connect_to_oblivc(pd) == -1) {
-      BOOST_THROW_EXCEPTION(
-          std::runtime_error("run_server: connection failed"));
+    auto status = mpc_utils::CommChannelOblivCAdapter::Connect(
+        *channel, /*sleep_time=*/10);
+    if (!status.ok()) {
+      std::string error =
+          absl::StrCat("topK: connection failed: ", status.status().message());
+      BOOST_THROW_EXCEPTION(std::runtime_error(error));
     }
+    ProtocolDesc pd = status.ValueOrDie();
     setCurrentParty(&pd, 1 + party_id);
     std::vector<uint8_t> serialized_inputs(num_documents_server * sizeof(T));
     std::vector<uint8_t> serialized_norms;

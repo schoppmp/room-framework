@@ -14,7 +14,6 @@
 #include "mpc_utils/statusor.h"
 #include "sparse_linear_algebra/matrix_multiplication/offline/triple_provider.hpp"
 #include "sparse_linear_algebra/util/blocking_queue.hpp"
-#include "mpc_utils/openssl_uniform_bit_generator.hpp"
 
 namespace sparse_linear_algebra {
 namespace matrix_multiplication {

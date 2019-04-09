@@ -5,13 +5,10 @@
 #include "boost/throw_exception.hpp"
 #include "emp-ot/emp-ot.h"
 #include "emp-tool/emp-tool.h"
+#include "mpc_utils/canonical_errors.h"
 #include "mpc_utils/comm_channel_emp_adapter.hpp"
 #include "mpc_utils/status_macros.h"
-#include "mpc_utils/canonical_errors.h"
 #include "sparse_linear_algebra/util/randomize_matrix.hpp"
-extern "C" {
-#include "obliv_common.h"
-}
 
 namespace sparse_linear_algebra {
 namespace matrix_multiplication {
@@ -131,17 +128,17 @@ Matrix<T> OTTripleProvider<T, is_shared>::GilboaProduct(Matrix<T> U,
                                 z * bit_width + k][0]);
             if (i + stride < l) {
               R(i + stride, j) -=
-                  (uint64_t) (opt0[i * n * m * bit_width + j * m * bit_width +
-                      z * bit_width + k][1]);
+                  (uint64_t)(opt0[i * n * m * bit_width + j * m * bit_width +
+                                  z * bit_width + k][1]);
             }
           } else {
             R(i, j) +=
                 (uint64_t)(ot_result[i * n * m * bit_width + j * m * bit_width +
                                      z * bit_width + k][0]);
             if (i + stride < l) {
-              R(i + stride, j) += (uint64_t) (
+              R(i + stride, j) += (uint64_t)(
                   ot_result[i * n * m * bit_width + j * m * bit_width +
-                      z * bit_width + k][1]);
+                            z * bit_width + k][1]);
             }
           }
         }

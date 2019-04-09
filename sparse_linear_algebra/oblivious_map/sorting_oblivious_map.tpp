@@ -1,6 +1,8 @@
+#include "absl/strings/str_cat.h"
 #include "boost/range/adaptor/map.hpp"
 #include "boost/range/combine.hpp"
 #include "boost/range/irange.hpp"
+#include "mpc_utils/comm_channel_oblivc_adapter.hpp"
 #include "sparse_linear_algebra/util/serialize_le.hpp"
 #include "sparse_linear_algebra/util/time.h"
 extern "C" {
@@ -53,10 +55,14 @@ void sorting_oblivious_map<K, V>::run_server(
   }
 
   // run yao's protocol using Obliv-C
-  ProtocolDesc pd;
-  if (chan.connect_to_oblivc(pd, 10 /* ms between attempts */) == -1) {
-    BOOST_THROW_EXCEPTION(std::runtime_error("run_server: connection failed"));
+  auto status =
+      mpc_utils::CommChannelOblivCAdapter::Connect(chan, /*sleep_time=*/10);
+  if (!status.ok()) {
+    std::string error = absl::StrCat("run_server: connection failed: ",
+                                     status.status().message());
+    BOOST_THROW_EXCEPTION(std::runtime_error(error));
   }
+  ProtocolDesc pd = status.ValueOrDie();
   setCurrentParty(&pd, 1);
   execYaoProtocol(&pd, pir_scs_oblivc, &args);
 
@@ -111,11 +117,14 @@ void sorting_oblivious_map<K, V>::run_client(
   }
 
   // run yao's protocol using Obliv-C
-  ProtocolDesc pd;
-  chan.flush();
-  if (chan.connect_to_oblivc(pd, 10 /* ms between attempts */) == -1) {
-    BOOST_THROW_EXCEPTION(std::runtime_error("run_client: connection failed"));
+  auto status =
+      mpc_utils::CommChannelOblivCAdapter::Connect(chan, /*sleep_time=*/10);
+  if (!status.ok()) {
+    std::string error = absl::StrCat("run_server: connection failed: ",
+                                     status.status().message());
+    BOOST_THROW_EXCEPTION(std::runtime_error(error));
   }
+  ProtocolDesc pd = status.ValueOrDie();
   setCurrentParty(&pd, 2);
   execYaoProtocol(&pd, pir_scs_oblivc, &args);
 
