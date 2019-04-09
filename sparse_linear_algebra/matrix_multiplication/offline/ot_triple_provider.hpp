@@ -10,6 +10,7 @@
 #include "emp-tool/emp-tool.h"
 #include "sparse_linear_algebra/matrix_multiplication/offline/triple_provider.hpp"
 #include "sparse_linear_algebra/util/blocking_queue.hpp"
+#include "mpc_utils/openssl_uniform_bit_generator.hpp"
 
 namespace sparse_linear_algebra {
 namespace matrix_multiplication {
@@ -40,7 +41,7 @@ class OTTripleProvider : public virtual TripleProvider<T, is_shared> {
   blocking_queue<Triple<T>> triples_;
 
   // Random number generator used for creating triples.
-  std::mt19937 rng_;
+  mpc_utils::OpenSSLUniformBitGenerator rng_;
 
   // Communication channel for the triple generation.
   emp::NetIO *chan_;

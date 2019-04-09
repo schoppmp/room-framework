@@ -1,6 +1,6 @@
 // StackOverflow answer by Dietmar Kühl, licensed under cc by-sa 3.0
 // https://stackoverflow.com/a/12805690
-// adapted to support capacity
+// Adapted to support capacity.
 #include <condition_variable>
 #include <deque>
 #include <mutex>
@@ -12,10 +12,12 @@ class blocking_queue {
   std::condition_variable d_condition_not_empty;
   std::condition_variable d_condition_not_full;
   std::deque<T> d_queue;
-  ssize_t d_capacity;
+  int d_capacity;
 
   bool empty() const { return d_queue.empty(); }
-  bool full() const { return d_capacity != -1 && d_queue.size() == d_capacity; }
+  bool full() const {
+    return d_capacity != -1 && static_cast<int>(d_queue.size()) >= d_capacity;
+  }
 
  public:
   blocking_queue(ssize_t cap = -1) : d_capacity(cap) {}

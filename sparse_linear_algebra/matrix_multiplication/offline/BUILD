@@ -38,9 +38,10 @@ cc_library(
     deps = [
         ":triple_provider",
         "//sparse_linear_algebra/util",
-        "//third_party/emp:emp_ot",
         "@boost//:throw_exception",
         "@mpc_utils//mpc_utils:comm_channel_oblivc",
+        "@mpc_utils//mpc_utils:openssl_uniform_bit_generator",
+        "@mpc_utils//third_party/emp:emp_ot",
     ],
 )
 
