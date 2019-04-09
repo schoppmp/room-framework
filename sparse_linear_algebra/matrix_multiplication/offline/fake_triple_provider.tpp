@@ -20,7 +20,6 @@ void FakeTripleProvider<T, is_shared>::Precompute(int num) {
     std::tie(l, m, n) = this->dimensions();
     int role = this->role();
 
-    std::uniform_int_distribution<T> dist;
     Matrix<T> U(l, m), U_mask = Matrix<T>::Zero(l, m);
     Matrix<T> V(m, n), V_mask = Matrix<T>::Zero(m, n);
     Matrix<T> Z_mask(l, n);

@@ -78,7 +78,6 @@ class OtTripleProviderConfig : public virtual mpc_config {
 
 int main(int argc, const char* argv[]) {
   using sparse_linear_algebra::matrix_multiplication::offline::OTTripleProvider;
-  using T = uint64_t;
   // parse config
   OtTripleProviderConfig conf;
   try {
