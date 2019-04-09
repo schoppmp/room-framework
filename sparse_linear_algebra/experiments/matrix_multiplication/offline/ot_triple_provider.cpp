@@ -87,8 +87,8 @@ int main(int argc, const char* argv[]) {
     return 1;
   }
   int role = conf.party_id;
-  emp::NetIO io(!role ? nullptr : conf.servers[0].host.c_str(),
-                conf.servers[0].port);
+  party p(conf);
+  comm_channel channel = p.connect_to(1 - conf.party_id);
 
   int num_experiments =
       std::max({conf.rows_server.size(), conf.inner_dim.size(),
@@ -109,11 +109,11 @@ int main(int argc, const char* argv[]) {
       mpc_utils::Benchmarker benchmarker;
       benchmarker.BenchmarkFunction("Triple Generation", [&] {
         if (triple_type == "shared") {
-          OTTripleProvider<uint64_t, true> triples(l, m, n, role, &io);
-          triples.Precompute(1);
+          auto triples = OTTripleProvider<uint64_t, true>::Create(l, m, n, role, &channel).ValueOrDie();
+          triples->Precompute(1);
         } else {
-          OTTripleProvider<uint64_t, false> triples(l, m, n, role, &io);
-          triples.Precompute(1);
+          auto triples = OTTripleProvider<uint64_t, false>::Create(l, m, n, role, &channel).ValueOrDie();
+          triples->Precompute(1);
         }
       });
       for (const auto& pair : benchmarker.GetAll()) {

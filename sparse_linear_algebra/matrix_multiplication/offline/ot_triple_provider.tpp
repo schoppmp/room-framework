@@ -1,9 +1,13 @@
 #include <iostream>
 #include <vector>
+#include "absl/memory/memory.h"
 #include "boost/container/vector.hpp"
 #include "boost/throw_exception.hpp"
 #include "emp-ot/emp-ot.h"
 #include "emp-tool/emp-tool.h"
+#include "mpc_utils/comm_channel_emp_adapter.hpp"
+#include "mpc_utils/status_macros.h"
+#include "mpc_utils/canonical_errors.h"
 #include "sparse_linear_algebra/util/randomize_matrix.hpp"
 extern "C" {
 #include "obliv_common.h"
@@ -14,9 +18,29 @@ namespace matrix_multiplication {
 namespace offline {
 
 template <typename T, bool is_shared>
-OTTripleProvider<T, is_shared>::OTTripleProvider(int l, int m, int n, int role,
-                                                 emp::NetIO *io, int cap)
-    : TripleProvider<T, is_shared>(l, m, n, role), triples_(cap), chan_(io) {}
+mpc_utils::StatusOr<std::unique_ptr<OTTripleProvider<T, is_shared>>>
+OTTripleProvider<T, is_shared>::Create(int l, int m, int n, int role,
+                                       comm_channel *channel, int cap) {
+  if (l < 1 || m < 1 || n < 1) {
+    return mpc_utils::InvalidArgumentError("l, m and n must be positive");
+  }
+  if (role != 0 && role != 1) {
+    return mpc_utils::InvalidArgumentError("role must be 0 or 1");
+  }
+  // Create EMP adapter. Use a direct connection if channel is not measured.
+  ASSIGN_OR_RETURN(auto adapter, mpc_utils::CommChannelEMPAdapter::Create(
+                                     channel, !channel->is_measured()));
+  return absl::WrapUnique(
+      new OTTripleProvider(l, m, n, role, std::move(adapter), cap));
+}
+
+template <typename T, bool is_shared>
+OTTripleProvider<T, is_shared>::OTTripleProvider(
+    int l, int m, int n, int role,
+    std::unique_ptr<mpc_utils::CommChannelEMPAdapter> channel_adapter, int cap)
+    : TripleProvider<T, is_shared>(l, m, n, role),
+      triples_(cap),
+      channel_adapter_(std::move(channel_adapter)) {}
 
 template <typename T, bool is_shared>
 Matrix<T> OTTripleProvider<T, is_shared>::GilboaProduct(Matrix<T> U,
@@ -51,7 +75,7 @@ Matrix<T> OTTripleProvider<T, is_shared>::GilboaProduct(Matrix<T> U,
   // std::vector<bool> is implemented as a bitstring, ans thus does not use a
   // bool * internally, which EMP requires.
   boost::container::vector<bool> choices(N);
-  std::vector<std::pair<uint64_t, uint64_t> > cot_deltas(N);
+  std::vector<std::pair<uint64_t, uint64_t>> cot_deltas(N);
 
   // Party holding U acts as sender
   int sender = (input_assign ? 0 : 1);
@@ -87,14 +111,15 @@ Matrix<T> OTTripleProvider<T, is_shared>::GilboaProduct(Matrix<T> U,
   }
 
   // Run OT Extension (Party holding U as sender)
-  chan_->sync();
-  emp::SHOTExtension<emp::NetIO> ot(chan_);
+  channel_adapter_->sync();
+  emp::SHOTExtension<mpc_utils::CommChannelEMPAdapter> ot(
+      channel_adapter_.get());
   if (role == sender) {
     ot.send_cot_add_delta(opt0.data(), cot_deltas.data(), N);
   } else {
     ot.recv_cot(ot_result.data(), choices.data(), N);
   }
-  chan_->flush();
+  channel_adapter_->flush();
   // Parties aggregate OT messages into their share of the result
   for (int64_t i = 0; i < stride; i++) {
     for (int64_t j = 0; j < n; j++) {
