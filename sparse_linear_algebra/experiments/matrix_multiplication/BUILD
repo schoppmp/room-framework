@@ -19,7 +19,7 @@ cc_binary(
         "//sparse_linear_algebra/oblivious_map:sorting_oblivious_map",
         "//sparse_linear_algebra/util",
         "@mpc_utils//mpc_utils:benchmarker",
-        "@mpc_utils//mpc_utils:comm_channel_oblivc",
+        "@mpc_utils//mpc_utils:comm_channel",
         "@mpc_utils//mpc_utils:mpc_config",
         "@mpc_utils//third_party/eigen",
     ],

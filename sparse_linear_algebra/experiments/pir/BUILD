@@ -17,7 +17,7 @@ cc_binary(
         "//sparse_linear_algebra/util",
         "@boost//:serialization",
         "@fastpoly",
-        "@mpc_utils//mpc_utils:comm_channel_oblivc",
+        "@mpc_utils//mpc_utils:comm_channel",
         "@mpc_utils//mpc_utils:mpc_config",
         "@mpc_utils//mpc_utils/boost_serialization:ntl",
         "@mpc_utils//third_party/ntl",

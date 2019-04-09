@@ -1,16 +1,18 @@
 #pragma once
 
-#include <NTL/ZZ.h>
-#include <NTL/ZZ_pX.h>
-#include <NTL/vector.h>
-#include <gcrypt.h>
-#include <Eigen/Dense>
-#include <boost/exception/all.hpp>
-#include <boost/range/algorithm/sort.hpp>
-#include <boost/serialization/vector.hpp>
 #include <random>
+#include "Eigen/Dense"
+#include "NTL/ZZ.h"
+#include "NTL/ZZ_pX.h"
+#include "NTL/vector.h"
+#include "absl/strings/str_cat.h"
+#include "boost/exception/all.hpp"
+#include "boost/range/algorithm/sort.hpp"
+#include "boost/serialization/vector.hpp"
 #include "fastpoly/recursive.h"
+#include "gcrypt.h"
 #include "mpc_utils/comm_channel.hpp"
+#include "mpc_utils/comm_channel_oblivc_adapter.hpp"
 #include "sparse_linear_algebra/util/serialize_le.hpp"
 extern "C" {
 #include "obliv_common.h"
@@ -60,10 +62,14 @@ std::vector<T> zero_sharing_server(
   std::vector<uint8_t> ot_result(element_size * n);
 
   // receive key shares at positions in I, result shares at positions not in I
-  ProtocolDesc pd;
-  if (chan.connect_to_oblivc(pd) == -1) {
-    BOOST_THROW_EXCEPTION(std::runtime_error("run_server: connection failed"));
+  auto status =
+      mpc_utils::CommChannelOblivCAdapter::Connect(chan, /*sleep_time=*/10);
+  if (!status.ok()) {
+    std::string error = absl::StrCat("zero_sharing_server: connection failed: ",
+                                     status.status().message());
+    BOOST_THROW_EXCEPTION(std::runtime_error(error));
   }
+  ProtocolDesc pd = status.ValueOrDie();
   setCurrentParty(&pd, 1);
   auto ot = honestOTExtRecverNew(&pd, 0);
   honestOTExtRecv1Of2(ot, reinterpret_cast<char *>(ot_result.data()), choices,
@@ -237,10 +243,14 @@ std::vector<T> zero_sharing_client(
 
   // run OT extension
   dhRandomInit();
-  ProtocolDesc pd;
-  if (chan.connect_to_oblivc(pd) == -1) {
-    BOOST_THROW_EXCEPTION(std::runtime_error("run_server: connection failed"));
+  auto status =
+      mpc_utils::CommChannelOblivCAdapter::Connect(chan, /*sleep_time=*/10);
+  if (!status.ok()) {
+    std::string error = absl::StrCat("zero_sharing_client: connection failed: ",
+                                     status.status().message());
+    BOOST_THROW_EXCEPTION(std::runtime_error(error));
   }
+  ProtocolDesc pd = status.ValueOrDie();
   setCurrentParty(&pd, 2);
   auto ot = honestOTExtSenderNew(&pd, 0);
   honestOTExtSend1Of2(ot, reinterpret_cast<char *>(opt0.data()),
