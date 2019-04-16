@@ -1,5 +1,5 @@
 #include <random>
-#include "sparse_linear_algebra/experiments/knn/knn_config.hpp"
+#include "knn_config.hpp"
 #include "sparse_linear_algebra/applications/knn/knn_protocol.hpp"
 #include "sparse_linear_algebra/util/get_ceil.hpp"
 #include "sparse_linear_algebra/util/randomize_matrix.hpp"
@@ -9,11 +9,10 @@
 namespace sparse_linear_algebra {
 namespace experiments {
 namespace knn {
-
+using sparse_linear_algebra::experiments::knn::KNNConfig;
 using sparse_linear_algebra::applications::knn::KNNProtocol;
 using sparse_linear_algebra::applications::knn::MulType;
 using sparse_linear_algebra::applications::knn::PirType;
-using sparse_linear_algebra::experiments::knn::KNNConfig;
 
 template <typename T>
 void GenerateRandomMatrices(
@@ -28,25 +27,29 @@ void GenerateRandomMatrices(
 
   // Generate random triplets of the form (i, j, val) via a reservoir
   // sampling.
+
+  // Triples for the server matrix.
   std::vector<Eigen::Triplet<T>> triplets_A;
   std::vector<Eigen::Triplet<T>> triplets_B;
-  auto indices_A = reservoir_sampling(prg, num_nonzeros_server, num_words);
-  for (size_t j = 0; j < indices_A.size(); j++) {
-    for (size_t i = 0; i < server_matrix->rows(); i++) {
+  for (size_t i = 0; i < server_matrix->rows(); i++) {
+    auto indices_A = reservoir_sampling(prg, num_nonzeros_server, num_words);
+    for (size_t j = 0; j < indices_A.size(); j++) {
       Eigen::Triplet<T> triplet(i, indices_A[j],
                                 dist(prg) * (static_cast<T>(1) << precision));
       triplets_A.push_back(triplet);
-      if (i == 23 && j < num_nonzeros_client) {
-        // Set B to the first num_nonzeros_client nonzero elements of the 23rd
-        // document. Used as a correctness check.
-        triplets_B.push_back(
-            Eigen::Triplet<T>(indices_A[j], 0, triplet.value()));
-      }
     }
+  }
+
+  // Triples for the client matrix.
+  auto indices_B = reservoir_sampling(prg, num_nonzeros_client, num_words);
+  for (size_t j = 0; j < indices_B.size(); j++) {
+    Eigen::Triplet<T> triplet(indices_B[j], 0,
+                              dist(prg) * (static_cast<T>(1) << precision));
+    triplets_B.push_back(triplet);
   }
   // Use the triplets to fill our matrices A and B (essentially,
   // `M[i][j] = val` is performed for each triplet `(i,j,val)`)
-  // where M is A or B respectively.
+  // where M is A or B respectively
   server_matrix->setFromTriplets(triplets_A.begin(), triplets_A.end());
   client_matrix->setFromTriplets(triplets_B.begin(), triplets_B.end());
 }
@@ -63,7 +66,7 @@ void RunExperiments(comm_channel *channel, int party_id,
   for (size_t num_runs = 0; conf.max_runs < 0 || num_runs < conf.max_runs;
        num_runs++) {
     for (size_t experiment = 0; experiment < num_experiments; experiment++) {
-      std::cout << "Run " << num_runs << "\n";
+      std::cout << "\nRun " << num_runs << "\n";
       mpc_utils::Benchmarker benchmarker;
       size_t chunk_size = get_ceil(conf.chunk_size, experiment);
       size_t k = get_ceil(conf.num_selected, experiment);
@@ -80,13 +83,19 @@ void RunExperiments(comm_channel *channel, int party_id,
           get_ceil(conf.multiplication_types_raw, experiment);
       Eigen::SparseMatrix<T, Eigen::RowMajor> server_matrix(l, m);
       Eigen::SparseMatrix<T, Eigen::ColMajor> client_matrix(m, n);
-      GenerateRandomMatrices<T>(123456, precision, l, m, n, num_nonzeros_server,
+
+      int seed = 123456 + (num_runs * num_experiments) + experiment;
+      GenerateRandomMatrices<T>(seed, precision, l, m, n, num_nonzeros_server,
                                 num_nonzeros_client, &server_matrix,
                                 &client_matrix);
 
+      auto num_nonzeros_server_whole_matrix = server_matrix.nonZeros();
+
       std::cout << "num_documents_server = " << l << "\nm = " << m
-                << "\nnum_documents_client = " << n
+                << "\nseed = " << seed << "\nnum_documents_client = " << n
                 << "\nnum_nonzeros_server = " << num_nonzeros_server
+                << "\nnum_nonzeros_server_whole_matrix = "
+                << num_nonzeros_server_whole_matrix
                 << "\nnum_nonzeros_client = " << num_nonzeros_client
                 << "\nchunk_size = " << chunk_size
                 << "\npir_type = " << pir_type_raw
@@ -95,15 +104,9 @@ void RunExperiments(comm_channel *channel, int party_id,
 
       KNNProtocol<T> protocol(channel, party_id, statistical_security,
                               precision, multiplication_type, pir_type,
-                              chunk_size, k, l, m, n, num_nonzeros_server,
-                              num_nonzeros_client, server_matrix,
-                              client_matrix);
+                              chunk_size, k, l, m, n, -1, num_nonzeros_client,
+                              server_matrix, client_matrix);
       auto result = protocol.run(&benchmarker);
-
-      if (conf.measure_communication) {
-        benchmarker.AddAmount("Bytes Sent (direct)",
-                              channel->get_num_bytes_sent());
-      }
       for (const auto &pair : benchmarker.GetAll()) {
         std::cout << pair.first << ": " << pair.second << "\n";
       }
@@ -119,7 +122,7 @@ void RunExperiments(comm_channel *channel, int party_id,
 }  // namespace experiments
 }  // namespace sparse_linear_algebra
 
-// Generates random matrices and multiplies them using multiplication triples.
+// generates random matrices and multiplies them using multiplication triples
 int main(int argc, const char *argv[]) {
   int precision = 10;
 
@@ -132,7 +135,7 @@ int main(int argc, const char *argv[]) {
   }
   // connect to other party
   party p(conf);
-  auto channel = p.connect_to(1 - p.get_id(), conf.measure_communication);
+  auto channel = p.connect_to(1 - p.get_id());
   try {
     RunExperiments(&channel, p.get_id(), conf.statistical_security, precision,
                    conf);

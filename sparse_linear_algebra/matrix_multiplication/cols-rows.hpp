@@ -10,6 +10,7 @@
 #include "sparse_linear_algebra/matrix_multiplication/dense.hpp"
 #include "sparse_linear_algebra/oblivious_map/oblivious_map.hpp"
 #include "sparse_linear_algebra/util/time.h"
+#include <sstream>
 extern "C" {
 #include <bcrandom.h>
 }
@@ -20,8 +21,9 @@ template <typename K, typename Generator>
 std::pair<std::unordered_map<K, K>, std::vector<K>> permute_inner_indices(
     Generator &&g, const std::vector<K> &all_inner_indices, size_t k) {
   if (all_inner_indices.size() > k) {
-    BOOST_THROW_EXCEPTION(std::invalid_argument(
-        "k needs to be at least all_inner_indices.size()"));
+    std::stringstream ss;
+    ss << "k=" << k << ", but needs to be at least all_inner_indices.size()=" << all_inner_indices.size() << "!";
+    BOOST_THROW_EXCEPTION(std::invalid_argument(ss.str()));
   }
   std::vector<K> dense_indices(k);
   std::iota(dense_indices.begin(), dense_indices.end(), 0);
@@ -110,8 +112,15 @@ matrix_multiplication_cols_rows(  // TODO: somehow derive row-/column sparsity
       boost::copy(perm_result.first, perm.begin());
     } else {
       std::vector<K> perm_values(role == 0 ? k_A : k_B);
-      prot.run_client(inner_indices, perm_values, false, benchmarker);
-      for (size_t i = 0; i < perm_values.size(); i++) {
+      std::vector<K> inner_indices_copy(
+          perm_values.size(),
+          -1);  // Fill with dummy value by default that is guaranteed not to
+                // match on the other side.
+      std::copy_n(inner_indices.begin(),
+                  std::min(inner_indices.size(), inner_indices_copy.size()),
+                  inner_indices_copy.begin());
+      prot.run_client(inner_indices_copy, perm_values, false, benchmarker);
+      for (size_t i = 0; i < perm.size(); i++) {
         perm[i] = std::make_pair(inner_indices[i], perm_values[i]);
       }
     }
