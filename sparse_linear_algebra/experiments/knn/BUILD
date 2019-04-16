@@ -5,6 +5,16 @@ load("@io_bazel_rules_docker//container:image.bzl", "container_image")
 
 #load("@io_bazel_rules_docker//docker:docker.bzl", "docker_push")
 
+cc_library(
+    name = "knn_config",
+    srcs = ["knn_config.cpp"],
+    hdrs = ["knn_config.hpp"],
+    deps = [
+        "//sparse_linear_algebra/applications/knn:knn_protocol",
+        "//sparse_linear_algebra/util",
+    ]
+)
+
 cc_binary(
     name = "knn",
     srcs = [
@@ -14,6 +24,20 @@ cc_binary(
     deps = [
         "//sparse_linear_algebra/applications/knn:knn_protocol",
         "//sparse_linear_algebra/util",
+        ":knn_config",
+    ],
+)
+
+cc_binary(
+    name = "knn_non_uniform_sparsity",
+    srcs = [
+        "knn_non_uniform_sparsity.cpp",
+    ],
+    data = glob(["*.ini"]),
+    deps = [
+        "//sparse_linear_algebra/applications/knn:knn_protocol",
+        "//sparse_linear_algebra/util",
+        ":knn_config",
     ],
 )
 
@@ -22,11 +46,24 @@ cc_image(
     binary = ":knn",
 )
 
+cc_image(
+    name = "main_image_non_uniform_sparsity",
+    binary = ":knn_non_uniform_sparsity",
+)
+
 container_image(
     name = "image",
     base = ":main_image",
     env = {
         "MPC_UTILS_CONFIG": "sparse_linear_algebra/experiments/knn/knn.ini",
+    },
+)
+
+container_image(
+    name = "image_non_uniform_sparsity",
+    base = ":main_image_non_uniform_sparsity",
+    env = {
+        "MPC_UTILS_CONFIG": "sparse_linear_algebra/experiments/knn/knn_non_uniform_sparsity.ini",
     },
 )
 
