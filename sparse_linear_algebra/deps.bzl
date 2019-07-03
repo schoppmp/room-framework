@@ -4,6 +4,10 @@ load(
 )
 load("@mpc_utils//mpc_utils:deps.bzl", "mpc_utils_deps")
 load(
+    "@io_bazel_rules_docker//repositories:repositories.bzl",
+    container_repositories = "repositories",
+)
+load(
     "@io_bazel_rules_docker//cc:image.bzl",
     _cc_image_repos = "repositories",
 )
@@ -34,6 +38,7 @@ def sparse_linear_algebra_deps():
         )
 
     mpc_utils_deps()
+    container_repositories()
     _cc_image_repos()
 
     if "fastpoly" not in native.existing_rules():
