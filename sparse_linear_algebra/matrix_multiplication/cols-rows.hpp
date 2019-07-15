@@ -2,15 +2,14 @@
 
 #include <numeric>
 #include <random>
+#include <sstream>
 #include <unordered_map>
-#include <unordered_set>
 #include "Eigen/Sparse"
 #include "boost/range/algorithm.hpp"
 #include "sparse_common.hpp"
 #include "sparse_linear_algebra/matrix_multiplication/dense.hpp"
 #include "sparse_linear_algebra/oblivious_map/oblivious_map.hpp"
 #include "sparse_linear_algebra/util/time.h"
-#include <sstream>
 extern "C" {
 #include <bcrandom.h>
 }
@@ -22,7 +21,8 @@ std::pair<std::unordered_map<K, K>, std::vector<K>> permute_inner_indices(
     Generator &&g, const std::vector<K> &all_inner_indices, size_t k) {
   if (all_inner_indices.size() > k) {
     std::stringstream ss;
-    ss << "k=" << k << ", but needs to be at least all_inner_indices.size()=" << all_inner_indices.size() << "!";
+    ss << "k=" << k << ", but needs to be at least all_inner_indices.size()="
+       << all_inner_indices.size() << "!";
     BOOST_THROW_EXCEPTION(std::invalid_argument(ss.str()));
   }
   std::vector<K> dense_indices(k);

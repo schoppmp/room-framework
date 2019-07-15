@@ -263,13 +263,11 @@ int main(int argc, const char* argv[]) {
           });
 
           channel.sync();
-          benchmark(
-              [&] {
-                C = matrix_multiplication_dense(
-                    dense_matrix(A), dense_matrix(B), channel, p.get_id(),
-                    triples, chunk_size);
-              },
-              "Total");
+          benchmarker.BenchmarkFunction("Matrix Multiplication", [&] {
+            C = matrix_multiplication_dense(dense_matrix(A), dense_matrix(B),
+                                            channel, p.get_id(), triples,
+                                            chunk_size);
+          });
         } else if (mult_type == "cols_rows") {
           FakeTripleProvider<T> triples(chunk_size, k_A + k_B, n, p.get_id());
           channel.sync();

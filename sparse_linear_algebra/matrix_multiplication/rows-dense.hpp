@@ -1,24 +1,15 @@
 #pragma once
 
-#include <Eigen/Sparse>
-#include <boost/range/algorithm.hpp>
-#include <boost/range/counting_range.hpp>
-#include <unordered_map>
-#include <unordered_set>
+#include <type_traits>
+#include "Eigen/Sparse"
 #include "sparse_common.hpp"
 #include "sparse_linear_algebra/matrix_multiplication/dense.hpp"
 #include "sparse_linear_algebra/oblivious_map/oblivious_map.hpp"
 #include "sparse_linear_algebra/util/time.h"
 #include "sparse_linear_algebra/zero_sharing/zero_sharing.hpp"
-extern "C" {
-#include "bcrandom.h"
-}
 
-template <
-    typename Derived_A, typename Derived_B,
-    typename T = typename Derived_A::Scalar,
-    typename std::enable_if<std::is_same<T, typename Derived_B::Scalar>::value,
-                            int>::type = 0>
+template <typename Derived_A, typename Derived_B,
+          typename T = typename Derived_A::Scalar>
 Eigen::Matrix<T, Derived_A::RowsAtCompileTime, Derived_B::ColsAtCompileTime>
 matrix_multiplication_rows_dense(
     const Eigen::SparseMatrixBase<Derived_A>& A_in,
@@ -28,6 +19,9 @@ matrix_multiplication_rows_dense(
     ssize_t chunk_size_in = -1,
     ssize_t k_A = -1,  // saves a communication round if set
     mpc_utils::Benchmarker* benchmarker = nullptr) {
+  static_assert(std::is_same<typename Derived_A::Scalar, T>::value &&
+                    std::is_same<typename Derived_B::Scalar, T>::value,
+                "Both matrix arguments must have the same scalar type");
   try {
     std::vector<size_t> inner_indices;
     Eigen::SparseMatrix<T, Eigen::ColMajor> A;
@@ -37,18 +31,32 @@ matrix_multiplication_rows_dense(
     // compute own indices and exchange k values if not given as arguments
     if (role == 0) {
       A = A_in.derived();
-      inner_indices = compute_inner_indices(A);
+      auto inner_indices_set = ComputeInnerIndices(&A);
       if (k_A == -1) {
-        k_A = inner_indices.size();
+        k_A = inner_indices_set.size();
         channel.send(k_A);
         channel.flush();
+      } else {
+        // Extend inner_indices_set to contain exactly k_A elements.
+        for (int i = 0; static_cast<int>(inner_indices_set.size()) < k_A; i++) {
+          inner_indices_set.insert(i);
+        }
       }
+      inner_indices.resize(k_A);
+      std::copy_n(inner_indices_set.begin(), k_A, inner_indices.begin());
     } else {
       if (k_A == -1) {
         channel.recv(k_A);
       }
       A.resize(k_A, A_in.cols());
       A.setZero();
+    }
+
+    // No nonzeros? Return early.
+    if (k_A == 0) {
+      return Eigen::Matrix<T, Derived_A::RowsAtCompileTime,
+                           Derived_B::ColsAtCompileTime>::Zero(A_in.rows(),
+                                                               B_in.cols());
     }
 
     mpc_utils::Benchmarker::time_point start;

@@ -25,6 +25,11 @@ cc_library(
     name = "sparse_common",
     hdrs = ["sparse_common.hpp"],
     visibility = ["//visibility:private"],
+    deps = [
+        "@abseil//absl/container:flat_hash_set",
+        "@abseil//absl/strings",
+        "@mpc_utils//mpc_utils:statusor",
+    ],
 )
 
 cc_library(
@@ -64,5 +69,33 @@ cc_library(
         "//sparse_linear_algebra/zero_sharing",
         "@boost//:range",
         "@mpc_utils//third_party/eigen",
+    ],
+)
+
+cc_test(
+    name = "rows-dense_test",
+    srcs = [
+        "rows-dense_test.cpp",
+    ],
+    deps = [
+        ":rows-dense",
+        "//sparse_linear_algebra/matrix_multiplication/offline:fake_triple_provider",
+        "@googletest//:gtest_main",
+        "@mpc_utils//mpc_utils/testing:comm_channel_test_helper",
+        "@mpc_utils//mpc_utils/testing:test_deps",
+    ],
+)
+
+cc_binary(
+    name = "rows-dense_benchmark",
+    srcs = [
+        "rows-dense_benchmark.cpp",
+    ],
+    deps = [
+        ":rows-dense",
+        "//sparse_linear_algebra/matrix_multiplication/offline:fake_triple_provider",
+        "@com_github_google_benchmark//:benchmark_main",
+        "@mpc_utils//mpc_utils/testing:comm_channel_test_helper",
+        "@mpc_utils//mpc_utils/testing:leak_check",
     ],
 )

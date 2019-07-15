@@ -108,9 +108,13 @@ KNNProtocol<T>::KNNProtocol(
       channel->recv(num_nonzeros_server_);
     }
   }
-  std::cout << "num_documents_server_batch_avg = " << ((double) num_nonzeros_batch_avg) / ((double) num_documents_server/chunk_size) << "\n";
+  std::cout << "num_documents_server_batch_avg = "
+            << ((double)num_nonzeros_batch_avg) /
+                   ((double)num_documents_server / chunk_size)
+            << "\n";
 
-  std::cout << "num_documents_server_batch_max = " << num_nonzeros_server_ << "\n";
+  std::cout << "num_documents_server_batch_max = " << num_nonzeros_server_
+            << "\n";
 }
 
 template <typename T>
@@ -122,7 +126,7 @@ std::vector<int> KNNProtocol<T>::run(mpc_utils::Benchmarker* benchmarker) {
 template <typename T>
 void KNNProtocol<T>::computeSimilarities(mpc_utils::Benchmarker* benchmarker) {
   using sparse_linear_algebra::matrix_multiplication::offline::
-    FakeTripleProvider;
+      FakeTripleProvider;
 
   for (int row = 0; row < num_documents_server_; row += chunk_size_) {
     // The last chunk might be smaller.
@@ -137,7 +141,7 @@ void KNNProtocol<T>::computeSimilarities(mpc_utils::Benchmarker* benchmarker) {
     switch (this->mul_type_) {
       case dense: {
         FakeTripleProvider<T> triples(dense_chunk_size, num_words_,
-                                        num_documents_client_, party_id_);
+                                      num_documents_client_, party_id_);
         channel_->sync();
         mpc_utils::Benchmarker::MaybeBenchmarkFunction(
             benchmarker, "Fake Triple Generation", [&] {
