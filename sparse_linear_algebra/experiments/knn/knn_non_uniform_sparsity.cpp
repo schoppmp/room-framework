@@ -9,10 +9,10 @@
 namespace sparse_linear_algebra {
 namespace experiments {
 namespace knn {
-using sparse_linear_algebra::experiments::knn::KNNConfig;
 using sparse_linear_algebra::applications::knn::KNNProtocol;
 using sparse_linear_algebra::applications::knn::MulType;
 using sparse_linear_algebra::applications::knn::PirType;
+using sparse_linear_algebra::experiments::knn::KNNConfig;
 
 template <typename T>
 void GenerateRandomMatrices(

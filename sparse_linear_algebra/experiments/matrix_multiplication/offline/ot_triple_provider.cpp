@@ -109,10 +109,14 @@ int main(int argc, const char* argv[]) {
       mpc_utils::Benchmarker benchmarker;
       benchmarker.BenchmarkFunction("Triple Generation", [&] {
         if (triple_type == "shared") {
-          auto triples = OTTripleProvider<uint64_t, true>::Create(l, m, n, role, &channel).ValueOrDie();
+          auto triples =
+              OTTripleProvider<uint64_t, true>::Create(l, m, n, role, &channel)
+                  .ValueOrDie();
           triples->Precompute(1);
         } else {
-          auto triples = OTTripleProvider<uint64_t, false>::Create(l, m, n, role, &channel).ValueOrDie();
+          auto triples =
+              OTTripleProvider<uint64_t, false>::Create(l, m, n, role, &channel)
+                  .ValueOrDie();
           triples->Precompute(1);
         }
       });

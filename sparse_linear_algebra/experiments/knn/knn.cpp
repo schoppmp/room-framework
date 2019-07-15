@@ -1,6 +1,6 @@
 #include <random>
-#include "sparse_linear_algebra/experiments/knn/knn_config.hpp"
 #include "sparse_linear_algebra/applications/knn/knn_protocol.hpp"
+#include "sparse_linear_algebra/experiments/knn/knn_config.hpp"
 #include "sparse_linear_algebra/util/get_ceil.hpp"
 #include "sparse_linear_algebra/util/randomize_matrix.hpp"
 #include "sparse_linear_algebra/util/reservoir_sampling.hpp"
