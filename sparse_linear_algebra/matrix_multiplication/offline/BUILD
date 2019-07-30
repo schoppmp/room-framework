@@ -44,7 +44,7 @@ cc_library(
         "@mpc_utils//mpc_utils:comm_channel_emp_adapter",
         "@mpc_utils//mpc_utils:openssl_uniform_bit_generator",
         "@mpc_utils//mpc_utils:statusor",
-        "@mpc_utils//third_party/emp:emp_ot",
+        "@com_github_emp_toolkit_emp_ot//:emp_ot",
     ],
 )
 

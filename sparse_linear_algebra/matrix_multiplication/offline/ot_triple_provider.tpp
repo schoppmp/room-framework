@@ -25,6 +25,7 @@ OTTripleProvider<T, is_shared>::Create(int l, int m, int n, int role,
     return mpc_utils::InvalidArgumentError("role must be 0 or 1");
   }
   // Create EMP adapter. Use a direct connection if channel is not measured.
+  channel->sync();
   ASSIGN_OR_RETURN(auto adapter, mpc_utils::CommChannelEMPAdapter::Create(
                                      channel, !channel->is_measured()));
   return absl::WrapUnique(
@@ -108,7 +109,6 @@ Matrix<T> OTTripleProvider<T, is_shared>::GilboaProduct(Matrix<T> U,
   }
 
   // Run OT Extension (Party holding U as sender)
-  channel_adapter_->sync();
   emp::SHOTExtension<mpc_utils::CommChannelEMPAdapter> ot(
       channel_adapter_.get());
   if (role == sender) {
