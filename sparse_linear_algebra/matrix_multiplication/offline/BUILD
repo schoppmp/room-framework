@@ -38,13 +38,13 @@ cc_library(
     deps = [
         ":triple_provider",
         "//sparse_linear_algebra/util",
-        "@abseil//absl/memory",
         "@boost//:throw_exception",
+        "@com_github_emp_toolkit_emp_ot//:emp_ot",
+        "@com_google_absl//absl/memory",
         "@mpc_utils//mpc_utils:comm_channel",
         "@mpc_utils//mpc_utils:comm_channel_emp_adapter",
         "@mpc_utils//mpc_utils:openssl_uniform_bit_generator",
         "@mpc_utils//mpc_utils:statusor",
-        "@com_github_emp_toolkit_emp_ot//:emp_ot",
     ],
 )
 

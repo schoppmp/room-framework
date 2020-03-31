@@ -26,8 +26,8 @@ cc_library(
     hdrs = ["sparse_common.hpp"],
     visibility = ["//visibility:private"],
     deps = [
-        "@abseil//absl/container:flat_hash_set",
-        "@abseil//absl/strings",
+        "@com_google_absl//absl/container:flat_hash_set",
+        "@com_google_absl//absl/strings",
         "@mpc_utils//mpc_utils:statusor",
     ],
 )

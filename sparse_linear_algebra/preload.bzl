@@ -25,9 +25,9 @@ def sparse_linear_algebra_deps_preload():
     if "com_github_schoppmp_rules_oblivc" not in native.existing_rules():
         http_archive(
             name = "com_github_schoppmp_rules_oblivc",
-            sha256 = "bd338f66667cc959d32ed9a048b7d0b9d3d8f554fd36a7bc6b7102a4a355ab30",
-            url = "https://github.com/schoppmp/rules_oblivc/archive/99aeebf6732f209aa85af8b069220e18082b92fe.zip",
-            strip_prefix = "rules_oblivc-99aeebf6732f209aa85af8b069220e18082b92fe",
+            sha256 = "9d2ac16c21f1c0b5633bffa2730413a5b37438102d477f30241c9ebf3a3d1806",
+            url = "https://github.com/schoppmp/rules_oblivc/archive/61e0194e0158a839662a8b5f109a202a9de27ac5.zip",
+            strip_prefix = "rules_oblivc-61e0194e0158a839662a8b5f109a202a9de27ac5",
         )
     if "rules_foreign_cc" not in native.existing_rules():
         http_archive(
@@ -66,9 +66,9 @@ def sparse_linear_algebra_deps_preload():
     if "mpc_utils" not in native.existing_rules():
         http_archive(
             name = "mpc_utils",
-            url = "https://github.com/schoppmp/mpc-utils/archive/1b97fad04b78d9d3e0b6780a4b782b4c017ebe5c.zip",
-            sha256 = "8d81c56cfdbd757d5e4b4885bc0dff9c7b57f44c8b439bc340e61ccf24c48a87",
-            strip_prefix = "mpc-utils-1b97fad04b78d9d3e0b6780a4b782b4c017ebe5c",
+            url = "https://github.com/schoppmp/mpc-utils/archive/2022b8d8162e450434e72d036118af59abe74b02.zip",
+            sha256 = "a419392c9c5c0e12185929f84abf4f150936fa6437c9fe8c134bddfcd7a56e0b",
+            strip_prefix = "mpc-utils-2022b8d8162e450434e72d036118af59abe74b02",
         )
 
     if "io_bazel_rules_docker" not in native.existing_rules():
