@@ -15,10 +15,10 @@ cc_library(
     visibility = ["//visibility:public"],
     deps = [
         ":zero_sharing_oblivc",
-        "@abseil//absl/strings",
         "@boost//:exception",
         "@boost//:range",
         "@boost//:serialization",
+        "@com_google_absl//absl/strings",
         "@fastpoly",
         "@mpc_utils//mpc_utils:comm_channel",
         "@mpc_utils//mpc_utils:comm_channel_oblivc_adapter",
