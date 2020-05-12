@@ -26,8 +26,8 @@ cc_library(
     hdrs = ["sparse_common.hpp"],
     visibility = ["//visibility:private"],
     deps = [
-        "@abseil//absl/container:flat_hash_set",
-        "@abseil//absl/strings",
+        "@com_google_absl//absl/container:flat_hash_set",
+        "@com_google_absl//absl/strings",
         "@mpc_utils//mpc_utils:statusor",
     ],
 )
@@ -94,7 +94,7 @@ cc_binary(
     deps = [
         ":rows-dense",
         "//sparse_linear_algebra/matrix_multiplication/offline:fake_triple_provider",
-        "@com_github_google_benchmark//:benchmark_main",
+        "@com_google_benchmark//:benchmark_main",
         "@mpc_utils//mpc_utils/testing:comm_channel_test_helper",
         "@mpc_utils//mpc_utils/testing:leak_check",
     ],

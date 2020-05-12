@@ -38,7 +38,7 @@ cc_library(
     deps = [
         ":basic_oblivious_map_oblivc",
         ":oblivious_map",
-        "@abseil//absl/strings",
+        "@com_google_absl//absl/strings",
         "@mpc_utils//mpc_utils:comm_channel",
         "@mpc_utils//mpc_utils:comm_channel_oblivc_adapter",
     ],
@@ -67,7 +67,7 @@ cc_library(
     deps = [
         ":oblivious_map",
         ":poly_oblivious_map_oblivc",
-        "@abseil//absl/strings",
+        "@com_google_absl//absl/strings",
         "@fastpoly",
         "@mpc_utils//mpc_utils:comm_channel",
         "@mpc_utils//mpc_utils:comm_channel_oblivc_adapter",
@@ -101,7 +101,7 @@ cc_library(
     deps = [
         ":oblivious_map",
         ":sorting_oblivious_map_oblivc",
-        "@abseil//absl/strings",
+        "@com_google_absl//absl/strings",
         "@mpc_utils//mpc_utils:comm_channel",
         "@mpc_utils//mpc_utils:comm_channel_oblivc_adapter",
     ],
