@@ -66,8 +66,9 @@ def sparse_linear_algebra_deps_preload():
     if "mpc_utils" not in native.existing_rules():
         http_archive(
             name = "mpc_utils",
-            url = "https://github.com/schoppmp/mpc-utils/archive/99b3b7e4fa596cd3b3dd5ef8856abbc0780533ed.zip",
-            strip_prefix = "mpc-utils-99b3b7e4fa596cd3b3dd5ef8856abbc0780533ed",
+            sha256 = "fc1ce0c27fb2450d164d8a4aaf562277f8f91b3eef1455f7bf1d0be55351f86e",
+            url = "https://github.com/schoppmp/mpc-utils/archive/0c2be1bad53e3b7adb711d81d85d0c25549fad86.zip",
+            strip_prefix = "mpc-utils-0c2be1bad53e3b7adb711d81d85d0c25549fad86",
         )
 
     if "io_bazel_rules_docker" not in native.existing_rules():
